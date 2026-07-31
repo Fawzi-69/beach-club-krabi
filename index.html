@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="theme-color" content="#0a3d40">
+<title>The Beach Club Krabi — AI Host</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+--teal:#0e6b6b;--tealdk:#0a3d40;--tealbg:#e9f3f3;
+--sand:#f6f2e9;--gold:#c9a227;--ink:#12262b;--muted:#6b7f85;
+--card:rgba(255,255,255,.86);--line:rgba(255,255,255,.35);
+}
+html,body{margin:0;padding:0;height:100%}
+body{
+font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,sans-serif;
+color:var(--ink);overflow:hidden;
+background:linear-gradient(180deg,#0a3d40 0%,#14676a 32%,#3f9c93 56%,#e9b678 82%,#f4d3a4 100%);
+background-attachment:fixed;
+}
+body:before{content:'';position:fixed;inset:0;pointer-events:none;
+background:radial-gradient(120% 60% at 50% 78%,rgba(255,215,150,.55),transparent 60%);}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;max-width:520px;margin:0 auto}
+
+/* ---------- TOP BAR ---------- */
+.bar{flex:none;padding:calc(env(safe-area-inset-top) + 10px) 14px 8px;display:flex;align-items:center;gap:10px}
+.brand{flex:1;line-height:1.05;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.25)}
+.brand b{display:block;font-size:13px;letter-spacing:.22em;font-weight:800}
+.brand span{display:block;font-size:9.5px;letter-spacing:.34em;opacity:.85;margin-top:2px}
+.pillrow{display:flex;gap:6px;align-items:center}
+.pill{background:rgba(255,255,255,.2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:700;
+display:flex;align-items:center;gap:5px;cursor:pointer}
+.pill.on{background:#fff;color:var(--tealdk);border-color:#fff}
+
+/* ---------- AVATAR ---------- */
+.stage{flex:none;display:flex;flex-direction:column;align-items:center;padding:2px 0 6px;transition:.45s}
+.stage.mini{padding:0}
+.av{position:relative;width:132px;height:132px;transition:.45s cubic-bezier(.3,1.2,.5,1)}
+.stage.mini .av{width:62px;height:62px}
+.av .halo{position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.55),transparent 62%);opacity:0;transition:.3s}
+.av.talk .halo{opacity:1;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.12);opacity:.95}}
+.av .photo{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;object-position:50% 22%;border:3px solid rgba(255,255,255,.55);box-shadow:0 10px 24px rgba(0,0,0,.34);display:none;z-index:1;animation:sway 5s ease-in-out infinite}
+.av.ph .photo{display:block}
+.av.ph svg{display:none}
+.av.ph .halo{inset:-10px}
+.av.ph.talk .photo{animation:sway 5s ease-in-out infinite,speak 1.1s ease-out infinite}
+@keyframes speak{0%{box-shadow:0 10px 24px rgba(0,0,0,.34),0 0 0 0 rgba(255,255,255,.5)}100%{box-shadow:0 10px 24px rgba(0,0,0,.34),0 0 0 16px rgba(255,255,255,0)}}
+.av svg{position:relative;width:100%;height:100%;display:block;filter:drop-shadow(0 8px 18px rgba(0,0,0,.28));animation:sway 5s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:translateY(0) rotate(-.6deg)}50%{transform:translateY(-4px) rotate(.6deg)}}
+.eyelid{transform-origin:center;animation:blink 5.2s infinite}
+@keyframes blink{0%,96%,100%{transform:scaleY(0)}98%{transform:scaleY(1)}}
+.mouth{transform-origin:center;transform-box:fill-box}
+.av.talk .mouth{animation:talk .28s infinite alternate}
+@keyframes talk{from{transform:scaleY(.45)}to{transform:scaleY(1.35)}}
+.nameplate{margin-top:6px;text-align:center;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.3)}
+.nameplate b{font-size:16px;font-weight:800;letter-spacing:.02em}
+.nameplate i{display:block;font-style:normal;font-size:11px;opacity:.9;margin-top:1px}
+.stage.mini .nameplate{display:none}
+
+/* ---------- CHAT ---------- */
+.chat{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 12px 4px;display:flex;flex-direction:column;gap:9px;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 16px);mask-image:linear-gradient(180deg,transparent 0,#000 16px)}
+.chat>:first-child{margin-top:auto}
+.chat::-webkit-scrollbar{display:none}
+.msg{max-width:86%;padding:10px 13px;border-radius:17px;font-size:14.5px;line-height:1.45;
+animation:pop .3s cubic-bezier(.2,1.3,.5,1);white-space:pre-wrap}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+.msg.a{align-self:flex-start;background:var(--card);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+border:1px solid var(--line);border-bottom-left-radius:5px;box-shadow:0 5px 18px rgba(0,0,0,.1)}
+.msg.u{align-self:flex-end;background:var(--tealdk);color:#fff;border-bottom-right-radius:5px}
+.typing{display:flex;gap:4px;align-items:center;padding:13px 15px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:bob 1.1s infinite}
+.typing i:nth-child(2){animation-delay:.16s}.typing i:nth-child(3){animation-delay:.32s}
+@keyframes bob{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+
+/* ---------- DISH CARDS ---------- */
+.cards{align-self:stretch;display:flex;flex-direction:column;gap:7px}
+.card{background:var(--card);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+border:1px solid var(--line);border-radius:15px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start;
+animation:pop .35s both;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.card .em{font-size:26px;line-height:1;flex:none;margin-top:1px}
+.card .in{flex:1;min-width:0}
+.card .ttl{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.card .ttl .tn{font-style:normal;font-weight:600;font-size:11.5px;color:var(--muted);opacity:.85;margin-left:2px}
+.card .ttl b{font-size:14px;font-weight:800;line-height:1.2}
+.card .pr{flex:none;font-size:13px;font-weight:800;color:var(--teal);white-space:nowrap}
+.card .ds{font-size:11.8px;color:var(--muted);line-height:1.35;margin-top:3px}
+.tags{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:6px}
+.tag{font-size:9.5px;line-height:1.35;font-weight:800;letter-spacing:.03em;padding:3px 7px;border-radius:999px;
+background:#eef2f3;color:#5a6c72;text-transform:uppercase}
+.tag.al{background:#fbeceb;color:#a8291f}
+.tag.vg{background:#eaf6ef;color:#1f7a43}
+.add{flex:none;align-self:center;width:31px;height:31px;border-radius:50%;border:none;background:var(--teal);color:#fff;
+font-size:19px;font-weight:700;line-height:1;cursor:pointer;box-shadow:0 3px 9px rgba(14,107,107,.4)}
+.add:active{transform:scale(.88)}
+.add.done{background:var(--gold)}
+
+/* ---------- CHIPS + INPUT ---------- */
+.chips{flex:none;display:flex;gap:7px;overflow-x:auto;padding:7px 12px 3px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:999px;
+padding:8px 13px;font-size:12.5px;font-weight:700;color:var(--tealdk);white-space:nowrap;cursor:pointer;
+box-shadow:0 3px 10px rgba(0,0,0,.09)}
+.chip:active{transform:scale(.95)}
+.dock{flex:none;padding:7px 12px calc(env(safe-area-inset-bottom) + 9px)}
+.inp{display:flex;gap:8px;align-items:center;background:#fff;border-radius:999px;padding:5px 5px 5px 16px;
+box-shadow:0 6px 22px rgba(0,0,0,.18)}
+.inp input{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;padding:10px 0;background:transparent;min-width:0}
+.snd{flex:none;width:40px;height:40px;border-radius:50%;border:none;background:var(--teal);color:#fff;font-size:17px;cursor:pointer}
+.snd:active{transform:scale(.9)}
+
+/* ---------- SHEETS ---------- */
+.scrim{position:fixed;inset:0;background:rgba(6,30,32,.5);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:.25s;z-index:40}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;background:#fff;z-index:50;
+border-radius:22px 22px 0 0;transform:translateY(105%);transition:.32s cubic-bezier(.3,1,.4,1);
+max-height:78vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)}
+.sheet.on{transform:none}
+.sheet h3{margin:0;padding:16px 18px 10px;font-size:16px;font-weight:800;display:flex;justify-content:space-between;align-items:center}
+.sheet h3 .x{font-size:22px;color:#b9c5c9;cursor:pointer;line-height:1;padding:0 4px}
+.sheet .bd{overflow-y:auto;padding:0 18px 16px}
+.lang{display:flex;align-items:center;gap:11px;padding:13px 4px;border-bottom:1px solid #eef2f3;cursor:pointer;font-size:15px;font-weight:600}
+.lang:last-child{border:none}
+.lang b{font-size:21px;line-height:1}
+.lang.on{color:var(--teal);font-weight:800}
+.crow{display:flex;justify-content:space-between;gap:10px;padding:11px 2px;border-bottom:1px solid #eef2f3;font-size:14px}
+.crow b{font-weight:700}
+.tot{display:flex;justify-content:space-between;padding:13px 2px 4px;font-size:17px;font-weight:800}
+.btn{display:block;width:100%;border:none;border-radius:14px;background:var(--teal);color:#fff;
+font-size:15.5px;font-weight:800;padding:15px;margin-top:12px;cursor:pointer;font-family:inherit}
+.btn:active{transform:scale(.98)}
+.btn.g{background:var(--gold)}
+.note{font-size:11px;color:var(--muted);text-align:center;margin-top:9px;line-height:1.4}
+.filt{display:flex;flex-wrap:wrap;gap:7px;padding:4px 0 8px}
+.fchip{border:1.5px solid #dfe6e8;background:#fff;border-radius:999px;padding:8px 12px;font-size:12.5px;font-weight:700;color:#5a6c72;cursor:pointer}
+.fchip.on{background:#fbeceb;border-color:#e2a29c;color:#a8291f}
+.ok{text-align:center;padding:26px 20px}
+.ok .ic{font-size:52px;animation:pop .5s cubic-bezier(.2,1.6,.5,1)}
+.ok b{display:block;font-size:19px;font-weight:800;margin-top:10px}
+.ok p{font-size:13.5px;color:var(--muted);margin:6px 0 0;line-height:1.5}
+.badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:9px;background:var(--gold);
+color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 5px}
+.rel{position:relative}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="bar">
+    <div class="brand"><b>THE BE&#916;CH CLUB</b><span>KRABI &middot; THAILAND</span></div>
+    <div class="pillrow">
+      <div class="pill" id="pLang" onclick="openSheet('lang')"><span id="flag">&#127468;&#127463;</span><span id="lcode">EN</span></div>
+      <div class="pill on" id="pVoice" onclick="toggleVoice()">&#128266;</div>
+      <div class="pill rel" id="pCart" onclick="openSheet('cart')">&#128717;<span class="badge" id="cnt" style="display:none">0</span></div>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="av" id="av">
+      <div class="halo"></div>
+      <img class="photo" id="avimg" alt="">
+      <svg viewBox="0 0 120 120" id="avsvg"></svg>
+    </div>
+    <div class="nameplate"><b id="anam">Alina</b><i id="arol">Your AI host</i></div>
+  </div>
+
+  <div class="chat" id="chat"></div>
+
+  <div class="chips" id="chips"></div>
+
+  <div class="dock">
+    <div class="inp">
+      <input id="q" autocomplete="off" placeholder="Ask me anything…" onkeydown="if(event.key==='Enter')send()">
+      <button class="snd" onclick="send()">&#10148;</button>
+    </div>
+  </div>
+</div>
+
+<div class="scrim" id="scrim" onclick="closeSheet()"></div>
+
+<div class="sheet" id="sLang">
+  <h3><span id="hLang">Language</span><span class="x" onclick="closeSheet()">&times;</span></h3>
+  <div class="bd" id="langList"></div>
+</div>
+
+<div class="sheet" id="sCart">
+  <h3><span id="hCart">Your order</span><span class="x" onclick="closeSheet()">&times;</span></h3>
+  <div class="bd" id="cartBody"></div>
+</div>
+
+<div class="sheet" id="sFilt">
+  <h3><span id="hFilt">Allergies &amp; diet</span><span class="x" onclick="closeSheet()">&times;</span></h3>
+  <div class="bd">
+    <div class="filt" id="filtList"></div>
+    <button class="btn" onclick="applyFilt()" id="bFilt">Show what I can eat</button>
+    <p class="note" id="nFilt">Allergen data shown for demonstration — to be validated with the chef.</p>
+  </div>
+</div>
+<script>
+/* ============ AVATARS ============ */
+function avatarSVG(role){
+  var hair = role==='concierge' ? '#2b1d18' : '#3b2415';
+  var uni  = role==='concierge' ? '#0a3d40' : '#f6f2e9';
+  var trim = role==='concierge' ? '#c9a227' : '#0e6b6b';
+  return '<defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1">'
+   +'<stop offset="0" stop-color="#f7d7bd"/><stop offset="1" stop-color="#eabe9c"/></linearGradient></defs>'
+   +'<circle cx="60" cy="60" r="56" fill="rgba(255,255,255,.22)"/>'
+   +'<path d="M28 116c2-22 15-32 32-32s30 10 32 32z" fill="'+uni+'"/>'
+   +'<path d="M60 84c-7 0-12 3-12 3l12 16 12-16s-5-3-12-3z" fill="'+trim+'" opacity=".9"/>'
+   +'<rect x="72" y="98" width="15" height="9" rx="2" fill="#fff" opacity=".92"/>'
+   +'<path d="M52 70h16v14a8 8 0 0 1-16 0z" fill="#eabe9c"/>'
+   +'<path d="M36 52c0-16 10-26 24-26s24 10 24 26c0 16-10 28-24 28S36 68 36 52z" fill="url(#sk)"/>'
+   +'<path d="M36 50c0-18 11-28 24-28s24 10 24 28c0 0-6-11-13-13-5 6-24 6-24 6s-7 2-11 7z" fill="'+hair+'"/>'
+   + (role==='concierge'
+      ? '<path d="M34 46c-3 14 1 26 1 26s-8-4-8-16 4-14 7-10z" fill="'+hair+'"/><path d="M86 46c3 14-1 26-1 26s8-4 8-16-4-14-7-10z" fill="'+hair+'"/>'
+      : '<path d="M84 44c8 6 10 20 6 32-3 8-8 10-8 10s6-24 2-42z" fill="'+hair+'"/>')
+   +'<circle cx="50" cy="54" r="3.4" fill="#2c2018"/><circle cx="70" cy="54" r="3.4" fill="#2c2018"/>'
+   +'<circle cx="51.2" cy="52.8" r="1.2" fill="#fff"/><circle cx="71.2" cy="52.8" r="1.2" fill="#fff"/>'
+   +'<rect class="eyelid" x="45" y="49" width="10" height="9" rx="3" fill="url(#sk)"/>'
+   +'<rect class="eyelid" x="65" y="49" width="10" height="9" rx="3" fill="url(#sk)"/>'
+   +'<path d="M45 45c2-2 6-2.5 9-1.5" stroke="'+hair+'" stroke-width="2" fill="none" stroke-linecap="round"/>'
+   +'<path d="M75 45c-2-2-6-2.5-9-1.5" stroke="'+hair+'" stroke-width="2" fill="none" stroke-linecap="round"/>'
+   +'<ellipse class="mouth" cx="60" cy="66" rx="6" ry="3.4" fill="#c4695f"/>'
+   +'<ellipse cx="45" cy="61" rx="4" ry="2.6" fill="#e8a08c" opacity=".45"/>'
+   +'<ellipse cx="75" cy="61" rx="4" ry="2.6" fill="#e8a08c" opacity=".45"/>'
+   + (role==='concierge' ? '<circle cx="60" cy="94" r="3.2" fill="'+trim+'"/>' : '');
+}
+
+/* ============ MENU — real dishes from The Beach Club PDF ============ */
+var D=[{"id":"oriental","c":"start","n":"Oriental Delight Sharing Plate","p":500,"e":"🥘","a":["gluten","nut","sesame"],"v":1,"d":{"en":"Humus, babaganoush, zaziki, muhamara, slata mishouia, falafel, olives, homemade pita bread.","fr":"Houmous, babaganoush, tzatziki, muhamara, slata mishouia, falafel, olives, pain pita maison.","th":"ฮุมมุส บาบากานูช ซาซิกิ มูฮัมมารา สลาตา มิชูเอีย ฟาลาเฟล มะกอก และขนมปังพิตาโฮมเมด","de":"Humus, Babaganoush, Zaziki, Muhamara, Slata Mishouia, Falafel, Oliven, hausgemachtes Pitabrot.","ru":"Хумус, бабагануш, дзадзики, мухаммара, слата мишуя, фалафель, оливки, домашняя пита.","zh":"鹰嘴豆泥、烤茄子泥、希腊酸奶黄瓜酱、红椒核桃酱、突尼斯烤蔬菜沙拉、法拉费豆丸、橄榄，配自制皮塔饼。"},"nn":{"fr":"Assiette orientale à partager","th":"จานรวมอาหารเอเชีย","de":"Orientalische Genussplatte","ru":"Ассорти в восточном стиле","zh":"东方风味拼盘"}},{"id":"coldcut","c":"start","n":"Cold Cut & Cheese Platter","p":750,"e":"🧀","a":["dairy","gluten"],"v":0,"d":{"en":"Serrano ham, salami chorizo, salami milano (Spain), cheese brie, gruyere, comte (France).","fr":"Jambon Serrano, salami chorizo, salami milano (Espagne), brie, gruyère, comté (France).","th":"แฮมเซอราโน ซาลามีโชริโซ ซาลามีมิลาโน (สเปน) ชีสบรี กรูแยร์ และกงเต (ฝรั่งเศส)","de":"Serrano-Schinken, Salami Chorizo, Salami Milano (Spanien), Brie, Gruyère, Comté (Frankreich).","ru":"Хамон серрано, салями чоризо, салями милано (Испания), сыры бри, грюйер, конте (Франция).","zh":"西班牙塞拉诺火腿、辣味萨拉米、米兰萨拉米；法国布里、格鲁耶尔与孔泰奶酪。"},"nn":{"fr":"Plateau de charcuterie et fromages","th":"จานรวมแฮมและชีส","de":"Aufschnitt- & Käseplatte","ru":"Мясная и сырная тарелка","zh":"冷切肉芝士拼盘"}},{"id":"mixbrusc","c":"start","n":"Mixed Bruschetta","p":450,"e":"🍞","a":["gluten","dairy"],"v":0,"d":{"en":"Small mixed bruschetta with olive paste, tomato pesto, our home grown basilic pesto, ham.","fr":"Petites bruschettas variées à la tapenade, pesto de tomate, pesto de basilic de notre jardin, jambon.","th":"บรูสเกตตาชิ้นเล็กรวมรส กับมะกอกบด เพสโต้มะเขือเทศ เพสโต้เบซิลจากสวนของเรา และแฮม","de":"Kleine gemischte Bruschetta mit Olivenpaste, Tomatenpesto, Pesto aus eigenem Basilikum, Schinken.","ru":"Ассорти мини-брускетт с оливковой пастой, томатным песто, домашним песто из базилика и ветчиной.","zh":"迷你什锦烤面包片，配橄榄酱、番茄青酱、自家种植罗勒青酱与火腿。"},"nn":{"fr":"Bruschettas variées","th":"บรูสเก็ตต้ารวม","de":"Bruschetta gemischt","ru":"Ассорти брускетт","zh":"综合意式烤面包片"}},{"id":"carpaccio","c":"start","n":"Carpaccio di Manzo","p":600,"e":"🥩","a":["beef","dairy"],"v":0,"d":{"en":"Finely sliced beef fillet with grana padano, pink salt, lemon and extra virgin olive oil.","fr":"Filet de bœuf finement tranché, grana padano, sel rose, citron et huile d'olive extra vierge.","th":"เนื้อสันในสไลซ์บาง โรยชีสกรานาปาดาโน เกลือสีชมพู เลมอน และน้ำมันมะกอกเอ็กซ์ตร้าเวอร์จิ้น","de":"Hauchdünn geschnittenes Rinderfilet mit Grana Padano, rosa Salz, Zitrone und nativem Olivenöl extra.","ru":"Тонко нарезанная говяжья вырезка с грана падано, розовой солью, лимоном и оливковым маслом extra virgin.","zh":"薄切牛柳，佐帕达诺干酪、玫瑰盐、柠檬与特级初榨橄榄油。"},"nn":{"fr":"Carpaccio di Manzo","th":"Carpaccio di Manzo","de":"Carpaccio di Manzo","ru":"Карпаччо из говядины","zh":"意式生牛肉薄片"}},{"id":"calamari","c":"start","n":"Calamari Rings","p":400,"e":"🦑","a":["shellfish","gluten","egg"],"v":0,"d":{"en":"Crispy calamari rings with fresh oysters and lemon aioli.","fr":"Anneaux de calamars croustillants, huîtres fraîches et aïoli au citron.","th":"ปลาหมึกวงชุบแป้งทอดกรอบ เสิร์ฟกับหอยนางรมสดและซอสอาโยลีเลมอน","de":"Knusprige Calamari-Ringe mit frischen Austern und Zitronen-Aioli.","ru":"Хрустящие кольца кальмара со свежими устрицами и лимонным айоли.","zh":"香脆炸鱿鱼圈，配鲜生蚝与柠檬蒜香蛋黄酱。"},"nn":{"fr":"Anneaux de calamars","th":"ปลาหมึกทอด","de":"Calamari-Ringe","ru":"Кольца кальмара","zh":"炸鱿鱼圈"}},{"id":"nachos","c":"start","n":"Nachos","p":350,"e":"🌮","a":["gluten"],"v":1,"d":{"en":"Nachos with avocado salsa.","fr":"Nachos et salsa d'avocat.","th":"นาโชส์ เสิร์ฟพร้อมซัลซ่าอะโวคาโด","de":"Nachos mit Avocado-Salsa.","ru":"Начос с сальсой из авокадо.","zh":"墨西哥玉米片配牛油果莎莎酱。"},"nn":{"fr":"Nachos","th":"นาโช่","de":"Nachos","ru":"Начос","zh":"墨西哥玉米片"}},{"id":"grissini","c":"start","n":"Grissini Breadsticks","p":250,"e":"🥖","a":["gluten"],"v":1,"d":{"en":"Olive oil dipping.","fr":"Servis avec huile d'olive.","th":"เสิร์ฟพร้อมน้ำมันมะกอกสำหรับจิ้ม","de":"Mit Olivenöl zum Dippen.","ru":"Подаются с оливковым маслом.","zh":"配橄榄油蘸食。"},"nn":{"fr":"Grissini","th":"ขนมปังแท่ง Grissini","de":"Grissini","ru":"Гриссини","zh":"意式面包棒"}},{"id":"fries","c":"start","n":"French Fries","p":250,"e":"🍟","a":[],"v":1,"d":{"en":"Homemade dip.","fr":"Sauce maison.","th":"เสิร์ฟพร้อมซอสจิ้มโฮมเมด","de":"Hausgemachter Dip.","ru":"Домашний соус.","zh":"配自制蘸酱。"},"nn":{"fr":"Frites","th":"เฟรนช์ฟรายส์","de":"Pommes frites","ru":"Картофель фри","zh":"薯条"}},{"id":"sweetpot","c":"start","n":"Sweet Potatoes","p":250,"e":"🍠","a":[],"v":1,"d":{"en":"Homemade dip.","fr":"Sauce maison.","th":"เสิร์ฟพร้อมซอสจิ้มโฮมเมด","de":"Hausgemachter Dip.","ru":"Домашний соус.","zh":"配自制蘸酱。"},"nn":{"fr":"Patates douces","th":"มันเทศทอด","de":"Süßkartoffeln","ru":"Батат","zh":"红薯条"}},{"id":"fishchips","c":"start","n":"Fish & Chips","p":450,"e":"🍟","a":["fish","gluten"],"v":0,"d":{"en":"Local sea bass fried with soda batter.","fr":"Bar local frit en pâte à la soda.","th":"ปลากะพงท้องถิ่นชุบแป้งโซดาทอดกรอบ","de":"Lokaler Wolfsbarsch, im Sodateig frittiert.","ru":"Местный сибас в хрустящем кляре на содовой.","zh":"本地鲈鱼裹苏打面糊香炸。"},"nn":{"fr":"Fish & Chips","th":"ฟิชแอนด์ชิพส์","de":"Fish & Chips","ru":"Фиш энд чипс","zh":"炸鱼薯条"}},{"id":"bruschpom","c":"start","n":"Bruschetta al Pomodoro","p":250,"e":"🍅","a":["gluten"],"v":1,"d":{"en":"Grilled rustic bread with tomatoes, garlic, basil and extra virgin olive oil.","fr":"Pain rustique grillé, tomates, ail, basilic et huile d'olive extra vierge.","th":"ขนมปังรัสติกย่าง กับมะเขือเทศ กระเทียม เบซิล และน้ำมันมะกอกเอ็กซ์ตร้าเวอร์จิ้น","de":"Gegrilltes rustikales Brot mit Tomaten, Knoblauch, Basilikum und nativem Olivenöl extra.","ru":"Деревенский хлеб на гриле с томатами, чесноком, базиликом и оливковым маслом extra virgin.","zh":"炭烤乡村面包，配番茄、大蒜、罗勒与特级初榨橄榄油。"},"nn":{"fr":"Bruschetta al Pomodoro","th":"บรูสเก็ตต้า Pomodoro","de":"Bruschetta al Pomodoro","ru":"Брускетта с томатами","zh":"番茄意式烤面包片"}},{"id":"focaccia","c":"start","n":"Focaccia","p":250,"e":"🍞","a":["gluten"],"v":1,"d":{"en":"With tomatoes and fresh organic herbs from our garden, served warm.","fr":"Aux tomates et herbes bio fraîches de notre jardin, servie tiède.","th":"กับมะเขือเทศและสมุนไพรออร์แกนิกสดจากสวนของเรา เสิร์ฟอุ่น ๆ","de":"Mit Tomaten und frischen Bio-Kräutern aus unserem Garten, warm serviert.","ru":"С томатами и свежими органическими травами из нашего сада, подаётся тёплой.","zh":"佐番茄与自家花园有机香草，温热上桌。"},"nn":{"fr":"Focaccia","th":"Focaccia","de":"Focaccia","ru":"Фокачча","zh":"佛卡夏面包"}},{"id":"burrataburger","c":"burger","n":"Burrata Beef Burger","p":500,"e":"🍔","a":["beef","gluten","dairy","nut"],"v":0,"d":{"en":"Grilled burger meat spiced with montreal steak spices, pesto sauce, burrata cheese, rocket leaves, tomatoes, onions.","fr":"Steak grillé aux épices montréalaises, sauce pesto, burrata, roquette, tomates, oignons.","th":"เนื้อเบอร์เกอร์ย่างปรุงด้วยเครื่องเทศมอนทรีออลสเต๊ก ซอสเพสโต้ ชีสบูราต้า ใบร็อกเก็ต มะเขือเทศ และหอมหัวใหญ่","de":"Gegrilltes Burger-Patty mit Montreal-Steak-Gewürz, Pestosauce, Burrata, Rucola, Tomaten, Zwiebeln.","ru":"Котлета на гриле со специями montreal steak, соус песто, сыр буррата, руккола, томаты, лук.","zh":"炭烤牛肉饼以蒙特利尔牛排香料调味，配青酱、布拉塔奶酪、芝麻菜、番茄与洋葱。"},"nn":{"fr":"Burger de bœuf à la burrata","th":"เบอร์เกอร์เนื้อ Burrata","de":"Burrata-Beef-Burger","ru":"Бургер с бурратой","zh":"布拉塔牛肉汉堡"}},{"id":"fishburger","c":"burger","n":"Fish Burger","p":450,"e":"🍔","a":["fish","gluten"],"v":0,"d":{"en":"Sea bass, homemade pickle, tomato, chutney.","fr":"Bar, pickles maison, tomate, chutney.","th":"ปลากะพง ผักดองโฮมเมด มะเขือเทศ และชัทนีย์","de":"Wolfsbarsch, hausgemachtes Pickle, Tomate, Chutney.","ru":"Сибас, домашние пикули, томат, чатни.","zh":"鲈鱼、自制腌菜、番茄、酸辣酱。"},"nn":{"fr":"Burger de poisson","th":"เบอร์เกอร์ปลา","de":"Fischburger","ru":"Рыбный бургер","zh":"鱼肉汉堡"}},{"id":"veggieburger","c":"burger","n":"Veggie Burger","p":350,"e":"🥬","a":["gluten","dairy"],"v":1,"d":{"en":"Cheese, tomato, chutney, house made pickle.","fr":"Fromage, tomate, chutney, pickles maison.","th":"ชีส มะเขือเทศ ชัทนีย์ และผักดองโฮมเมด","de":"Käse, Tomate, Chutney, hausgemachtes Pickle.","ru":"Сыр, томат, чатни, домашние пикули.","zh":"奶酪、番茄、酸辣酱、自制腌菜。"},"nn":{"fr":"Burger végétarien","th":"เบอร์เกอร์ผัก","de":"Veggie-Burger","ru":"Вегетарианский бургер","zh":"素食汉堡"}},{"id":"crispychicken","c":"burger","n":"Crispy Chicken Burger","p":450,"e":"🍗","a":["gluten","dairy","egg"],"v":0,"d":{"en":"Juicy chicken thighs marinated in buttermilk and Chef's special seasonings. Served with creamy mayonnaise, fresh cabbage, shredded carrots and sliced onions on a soft bun.","fr":"Hauts de cuisse de poulet juteux marinés au babeurre et aux épices du Chef. Servis avec mayonnaise crémeuse, chou frais, carottes râpées et oignons émincés dans un pain moelleux.","th":"สะโพกไก่เนื้อฉ่ำหมักบัตเตอร์มิลก์และเครื่องปรุงสูตรพิเศษของเชฟ เสิร์ฟในขนมปังบันนุ่ม พร้อมมายองเนสเข้มข้น กะหล่ำปลีสด แครอทฝอย และหอมหัวใหญ่สไลซ์","de":"Saftige Hähnchenschenkel, mariniert in Buttermilch und den Spezialgewürzen des Chefs. Serviert mit cremiger Mayonnaise, frischem Kohl, geraspelten Karotten und Zwiebelringen im weichen Bun.","ru":"Сочные куриные бёдрышки, маринованные в пахте с фирменными специями шефа. Подаются с нежным майонезом, свежей капустой, тёртой морковью и луком на мягкой булочке.","zh":"多汁鸡腿肉以白脱牛奶与主厨秘制香料腌渍，配香浓蛋黄酱、鲜卷心菜、胡萝卜丝与洋葱片，夹于松软面包。"},"nn":{"fr":"Burger de poulet croustillant","th":"เบอร์เกอร์ไก่กรอบ","de":"Knuspriger Hähnchenburger","ru":"Бургер с хрустящей курицей","zh":"香脆鸡肉汉堡"}},{"id":"chicksand","c":"burger","n":"Chicken Sandwich","p":350,"e":"🥪","a":["gluten","egg"],"v":0,"d":{"en":"Chicken breast, tarragon, mayonnaise, french fries.","fr":"Blanc de poulet, estragon, mayonnaise, frites.","th":"อกไก่ ทาร์รากอน มายองเนส เสิร์ฟพร้อมเฟรนช์ฟรายส์","de":"Hähnchenbrust, Estragon, Mayonnaise, Pommes frites.","ru":"Куриная грудка, эстрагон, майонез, картофель фри.","zh":"鸡胸肉、龙蒿、蛋黄酱，配薯条。"},"nn":{"fr":"Sandwich au poulet","th":"แซนด์วิชไก่","de":"Hähnchen-Sandwich","ru":"Сэндвич с курицей","zh":"鸡肉三明治"}},{"id":"burrito","c":"burger","n":"Original Mexican Burrito","p":350,"e":"🌯","a":["gluten","beef"],"v":2,"p2":450,"d":{"en":"Vegetarian / Chicken / Beef. A warm tortilla filled with your choice of seasoned minced beef or chicken, finely chopped tomatoes, onions, fresh coriander, peppers and Chef's special seasonings.","fr":"Végétarien / Poulet / Bœuf. Tortilla chaude garnie au choix de bœuf haché ou de poulet assaisonné, tomates finement coupées, oignons, coriandre fraîche, poivrons et épices du Chef.","th":"มังสวิรัติ / ไก่ / เนื้อวัว แผ่นตอร์ตียาอุ่นสอดไส้เนื้อวัวสับหรือไก่ปรุงรสตามเลือก มะเขือเทศสับละเอียด หอมหัวใหญ่ ผักชีสด พริกหวาน และเครื่องปรุงสูตรพิเศษของเชฟ","de":"Vegetarisch / Hähnchen / Rind. Warme Tortilla, gefüllt nach Wahl mit gewürztem Rinderhack oder Hähnchen, fein gehackten Tomaten, Zwiebeln, frischem Koriander, Paprika und den Spezialgewürzen des Chefs.","ru":"Вегетарианский / Курица / Говядина. Тёплая тортилья с рубленой говядиной или курицей на выбор, томатами, луком, свежей кинзой, перцем и фирменными специями шефа.","zh":"素食／鸡肉／牛肉。温热墨西哥薄饼卷入调味牛肉末或鸡肉，佐番茄丁、洋葱、鲜香菜、甜椒与主厨秘制香料。"},"nn":{"fr":"Burrito mexicain","th":"เบอร์ริโต้เม็กซิกัน","de":"Original mexikanischer Burrito","ru":"Мексиканский буррито","zh":"墨西哥卷饼"}},{"id":"fajitas","c":"burger","n":"Spicy Mexican Fajitas","p":350,"e":"🌶️","a":["gluten","beef"],"v":2,"p2":450,"sp":1,"d":{"en":"Vegetarian / Chicken / Beef. Marinated chicken, beef or fish sauteed with tricolour bell peppers, onions, fresh lime juice and Chef's special seasonings.","fr":"Végétarien / Poulet / Bœuf. Poulet, bœuf ou poisson marinés et sautés aux poivrons tricolores, oignons, jus de citron vert et épices du Chef.","th":"มังสวิรัติ / ไก่ / เนื้อวัว ไก่ เนื้อวัว หรือปลาหมัก ผัดกับพริกหวานสามสี หอมหัวใหญ่ น้ำมะนาวสด และเครื่องปรุงสูตรพิเศษของเชฟ","de":"Vegetarisch / Hähnchen / Rind. Mariniertes Hähnchen, Rind oder Fisch, sautiert mit dreifarbiger Paprika, Zwiebeln, frischem Limettensaft und den Spezialgewürzen des Chefs.","ru":"Вегетарианские / Курица / Говядина. Маринованная курица, говядина или рыба, обжаренные с трёхцветным болгарским перцем, луком, соком лайма и фирменными специями шефа.","zh":"素食／鸡肉／牛肉。腌制鸡肉、牛肉或鱼肉，与三色甜椒、洋葱同炒，佐鲜青柠汁与主厨秘制香料。"},"nn":{"fr":"Fajitas mexicaines épicées","th":"Fajitas เม็กซิกัน","de":"Scharfe mexikanische Fajitas","ru":"Острые фахитас","zh":"香辣墨西哥法士达"}},{"id":"quesadilla","c":"burger","n":"Authentic Chicken Quesadilla","p":350,"e":"🧀","a":["gluten","dairy","beef"],"v":2,"p2":450,"d":{"en":"Vegetarian / Chicken / Beef. Sliced boneless, skinless chicken breasts seasoned with homemade spices, served in warm tortillas with melted cheese, red beans, onions, avocado and sour cream.","fr":"Végétarien / Poulet / Bœuf. Blancs de poulet émincés assaisonnés aux épices maison, servis en tortillas chaudes avec fromage fondu, haricots rouges, oignons, avocat et crème aigre.","th":"มังสวิรัติ / ไก่ / เนื้อวัว อกไก่ไร้กระดูกไร้หนังสไลซ์ ปรุงด้วยเครื่องเทศสูตรโฮมเมด เสิร์ฟในแผ่นตอร์ตียาอุ่นกับชีสละลาย ถั่วแดง หอมหัวใหญ่ อะโวคาโด และซาวร์ครีม","de":"Vegetarisch / Hähnchen / Rind. Streifen von Hähnchenbrust mit hausgemachten Gewürzen, serviert in warmen Tortillas mit geschmolzenem Käse, roten Bohnen, Zwiebeln, Avocado und Sauerrahm.","ru":"Вегетарианская / Курица / Говядина. Куриное филе в домашних специях, тёплые тортильи, расплавленный сыр, красная фасоль, лук, авокадо и сметана.","zh":"素食／鸡肉／牛肉。自制香料腌制去骨鸡胸肉片，夹入温热墨西哥薄饼，配融化奶酪、红腰豆、洋葱、牛油果与酸奶油。"},"nn":{"fr":"Quesadilla au poulet","th":"Quesadilla ไก่","de":"Authentische Hähnchen-Quesadilla","ru":"Кесадилья с курицей","zh":"墨西哥鸡肉芝士薄饼"}},{"id":"chicktortilla","c":"burger","n":"Chicken Tortilla","p":350,"e":"🌯","a":["gluten"],"v":0,"d":{"en":"Grilled chicken in tortilla sheets.","fr":"Poulet grillé en tortillas.","th":"ไก่ย่างห่อในแผ่นตอร์ตียา","de":"Gegrilltes Hähnchen in Tortillablättern.","ru":"Курица на гриле в тортилье.","zh":"炭烤鸡肉卷墨西哥薄饼。"},"nn":{"fr":"Tortilla au poulet","th":"Tortilla ไก่","de":"Hähnchen-Tortilla","ru":"Тортилья с курицей","zh":"鸡肉玉米薄饼"}},{"id":"nugget","c":"burger","n":"Chicken Nugget","p":300,"e":"🍗","a":["gluten","egg"],"v":0,"d":{"en":"Tender, bite-sized pieces of seasoned chicken, coated in a golden crispy breadcrumb crust, served with sweet chili or plum sauce.","fr":"Bouchées tendres de poulet assaisonné, panure dorée et croustillante, servies avec sauce chili douce ou sauce aux prunes.","th":"ไก่ปรุงรสชิ้นพอดีคำเนื้อนุ่ม ชุบเกล็ดขนมปังทอดกรอบสีทอง เสิร์ฟพร้อมน้ำจิ้มไก่หรือซอสบ๊วย","de":"Zarte, mundgerechte Stücke gewürztes Hähnchen in goldener, knuspriger Paniermehlkruste, serviert mit Sweet-Chili- oder Pflaumensauce.","ru":"Нежные кусочки маринованной курицы в золотистой хрустящей панировке, с соусом сладкий чили или сливовым.","zh":"一口大小的嫩滑调味鸡块，裹金黄酥脆面包糠，配甜辣酱或酸梅酱。"},"nn":{"fr":"Nuggets de poulet","th":"นักเก็ตไก่","de":"Hähnchen-Nuggets","ru":"Куриные наггетсы","zh":"炸鸡块"}},{"id":"cheeseplate","c":"start","n":"Cheese Plate","p":500,"e":"🧀","a":["dairy","nut"],"v":1,"d":{"en":"Cheese brie, gruyere, comte (France), gorgonzola, mixed nuts, dry fruits.","fr":"Brie, gruyère, comté (France), gorgonzola, mélange de noix, fruits secs.","th":"ชีสบรี กรูแยร์ กงเต (ฝรั่งเศส) กอร์กอนโซลา ถั่วรวม และผลไม้อบแห้ง","de":"Brie, Gruyère, Comté (Frankreich), Gorgonzola, gemischte Nüsse, Trockenfrüchte.","ru":"Сыры бри, грюйер, конте (Франция), горгонзола, ассорти орехов, сухофрукты.","zh":"法国布里、格鲁耶尔、孔泰与戈贡佐拉奶酪，配什锦坚果与果干。"},"nn":{"fr":"Plateau de fromages","th":"จานชีสรวม","de":"Käseplatte","ru":"Сырная тарелка","zh":"芝士拼盘"}},{"id":"gardenrolls","c":"thai","n":"Fresh Garden Rolls (Prawn)","p":250,"e":"🥗","a":["shellfish"],"v":2,"p2":290,"tn":"ปอเปี๊ยะสด","d":{"en":"Rice noodle, mint, basil, carrot in rice sheet.","fr":"Vermicelles de riz, menthe, basilic, carotte en galette de riz.","th":"เส้นหมี่ สะระแหน่ โหระพา และแครอท ห่อในแผ่นแป้งข้าวเจ้า","de":"Reisnudeln, Minze, Basilikum, Karotte im Reispapier.","ru":"Рисовая лапша, мята, базилик, морковь в рисовой бумаге.","zh":"米粉、薄荷、罗勒、胡萝卜，以米纸卷制。"},"nn":{"fr":"Rouleaux de printemps frais (crevette)","th":"ปอเปี๊ยะสดกุ้ง","de":"Frische Sommerrollen (Garnele)","ru":"Свежие спринг-роллы (креветка)","zh":"鲜虾生春卷"}},{"id":"springrolls","c":"thai","n":"Spring Rolls (v)","p":250,"e":"🥢","a":["gluten"],"v":1,"tn":"ปอเปี๊ยะผักทอด","d":{"en":"Deep fried vegetable spring roll.","fr":"Rouleaux de printemps aux légumes frits.","th":"ปอเปี๊ยะผักทอดกรอบ","de":"Frittierte Gemüse-Frühlingsrollen.","ru":"Овощные спринг-роллы во фритюре.","zh":"香炸蔬菜春卷。"},"nn":{"fr":"Rouleaux de printemps (v)","th":"ปอเปี๊ยะผักทอด","de":"Frühlingsrollen (v)","ru":"Спринг-роллы (v)","zh":"春卷 (v)"}},{"id":"prawnroll","c":"thai","n":"Prawn Spring Roll","p":290,"e":"🦐","a":["shellfish","gluten"],"v":0,"tn":"ปอเปี๊ยะกุ้ง","d":{"en":"Deep fried prawn spring roll served with plum sauce.","fr":"Rouleaux de printemps aux crevettes frits, servis avec sauce aux prunes.","th":"ปอเปี๊ยะกุ้งทอดกรอบ เสิร์ฟพร้อมซอสบ๊วย","de":"Frittierte Garnelen-Frühlingsrollen, serviert mit Pflaumensauce.","ru":"Спринг-роллы с креветками во фритюре, сливовый соус.","zh":"香炸鲜虾春卷，配酸梅酱。"},"nn":{"fr":"Rouleau de printemps aux crevettes","th":"ปอเปี๊ยะกุ้งทอด","de":"Garnelen-Frühlingsrolle","ru":"Спринг-ролл с креветкой","zh":"鲜虾春卷"}},{"id":"satay","c":"thai","n":"Chicken Satay (N)","p":280,"e":"🍢","a":["nut","soy"],"v":0,"tn":"ไก่สะเต๊ะ","d":{"en":"Chicken satay, aromatic marinade, peanut sauce.","fr":"Satay de poulet, marinade aromatique, sauce cacahuète.","th":"สะเต๊ะไก่หมักเครื่องเทศหอม เสิร์ฟพร้อมน้ำจิ้มถั่ว","de":"Chicken Satay, aromatische Marinade, Erdnusssauce.","ru":"Куриный сатай, ароматный маринад, арахисовый соус.","zh":"泰式烤鸡肉串，香料腌渍，配花生酱。"},"nn":{"fr":"Satay de poulet (N)","th":"ไก่สะเต๊ะ","de":"Hähnchen-Satay (N)","ru":"Куриный сатай (N)","zh":"沙嗲鸡肉串 (N)"}},{"id":"peekgai","c":"thai","n":"Peek Gai Tod","p":280,"e":"🍗","a":["fish","gluten"],"v":0,"tn":"ปีกไก่ทอดน้ำปลา","d":{"en":"Deep fried salty chicken wings.","fr":"Ailes de poulet salées frites.","th":"ปีกไก่ทอดน้ำปลา","de":"Frittierte, salzige Hähnchenflügel.","ru":"Хрустящие солёные куриные крылышки во фритюре.","zh":"香炸咸香鸡翅。"},"nn":{"fr":"Peek Gai Tod","th":"ปีกไก่ทอด","de":"Peek Gai Tod","ru":"Пик Гай Тод","zh":"泰式炸鸡翅"}},{"id":"prawncake","c":"thai","n":"Prawn Cake","p":450,"e":"🦐","a":["shellfish","gluten","egg"],"v":0,"tn":"ทอดมันกุ้ง","d":{"en":"Crispy prawn cake, plum sauce.","fr":"Galette de crevettes croustillante, sauce aux prunes.","th":"ทอดมันกุ้งกรอบ เสิร์ฟพร้อมซอสบ๊วย","de":"Knusprige Garnelenküchlein, Pflaumensauce.","ru":"Хрустящие креветочные котлетки, сливовый соус.","zh":"香脆虾饼，配酸梅酱。"},"nn":{"fr":"Galette de crevettes","th":"ทอดมันกุ้ง","de":"Garnelenküchlein","ru":"Котлетки из креветок","zh":"泰式虾饼"}},{"id":"medmamoung","c":"thai","n":"Gai Phad Med-Ma Moung","p":280,"e":"🥜","a":["nut","soy"],"v":0,"tn":"ไก่ผัดเม็ดมะม่วง","d":{"en":"Wok fried chicken, organic cashew nuts, bell pepper, served with jasmine rice.","fr":"Poulet sauté au wok, noix de cajou bio, poivron, servi avec riz jasmin.","th":"ไก่ผัดเม็ดมะม่วงหิมพานต์ออร์แกนิกและพริกหวาน เสิร์ฟพร้อมข้าวหอมมะลิ","de":"Wok-gebratenes Hähnchen, Bio-Cashewkerne, Paprika, dazu Jasminreis.","ru":"Курица вок с органическим кешью и болгарским перцем, подаётся с жасминовым рисом.","zh":"有机腰果、甜椒爆炒鸡丁，配茉莉香米饭。"},"nn":{"fr":"Gai Phad Med-Ma Moung","th":"ไก่ผัดเม็ดมะม่วงหิมพานต์","de":"Gai Phad Med-Ma Moung","ru":"Гай Пад Мед Мамуанг","zh":"腰果鸡丁"}},{"id":"sweetsour","c":"thai","n":"Sweet & Sour","p":280,"e":"🍍","a":["shellfish","soy"],"v":2,"p2":330,"tn":"ผัดเปรี้ยวหวาน","d":{"en":"Tofu / Fish / Prawns / Squid. Wok fried bell peppers, pineapple, onion, jasmine rice.","fr":"Tofu / Poisson / Crevettes / Calamar. Sauté au wok de poivrons, ananas, oignon, riz jasmin.","th":"เต้าหู้ / ปลา / กุ้ง / ปลาหมึก ผัดกับพริกหวาน สับปะรด และหอมหัวใหญ่ เสิร์ฟพร้อมข้าวหอมมะลิ","de":"Tofu / Fisch / Garnelen / Tintenfisch. Wok-gebratene Paprika, Ananas, Zwiebel, Jasminreis.","ru":"Тофу / Рыба / Креветки / Кальмар. Вок с болгарским перцем, ананасом и луком, жасминовый рис.","zh":"豆腐／鱼肉／鲜虾／鱿鱼。甜椒、菠萝、洋葱同炒，配茉莉香米饭。"},"nn":{"fr":"Aigre-doux","th":"ผัดเปรี้ยวหวาน","de":"Süß-Sauer","ru":"Кисло-сладкое блюдо","zh":"泰式糖醋炒"}},{"id":"nuekhem","c":"thai","n":"Nue Khem","p":480,"e":"🥩","a":["beef","spicy"],"v":0,"tn":"เนื้อเค็ม","sp":1,"d":{"en":"Grilled sun-dried beef with sliced shallots and sriracha sauce.","fr":"Bœuf séché au soleil et grillé, échalotes émincées et sauce sriracha.","th":"เนื้อแดดเดียวย่าง เสิร์ฟกับหอมแดงซอยและซอสศรีราชา","de":"Gegrilltes sonnengetrocknetes Rindfleisch mit Schalottenscheiben und Sriracha-Sauce.","ru":"Вяленая говядина на гриле с шалотом и соусом шрирача.","zh":"炭烤日晒牛肉，配红葱片与是拉差辣酱。"},"nn":{"fr":"Nue Khem","th":"เนื้อเค็ม","de":"Nue Khem","ru":"Нуа Кхем","zh":"泰式炸牛肉干"}},{"id":"glassnoodle","c":"thai","n":"Glass Noodle Seafood Salad","p":380,"e":"🥗","a":["shellfish","nut","fish","spicy"],"v":0,"tn":"ยำวุ้นเส้นทะเล","sp":1,"d":{"en":"Glass noodle salad, local seafood, Chinese celery, peanuts, lime dressing.","fr":"Salade de vermicelles de soja, fruits de mer locaux, céleri chinois, cacahuètes, vinaigrette au citron vert.","th":"ยำวุ้นเส้นอาหารทะเลท้องถิ่น ขึ้นฉ่าย ถั่วลิสง ราดน้ำยำมะนาว","de":"Glasnudelsalat, lokale Meeresfrüchte, chinesischer Sellerie, Erdnüsse, Limettendressing.","ru":"Салат из стеклянной лапши с местными морепродуктами, китайским сельдереем, арахисом и заправкой из лайма.","zh":"粉丝沙拉，配本地海鲜、芹菜、花生，青柠汁调味。"},"nn":{"fr":"Salade de vermicelles aux fruits de mer","th":"ยำวุ้นเส้นทะเล","de":"Glasnudel-Meeresfrüchtesalat","ru":"Салат с фунчозой и морепродуктами","zh":"海鲜粉丝沙拉"}},{"id":"softshell","c":"thai","n":"Soft Shell Crab","p":450,"e":"🦀","a":["shellfish","nut","gluten","spicy"],"v":0,"tn":"ยำปูนิ่ม","sp":1,"d":{"en":"Green mango, celery, cashew nuts, chili, lime dressing.","fr":"Mangue verte, céleri, noix de cajou, piment, vinaigrette au citron vert.","th":"มะม่วงดิบ ขึ้นฉ่าย เม็ดมะม่วงหิมพานต์ พริก ราดน้ำยำมะนาว","de":"Grüne Mango, Sellerie, Cashewkerne, Chili, Limettendressing.","ru":"Зелёное манго, сельдерей, кешью, чили, заправка из лайма.","zh":"青芒果、芹菜、腰果、辣椒，青柠汁调味。"},"nn":{"fr":"Crabe à carapace molle","th":"ปูนิ่มทอด","de":"Soft-Shell-Krabbe","ru":"Краб в мягком панцире","zh":"软壳蟹"}},{"id":"khaophad","c":"thai","n":"Khao Phad","p":280,"e":"🍚","a":["egg","shellfish","soy"],"v":0,"p2":330,"tn":"ข้าวผัด","d":{"en":"Eggs / Chicken / Prawns / Crabmeat. Fried rice with eggs, chicken, prawn or crab meat.","fr":"Œufs / Poulet / Crevettes / Chair de crabe. Riz sauté aux œufs, poulet, crevettes ou chair de crabe.","th":"ไข่ / ไก่ / กุ้ง / เนื้อปู ข้าวผัดใส่ไข่ ไก่ กุ้ง หรือเนื้อปู","de":"Ei / Hähnchen / Garnelen / Krebsfleisch. Gebratener Reis mit Ei, Hähnchen, Garnelen oder Krebsfleisch.","ru":"Яйцо / Курица / Креветки / Крабовое мясо. Жареный рис с яйцом, курицей, креветками или крабовым мясом.","zh":"鸡蛋／鸡肉／鲜虾／蟹肉。泰式炒饭，可选鸡蛋、鸡肉、鲜虾或蟹肉。"},"nn":{"fr":"Khao Phad","th":"ข้าวผัด","de":"Khao Phad","ru":"Кхао Пад","zh":"泰式炒饭"}},{"id":"krapao","c":"thai","n":"Phad Kra Pao","p":280,"e":"🌶️","a":["egg","soy","beef","spicy"],"v":2,"p2":330,"tn":"ผัดกะเพรา","sp":1,"d":{"en":"Tofu / Chicken / Squid / Beef. Wok fried garden organic red basil, chili, garlic, served with jasmine rice and fried eggs.","fr":"Tofu / Poulet / Calamar / Bœuf. Sauté au wok au basilic rouge bio du jardin, piment, ail, servi avec riz jasmin et œufs au plat.","th":"เต้าหู้ / ไก่ / ปลาหมึก / เนื้อวัว ผัดกับใบกะเพราออร์แกนิกจากสวน พริก และกระเทียม เสิร์ฟพร้อมข้าวหอมมะลิและไข่ดาว","de":"Tofu / Hähnchen / Tintenfisch / Rind. Wok-gebraten mit rotem Bio-Basilikum aus dem Garten, Chili, Knoblauch, dazu Jasminreis und Spiegelei.","ru":"Тофу / Курица / Кальмар / Говядина. Вок с органическим красным базиликом из нашего сада, чили и чесноком, жасминовый рис и жареное яйцо.","zh":"豆腐／鸡肉／鱿鱼／牛肉。自家有机紫罗勒、辣椒、大蒜爆炒，配茉莉香米饭与煎蛋。"},"nn":{"fr":"Phad Kra Pao","th":"ผัดกะเพรา","de":"Phad Kra Pao","ru":"Пад Кра Пао","zh":"打抛叶炒饭"}},{"id":"phadseeew","c":"thai","n":"Phad See Ew","p":280,"e":"🍜","a":["egg","soy","gluten"],"v":1,"tn":"ผัดซีอิ๊ว","d":{"en":"Tofu / Chicken. Wok fried flat noodle, black soy sauce, eggs, kale.","fr":"Tofu / Poulet. Nouilles plates sautées au wok, sauce soja noire, œufs, kale.","th":"เต้าหู้ / ไก่ เส้นใหญ่ผัดซีอิ๊วดำ ใส่ไข่และคะน้า","de":"Tofu / Hähnchen. Wok-gebratene Bandnudeln, dunkle Sojasauce, Ei, Grünkohl.","ru":"Тофу / Курица. Широкая рисовая лапша вок, тёмный соевый соус, яйцо, кале.","zh":"豆腐／鸡肉。宽米粉爆炒，佐黑酱油、鸡蛋与芥蓝。"},"nn":{"fr":"Phad See Ew","th":"ผัดซีอิ๊ว","de":"Phad See Ew","ru":"Пад Си Ю","zh":"泰式酱油炒河粉"}},{"id":"roticurry","c":"thai","n":"Roti & Sweet Chicken Curry (Mild)","p":350,"e":"🍛","a":["gluten"],"v":0,"d":{"en":"Homemade roti, mild red curry.","fr":"Roti maison, curry rouge doux.","th":"โรตีโฮมเมด เสิร์ฟพร้อมแกงเผ็ดไก่รสอ่อน","de":"Hausgemachtes Roti, mildes rotes Curry.","ru":"Домашний роти, мягкое красное карри.","zh":"自制印度飞饼，配微辣红咖喱。"},"nn":{"fr":"Roti & curry de poulet sucré (doux)","th":"โรตีแกงกะหรี่ไก่","de":"Roti & süßes Hähnchen-Curry (mild)","ru":"Роти с куриным карри","zh":"泰式煎饼配咖喱鸡（微辣）"}},{"id":"padthai","c":"thai","n":"Phad Thai","p":280,"e":"🍜","a":["egg","nut","shellfish","soy"],"v":0,"p2":330,"tn":"ผัดไทย","d":{"en":"Chicken / Prawns. Rice noodle with tamarind sauce.","fr":"Poulet / Crevettes. Nouilles de riz à la sauce tamarin.","th":"ไก่ / กุ้ง เส้นก๋วยเตี๋ยวผัดซอสมะขาม","de":"Hähnchen / Garnelen. Reisnudeln mit Tamarindensauce.","ru":"Курица / Креветки. Рисовая лапша с тамариндовым соусом.","zh":"鸡肉／鲜虾。泰式炒河粉，佐罗望子酱。"},"nn":{"fr":"Phad Thai","th":"ผัดไทย","de":"Phad Thai","ru":"Пад Тай","zh":"泰式炒河粉"}},{"id":"crabnoodle","c":"thai","n":"Rice Noodle with Crab Meat","p":330,"e":"🦀","a":["shellfish","egg","soy"],"v":0,"tn":"เส้นหมี่ผัดเนื้อปู","d":{"en":"Wok fried rice noodle, egg, basil, green beans.","fr":"Nouilles de riz sautées au wok, œuf, basilic, haricots verts.","th":"ก๋วยเตี๋ยวเส้นเล็กผัดเนื้อปู ใส่ไข่ ใบโหระพา และถั่วฝักยาว","de":"Wok-gebratene Reisnudeln, Ei, Basilikum, grüne Bohnen.","ru":"Рисовая лапша вок с яйцом, базиликом и стручковой фасолью.","zh":"河粉与蟹肉爆炒，佐鸡蛋、罗勒与四季豆。"},"nn":{"fr":"Nouilles de riz au crabe","th":"ก๋วยเตี๋ยวเนื้อปู","de":"Reisnudeln mit Krebsfleisch","ru":"Рисовая лапша с крабом","zh":"蟹肉河粉"}},{"id":"khaoob","c":"thai","n":"Khao ob Subparod","p":280,"e":"🍍","a":["shellfish","egg","soy"],"v":2,"p2":330,"tn":"ข้าวอบสัปปะรด","d":{"en":"Pineapple fried rice, with or without prawns.","fr":"Riz sauté à l'ananas, avec ou sans crevettes.","th":"ข้าวอบสับปะรด เลือกใส่กุ้งหรือไม่ใส่ก็ได้","de":"Gebratener Reis in der Ananas, mit oder ohne Garnelen.","ru":"Жареный рис в ананасе, с креветками или без.","zh":"菠萝炒饭，可选加或不加鲜虾。"},"nn":{"fr":"Khao ob Subparod","th":"ข้าวอบสับปะรด","de":"Khao ob Subparod","ru":"Кхао Об Сапарот","zh":"菠萝炒饭"}},{"id":"kalesalad","c":"salad","n":"Kale Salad","p":400,"e":"🥬","a":["dairy"],"v":1,"d":{"en":"Homegrown kale, pumpkin, pomegranate, yogurt sauce.","fr":"Kale de notre jardin, potiron, grenade, sauce au yaourt.","th":"เคลปลูกเอง ฟักทอง ทับทิม ราดซอสโยเกิร์ต","de":"Grünkohl aus eigenem Anbau, Kürbis, Granatapfel, Joghurtsauce.","ru":"Кале из нашего сада, тыква, гранат, йогуртовый соус.","zh":"自家种植羽衣甘蓝、南瓜、石榴，佐酸奶酱。"},"nn":{"fr":"Salade de kale","th":"สลัดเคล","de":"Grünkohlsalat","ru":"Салат с капустой кейл","zh":"羽衣甘蓝沙拉"}},{"id":"octopussalad","c":"salad","n":"Grilled Octopus Salad","p":500,"e":"🐙","a":["shellfish"],"v":0,"d":{"en":"Octopus, celery, fresh parsley, red onions, lemon juice and olive oil.","fr":"Poulpe, céleri, persil frais, oignons rouges, jus de citron et huile d'olive.","th":"ปลาหมึกยักษ์ เซเลอรี่ พาร์สลีย์สด หอมหัวใหญ่สีม่วง น้ำเลมอน และน้ำมันมะกอก","de":"Oktopus, Sellerie, frische Petersilie, rote Zwiebeln, Zitronensaft und Olivenöl.","ru":"Осьминог, сельдерей, свежая петрушка, красный лук, лимонный сок и оливковое масло.","zh":"章鱼、芹菜、鲜欧芹、紫洋葱，佐柠檬汁与橄榄油。"},"nn":{"fr":"Salade de poulpe grillé","th":"สลัดปลาหมึกยักษ์ย่าง","de":"Gegrillter Oktopussalat","ru":"Салат с осьминогом гриль","zh":"烤章鱼沙拉"}},{"id":"greensalad","c":"salad","n":"Green Salad","p":350,"e":"🥗","a":[],"v":1,"d":{"en":"Homegrown green salad, cherry tomatoes, cucumber, onion, lemon, olive oil.","fr":"Salade verte de notre jardin, tomates cerises, concombre, oignon, citron, huile d'olive.","th":"ผักสลัดปลูกเอง มะเขือเทศเชอร์รี่ แตงกวา หอมหัวใหญ่ เลมอน และน้ำมันมะกอก","de":"Blattsalat aus eigenem Anbau, Kirschtomaten, Gurke, Zwiebel, Zitrone, Olivenöl.","ru":"Зелёный салат из нашего сада, черри, огурец, лук, лимон, оливковое масло.","zh":"自家种植生菜、樱桃番茄、黄瓜、洋葱，佐柠檬与橄榄油。"},"nn":{"fr":"Salade verte","th":"สลัดผัก","de":"Grüner Salat","ru":"Зелёный салат","zh":"蔬菜沙拉"}},{"id":"rocket","c":"salad","n":"Wild Rocket","p":450,"e":"🌿","a":["dairy"],"v":1,"d":{"en":"Homegrown rocket salad, olive oil, balsamic, grana padano cheese.","fr":"Roquette de notre jardin, huile d'olive, balsamique, grana padano.","th":"สลัดร็อกเก็ตปลูกเอง น้ำมันมะกอก บัลซามิก และชีสกรานาปาดาโน","de":"Rucola aus eigenem Anbau, Olivenöl, Balsamico, Grana Padano.","ru":"Руккола из нашего сада, оливковое масло, бальзамик, сыр грана падано.","zh":"自家种植芝麻菜，佐橄榄油、意大利黑醋与帕达诺干酪。"},"nn":{"fr":"Roquette sauvage","th":"สลัดร็อกเก็ต","de":"Wilder Rucola","ru":"Дикая руккола","zh":"芝麻菜沙拉"}},{"id":"proteinbowl","c":"salad","n":"Protein Bowl / Chicken","p":400,"e":"🥙","a":["egg","sesame","soy"],"v":1,"d":{"en":"Beetroot, humus, organic eggs, avocado, roasted quinoa, pumpkin, mango, sesame seeds, edamame, dragon fruit, lemon, mustard dressing.","fr":"Betterave, houmous, œufs bio, avocat, quinoa torréfié, potiron, mangue, graines de sésame, edamame, fruit du dragon, citron, vinaigrette à la moutarde.","th":"บีทรูท ฮุมมุส ไข่ออร์แกนิก อะโวคาโด ควินัวอบ ฟักทอง มะม่วง เมล็ดงา ถั่วแระญี่ปุ่น แก้วมังกร เลมอน ราดน้ำสลัดมัสตาร์ด","de":"Rote Bete, Humus, Bio-Eier, Avocado, gerösteter Quinoa, Kürbis, Mango, Sesam, Edamame, Drachenfrucht, Zitronen-Senf-Dressing.","ru":"Свёкла, хумус, органические яйца, авокадо, обжаренная киноа, тыква, манго, кунжут, эдамаме, питайя, лимонно-горчичная заправка.","zh":"甜菜根、鹰嘴豆泥、有机鸡蛋、牛油果、烘烤藜麦、南瓜、芒果、芝麻、毛豆、火龙果，佐柠檬芥末酱。"},"nn":{"fr":"Bowl protéiné / poulet","th":"Protein Bowl ไก่","de":"Protein Bowl / Hähnchen","ru":"Протеиновый боул с курицей","zh":"蛋白轻食碗 / 鸡肉"}},{"id":"chickavo","c":"salad","n":"Chicken Avocado","p":400,"e":"🥑","a":["nut"],"v":0,"d":{"en":"Avocado, cherry tomatoes, celery, walnut, lemon, mustard dressing.","fr":"Avocat, tomates cerises, céleri, noix, citron, vinaigrette à la moutarde.","th":"อะโวคาโด มะเขือเทศเชอร์รี่ เซเลอรี่ วอลนัท เลมอน ราดน้ำสลัดมัสตาร์ด","de":"Avocado, Kirschtomaten, Sellerie, Walnuss, Zitronen-Senf-Dressing.","ru":"Авокадо, черри, сельдерей, грецкий орех, лимонно-горчичная заправка.","zh":"牛油果、樱桃番茄、芹菜、核桃，佐柠檬芥末酱。"},"nn":{"fr":"Poulet avocat","th":"สลัดไก่อะโวคาโด","de":"Hähnchen-Avocado","ru":"Курица с авокадо","zh":"鸡肉牛油果沙拉"}},{"id":"caesar","c":"salad","n":"Caesar Chicken / Bacon","p":400,"e":"🥗","a":["gluten","dairy","egg","fish"],"v":0,"d":{"en":"Homegrown butterhead, grana padano cheese, crispy croutons.","fr":"Laitue beurre de notre jardin, grana padano, croûtons croustillants.","th":"ผักบัตเตอร์เฮดปลูกเอง ชีสกรานาปาดาโน และครูตองกรอบ","de":"Butterkopfsalat aus eigenem Anbau, Grana Padano, knusprige Croûtons.","ru":"Салат бостон из нашего сада, сыр грана падано, хрустящие крутоны.","zh":"自家种植奶油生菜、帕达诺干酪与香脆面包丁。"},"nn":{"fr":"César poulet / bacon","th":"สลัดซีซาร์ ไก่/เบคอน","de":"Caesar Hähnchen / Bacon","ru":"Цезарь с курицей / беконом","zh":"凯撒沙拉 鸡肉 / 培根"}},{"id":"burratasalad","c":"salad","n":"Tomato Burrata Salad","p":500,"e":"🍅","a":["dairy","nut"],"v":1,"d":{"en":"Cherry tomatoes, homemade pesto, fried basil.","fr":"Tomates cerises, pesto maison, basilic frit.","th":"มะเขือเทศเชอร์รี่ เพสโต้โฮมเมด และใบเบซิลทอดกรอบ","de":"Kirschtomaten, hausgemachtes Pesto, frittiertes Basilikum.","ru":"Томаты черри, домашнее песто, жареный базилик.","zh":"樱桃番茄、自制青酱与香炸罗勒叶。"},"nn":{"fr":"Salade tomates burrata","th":"สลัดมะเขือเทศ Burrata","de":"Tomaten-Burrata-Salat","ru":"Салат с бурратой и томатами","zh":"番茄布拉塔沙拉"}},{"id":"fennel","c":"salad","n":"Fennel Orange Salad","p":450,"e":"🍊","a":[],"v":1,"d":{"en":"Shaved fennel with orange, organic rocket, green olives, mint and chilli.","fr":"Fenouil en fines lamelles, orange, roquette bio, olives vertes, menthe et piment.","th":"เฟนเนลสไลซ์บางกับส้ม ร็อกเก็ตออร์แกนิก มะกอกเขียว สะระแหน่ และพริก","de":"Feiner Fenchel mit Orange, Bio-Rucola, grünen Oliven, Minze und Chili.","ru":"Тонко нарезанный фенхель с апельсином, органической рукколой, зелёными оливками, мятой и чили.","zh":"茴香薄片配香橙、有机芝麻菜、青橄榄、薄荷与辣椒。"},"nn":{"fr":"Salade fenouil orange","th":"สลัดส้มเฟนเนล","de":"Fenchel-Orangen-Salat","ru":"Салат с фенхелем и апельсином","zh":"茴香橙子沙拉"}},{"id":"seafoodbbq","c":"meat","n":"Seafood Platter BBQ","p":900,"e":"🦞","a":["shellfish","fish"],"v":0,"d":{"en":"Prawns, squids, sea bass, clams.","fr":"Crevettes, calamars, bar, palourdes.","th":"กุ้ง ปลาหมึก ปลากะพง และหอยลาย","de":"Garnelen, Tintenfisch, Wolfsbarsch, Venusmuscheln.","ru":"Креветки, кальмары, сибас, моллюски.","zh":"鲜虾、鱿鱼、鲈鱼、蛤蜊。"},"nn":{"fr":"Plateau de fruits de mer au barbecue","th":"ซีฟู้ดบาร์บีคิวรวม","de":"Meeresfrüchteplatte BBQ","ru":"Морепродукты на гриле","zh":"烧烤海鲜拼盘"}},{"id":"oysters","c":"meat","n":"Fresh Oysters","p":950,"e":"🦪","a":["shellfish"],"v":0,"p2":1850,"d":{"en":"Pre-order one day in advance. Half dozen 950 / one dozen 1,850.","fr":"À commander un jour à l'avance. Demi-douzaine 950 / douzaine 1 850.","th":"กรุณาสั่งล่วงหน้า 1 วัน ครึ่งโหล 950 / หนึ่งโหล 1,850","de":"Vorbestellung einen Tag im Voraus. Halbes Dutzend 950 / ein Dutzend 1.850.","ru":"Предзаказ за сутки. Полдюжины 950 / дюжина 1 850.","zh":"需提前一天预订。半打 950 ／一打 1,850。"},"nn":{"fr":"Huîtres fraîches","th":"หอยนางรมสด","de":"Frische Austern","ru":"Свежие устрицы","zh":"新鲜生蚝"}},{"id":"tartare","c":"meat","n":"Fresh Sea Bass Tartare","p":500,"e":"🐟","a":["fish"],"v":0,"d":{"en":"With citrus fruits and mango.","fr":"Aux agrumes et à la mangue.","th":"เสิร์ฟกับผลไม้ตระกูลส้มและมะม่วง","de":"Mit Zitrusfrüchten und Mango.","ru":"С цитрусовыми и манго.","zh":"佐柑橘鲜果与芒果。"},"nn":{"fr":"Tartare de bar frais","th":"ทาร์ทาร์ปลากะพง","de":"Frisches Wolfsbarsch-Tatar","ru":"Тартар из сибаса","zh":"鲜海鲈鱼塔塔"}},{"id":"paella","c":"meat","n":"Paella","p":550,"e":"🥘","a":["shellfish","fish"],"v":0,"d":{"en":"Saffron rice with shrimps, clams, squid, chicken thighs.","fr":"Riz au safran, crevettes, palourdes, calamar, hauts de cuisse de poulet.","th":"ข้าวหญ้าฝรั่นกับกุ้ง หอยลาย ปลาหมึก และสะโพกไก่","de":"Safranreis mit Garnelen, Venusmuscheln, Tintenfisch und Hähnchenschenkeln.","ru":"Рис с шафраном, креветки, моллюски, кальмар, куриное бедро.","zh":"藏红花饭，配鲜虾、蛤蜊、鱿鱼与鸡腿肉。"},"nn":{"fr":"Paella","th":"Paella","de":"Paella","ru":"Паэлья","zh":"西班牙海鲜饭"}},{"id":"seabass","c":"meat","n":"Pan Fried Sea Bass","p":500,"e":"🐟","a":["fish"],"v":0,"d":{"en":"With potato, olive oil, lemon.","fr":"Pommes de terre, huile d'olive, citron.","th":"เสิร์ฟกับมันฝรั่ง น้ำมันมะกอก และเลมอน","de":"Mit Kartoffeln, Olivenöl, Zitrone.","ru":"С картофелем, оливковым маслом и лимоном.","zh":"佐土豆、橄榄油与柠檬。"},"nn":{"fr":"Bar poêlé","th":"ปลากะพงทอด","de":"Gebratener Wolfsbarsch","ru":"Жареный сибас","zh":"香煎海鲈鱼"}},{"id":"lobster","c":"meat","n":"Lobster","p":0,"e":"🦞","a":["shellfish","dairy"],"v":0,"d":{"en":"Price by weight. Grilled or Thermidor. Create your own menu.","fr":"Prix au poids. Grillée ou Thermidor. Composez votre menu.","th":"คิดราคาตามน้ำหนัก เลือกแบบย่างหรือแธร์มิดอร์ ออกแบบเมนูได้ตามใจคุณ","de":"Preis nach Gewicht. Gegrillt oder Thermidor. Stellen Sie Ihr eigenes Menü zusammen.","ru":"Цена по весу. На гриле или термидор. Составьте своё меню.","zh":"按重量计价。炭烤或法式芝士焗，自由搭配。"},"nn":{"fr":"Homard","th":"กุ้งมังกร","de":"Hummer","ru":"Лобстер","zh":"龙虾"}},{"id":"chickenbbq","c":"meat","n":"Chicken BBQ","p":350,"e":"🍗","a":[],"v":0,"d":{"en":"Chicken BBQ with garlic, sauteed potato, salad.","fr":"Poulet au barbecue, ail, pommes de terre sautées, salade.","th":"ไก่ย่างบาร์บีคิวกับกระเทียม เสิร์ฟพร้อมมันฝรั่งผัดเนยและสลัด","de":"Hähnchen vom Grill mit Knoblauch, sautierten Kartoffeln und Salat.","ru":"Курица на гриле с чесноком, обжаренный картофель, салат.","zh":"蒜香炭烤鸡肉，配香煎土豆与沙拉。"},"nn":{"fr":"Poulet au barbecue","th":"ไก่บาร์บีคิว","de":"Hähnchen BBQ","ru":"Курица на гриле","zh":"烧烤鸡肉"}},{"id":"beefbbq","c":"meat","n":"Beef BBQ","p":450,"e":"🥩","a":["beef"],"v":0,"d":{"en":"Beef BBQ with garlic, sauteed potato, salad.","fr":"Bœuf au barbecue, ail, pommes de terre sautées, salade.","th":"เนื้อวัวย่างบาร์บีคิวกับกระเทียม เสิร์ฟพร้อมมันฝรั่งผัดเนยและสลัด","de":"Rindfleisch vom Grill mit Knoblauch, sautierten Kartoffeln und Salat.","ru":"Говядина на гриле с чесноком, обжаренный картофель, салат.","zh":"蒜香炭烤牛肉，配香煎土豆与沙拉。"},"nn":{"fr":"Bœuf au barbecue","th":"เนื้อบาร์บีคิว","de":"Rind BBQ","ru":"Говядина на гриле","zh":"烧烤牛肉"}},{"id":"kebab","c":"meat","n":"Shish Kebab","p":550,"e":"🍢","a":["gluten","beef"],"v":0,"p2":700,"d":{"en":"Chicken or beef. Served with salad, french fries and homemade pita bread.","fr":"Poulet ou bœuf. Servi avec salade, frites et pain pita maison.","th":"เลือกไก่หรือเนื้อวัว เสิร์ฟพร้อมสลัด เฟรนช์ฟรายส์ และขนมปังพิตาโฮมเมด","de":"Hähnchen oder Rind. Serviert mit Salat, Pommes frites und hausgemachtem Pitabrot.","ru":"Курица или говядина. Подаётся с салатом, картофелем фри и домашней питой.","zh":"鸡肉或牛肉。配沙拉、薯条与自制皮塔饼。"},"nn":{"fr":"Shish Kebab","th":"เคบับเสียบไม้","de":"Shish Kebab","ru":"Шашлык","zh":"烤肉串"}},{"id":"agnello","c":"meat","n":"Agnello Scottadito","p":900,"e":"🍖","a":[],"v":0,"d":{"en":"Grilled lamb cutlets with zucchini, cherry tomato ragu and roasted garlic potatoes.","fr":"Côtelettes d'agneau grillées, courgettes, ragù de tomates cerises et pommes de terre à l'ail rôti.","th":"ซี่โครงแกะย่าง เสิร์ฟกับซุกินี ราคูมะเขือเทศเชอร์รี่ และมันฝรั่งอบกระเทียม","de":"Gegrillte Lammkoteletts mit Zucchini, Kirschtomaten-Ragout und Knoblauch-Röstkartoffeln.","ru":"Каре ягнёнка на гриле с цукини, рагу из томатов черри и запечённым картофелем с чесноком.","zh":"炭烤羊排，配西葫芦、樱桃番茄酱汁与蒜香烤土豆。"},"nn":{"fr":"Agnello Scottadito","th":"Agnello Scottadito","de":"Agnello Scottadito","ru":"Agnello Scottadito","zh":"意式烤羊排"}},{"id":"filetto","c":"meat","n":"Filetto di Manzo","p":1000,"e":"🥩","a":["beef","dairy"],"v":0,"d":{"en":"Beef tenderloin with pepperonata, green herb butter and potato puree.","fr":"Filet de bœuf, pepperonata, beurre aux herbes vertes et purée de pommes de terre.","th":"เนื้อสันในย่าง เสิร์ฟกับเปปเปโรนาตา เนยสมุนไพรเขียว และมันฝรั่งบด","de":"Rinderfilet mit Pepperonata, grüner Kräuterbutter und Kartoffelpüree.","ru":"Говяжья вырезка с пеперонатой, зелёным травяным маслом и картофельным пюре.","zh":"菲力牛柳，配意式甜椒烩、香草黄油与土豆泥。"},"nn":{"fr":"Filetto di Manzo","th":"Filetto di Manzo","de":"Filetto di Manzo","ru":"Филе говядины","zh":"菲力牛排"}},{"id":"margherita","c":"pizza","n":"Pizza Margherita","p":480,"e":"🍕","a":["gluten","dairy"],"v":1,"d":{"en":"Tomato, basil, mozzarella di bufala, pink salt and extra virgin olive oil. All pizzas are 10 inches.","fr":"Tomate, basilic, mozzarella di bufala, sel rose et huile d'olive extra vierge. Toutes nos pizzas font 10 pouces.","th":"มะเขือเทศ เบซิล มอสซาเรลลา ดิ บูฟาลา เกลือสีชมพู และน้ำมันมะกอกเอ็กซ์ตร้าเวอร์จิ้น พิซซ่าทุกถาดขนาด 10 นิ้ว","de":"Tomate, Basilikum, Mozzarella di Bufala, rosa Salz und natives Olivenöl extra. Alle Pizzen haben 10 Zoll.","ru":"Томат, базилик, моцарелла ди буфала, розовая соль и оливковое масло extra virgin. Все пиццы 25 см.","zh":"番茄、罗勒、水牛马苏里拉奶酪、玫瑰盐与特级初榨橄榄油。所有比萨均为10英寸。"},"nn":{"fr":"Pizza Margherita","th":"พิซซ่า Margherita","de":"Pizza Margherita","ru":"Пицца Маргарита","zh":"玛格丽特披萨"}},{"id":"napoletana","c":"pizza","n":"Pizza Napoletana","p":530,"e":"🍕","a":["gluten","dairy","fish"],"v":0,"d":{"en":"Anchovies, capers, oregano, tomato and mozzarella di bufala.","fr":"Anchois, câpres, origan, tomate et mozzarella di bufala.","th":"ปลาแอนโชวี่ เคเปอร์ ออริกาโน มะเขือเทศ และมอสซาเรลลา ดิ บูฟาลา","de":"Sardellen, Kapern, Oregano, Tomate und Mozzarella di Bufala.","ru":"Анчоусы, каперсы, орегано, томат и моцарелла ди буфала.","zh":"凤尾鱼、酸豆、牛至、番茄与水牛马苏里拉奶酪。"},"nn":{"fr":"Pizza Napoletana","th":"พิซซ่า Napoletana","de":"Pizza Napoletana","ru":"Пицца Наполетана","zh":"那不勒斯披萨"}},{"id":"pollopicante","c":"pizza","n":"Pizza Pollo Picante","p":530,"e":"🌶️","a":["gluten","dairy","spicy"],"v":0,"sp":1,"d":{"en":"Grilled chicken, tomato, chili, oregano, pepperonata, mozzarella di bufala.","fr":"Poulet grillé, tomate, piment, origan, pepperonata, mozzarella di bufala.","th":"ไก่ย่าง มะเขือเทศ พริก ออริกาโน เปปเปโรนาตา และมอสซาเรลลา ดิ บูฟาลา","de":"Gegrilltes Hähnchen, Tomate, Chili, Oregano, Pepperonata, Mozzarella di Bufala.","ru":"Курица на гриле, томат, чили, орегано, пепероната, моцарелла ди буфала.","zh":"炭烤鸡肉、番茄、辣椒、牛至、意式甜椒与水牛马苏里拉奶酪。"},"nn":{"fr":"Pizza Pollo Picante","th":"พิซซ่า Pollo Picante","de":"Pizza Pollo Picante","ru":"Пицца Полло Пиканте","zh":"香辣鸡肉披萨"}},{"id":"marimonti","c":"pizza","n":"Pizza Mari e Monti","p":530,"e":"🍕","a":["gluten","dairy","shellfish"],"v":0,"d":{"en":"Garlic prawn, mushroom, tomato and mozzarella di bufala.","fr":"Crevettes à l'ail, champignons, tomate et mozzarella di bufala.","th":"กุ้งกระเทียม เห็ด มะเขือเทศ และมอสซาเรลลา ดิ บูฟาลา","de":"Knoblauchgarnelen, Champignons, Tomate und Mozzarella di Bufala.","ru":"Креветки с чесноком, грибы, томат и моцарелла ди буфала.","zh":"蒜香鲜虾、蘑菇、番茄与水牛马苏里拉奶酪。"},"nn":{"fr":"Pizza Mari e Monti","th":"พิซซ่า Mari e Monti","de":"Pizza Mari e Monti","ru":"Пицца Мари э Монти","zh":"海鲜蘑菇披萨"}},{"id":"parmaham","c":"pizza","n":"Pizza Parma Ham","p":600,"e":"🍕","a":["gluten","dairy"],"v":0,"d":{"en":"Parma ham, tomato, mozzarella di bufala, grana padano, rocket.","fr":"Jambon de Parme, tomate, mozzarella di bufala, grana padano, roquette.","th":"แฮมพาร์มา มะเขือเทศ มอสซาเรลลา ดิ บูฟาลา กรานาปาดาโน และร็อกเก็ต","de":"Parmaschinken, Tomate, Mozzarella di Bufala, Grana Padano, Rucola.","ru":"Пармская ветчина, томат, моцарелла ди буфала, грана падано, руккола.","zh":"帕尔马火腿、番茄、水牛马苏里拉奶酪、帕达诺干酪与芝麻菜。"},"nn":{"fr":"Pizza jambon de Parme","th":"พิซซ่า Parma Ham","de":"Pizza Parmaschinken","ru":"Пицца с пармской ветчиной","zh":"帕尔马火腿披萨"}},{"id":"bresaola","c":"pizza","n":"Pizza Bresaola di Manzo","p":600,"e":"🍕","a":["gluten","dairy","beef"],"v":0,"d":{"en":"Bresaola, tomato, mozzarella di bufala, grana padano and rocket.","fr":"Bresaola, tomate, mozzarella di bufala, grana padano et roquette.","th":"เบรซาโอลา มะเขือเทศ มอสซาเรลลา ดิ บูฟาลา กรานาปาดาโน และร็อกเก็ต","de":"Bresaola, Tomate, Mozzarella di Bufala, Grana Padano und Rucola.","ru":"Брезаола, томат, моцарелла ди буфала, грана падано и руккола.","zh":"意式风干牛肉、番茄、水牛马苏里拉奶酪、帕达诺干酪与芝麻菜。"},"nn":{"fr":"Pizza Bresaola di Manzo","th":"พิซซ่า Bresaola","de":"Pizza Bresaola di Manzo","ru":"Пицца с брезаолой","zh":"风干牛肉披萨"}},{"id":"salamipizza","c":"pizza","n":"Pizza Salami","p":600,"e":"🍕","a":["gluten","dairy"],"v":0,"d":{"en":"Tomato sauce, salami, mozzarella cheese.","fr":"Sauce tomate, salami, mozzarella.","th":"ซอสมะเขือเทศ ซาลามี และชีสมอสซาเรลลา","de":"Tomatensauce, Salami, Mozzarella.","ru":"Томатный соус, салями, сыр моцарелла.","zh":"番茄酱、萨拉米香肠与马苏里拉奶酪。"},"nn":{"fr":"Pizza Salami","th":"พิซซ่า Salami","de":"Pizza Salami","ru":"Пицца Салями","zh":"萨拉米披萨"}},{"id":"andaman","c":"pizza","n":"Pizza Andaman","p":600,"e":"🍕","a":["gluten","dairy","shellfish","fish"],"v":0,"d":{"en":"Fresh seafood, tomato, mozzarella di bufala, lemon and parsley.","fr":"Fruits de mer frais, tomate, mozzarella di bufala, citron et persil.","th":"อาหารทะเลสด มะเขือเทศ มอสซาเรลลา ดิ บูฟาลา เลมอน และพาร์สลีย์","de":"Frische Meeresfrüchte, Tomate, Mozzarella di Bufala, Zitrone und Petersilie.","ru":"Свежие морепродукты, томат, моцарелла ди буфала, лимон и петрушка.","zh":"新鲜海鲜、番茄、水牛马苏里拉奶酪、柠檬与欧芹。"},"nn":{"fr":"Pizza Andaman","th":"พิซซ่า Andaman","de":"Pizza Andaman","ru":"Пицца Андаман","zh":"安达曼披萨"}},{"id":"hawaiian","c":"pizza","n":"Pizza Hawaiian","p":600,"e":"🍍","a":["gluten","dairy"],"v":0,"d":{"en":"Pineapple, ham, bacon, tomato sauce, mozzarella.","fr":"Ananas, jambon, bacon, sauce tomate, mozzarella.","th":"สับปะรด แฮม เบคอน ซอสมะเขือเทศ และมอสซาเรลลา","de":"Ananas, Schinken, Bacon, Tomatensauce, Mozzarella.","ru":"Ананас, ветчина, бекон, томатный соус, моцарелла.","zh":"菠萝、火腿、培根、番茄酱与马苏里拉奶酪。"},"nn":{"fr":"Pizza hawaïenne","th":"พิซซ่า Hawaiian","de":"Pizza Hawaii","ru":"Пицца Гавайская","zh":"夏威夷披萨"}},{"id":"calzone","c":"pizza","n":"Calzone Truffle","p":700,"e":"🥟","a":["gluten","dairy"],"v":1,"d":{"en":"Mozzarella di bufala, gorgonzola, mozzarella, grana padano, truffle, tomato, mushroom.","fr":"Mozzarella di bufala, gorgonzola, mozzarella, grana padano, truffe, tomate, champignons.","th":"มอสซาเรลลา ดิ บูฟาลา กอร์กอนโซลา มอสซาเรลลา กรานาปาดาโน ทรัฟเฟิล มะเขือเทศ และเห็ด","de":"Mozzarella di Bufala, Gorgonzola, Mozzarella, Grana Padano, Trüffel, Tomate, Champignons.","ru":"Моцарелла ди буфала, горгонзола, моцарелла, грана падано, трюфель, томат, грибы.","zh":"水牛马苏里拉、戈贡佐拉、马苏里拉、帕达诺干酪，佐松露、番茄与蘑菇。"},"nn":{"fr":"Calzone truffe","th":"Calzone ทรัฟเฟิล","de":"Calzone Trüffel","ru":"Кальцоне с трюфелем","zh":"松露包馅披萨"}},{"id":"fourcheese","c":"pizza","n":"Four Cheese Truffle","p":700,"e":"🧀","a":["gluten","dairy"],"v":1,"d":{"en":"Mozzarella di bufala, gorgonzola, mozzarella, grana padano, truffles, tomato, oregano and rocket.","fr":"Mozzarella di bufala, gorgonzola, mozzarella, grana padano, truffes, tomate, origan et roquette.","th":"มอสซาเรลลา ดิ บูฟาลา กอร์กอนโซลา มอสซาเรลลา กรานาปาดาโน ทรัฟเฟิล มะเขือเทศ ออริกาโน และร็อกเก็ต","de":"Mozzarella di Bufala, Gorgonzola, Mozzarella, Grana Padano, Trüffel, Tomate, Oregano und Rucola.","ru":"Моцарелла ди буфала, горгонзола, моцарелла, грана падано, трюфель, томат, орегано и руккола.","zh":"水牛马苏里拉、戈贡佐拉、马苏里拉、帕达诺干酪，佐松露、番茄、牛至与芝麻菜。"},"nn":{"fr":"Quatre fromages truffe","th":"สี่ชีสทรัฟเฟิล","de":"Vier-Käse-Trüffel","ru":"Четыре сыра с трюфелем","zh":"松露四芝士披萨"}},{"id":"pomodoro","c":"pasta","n":"Spaghetti al Pomodoro","p":400,"e":"🍝","a":["gluten"],"v":1,"d":{"en":"Spaghetti with cherry tomatoes and garlic.","fr":"Spaghetti aux tomates cerises et à l'ail.","th":"สปาเกตตีผัดมะเขือเทศเชอร์รี่และกระเทียม","de":"Spaghetti mit Kirschtomaten und Knoblauch.","ru":"Спагетти с томатами черри и чесноком.","zh":"意大利面配樱桃番茄与大蒜。"},"nn":{"fr":"Spaghetti al Pomodoro","th":"สปาเก็ตตี้ Pomodoro","de":"Spaghetti al Pomodoro","ru":"Спагетти с томатами","zh":"番茄意面"}},{"id":"poveromare","c":"pasta","n":"Spaghetti Povero Mare","p":450,"e":"🍝","a":["gluten","fish","spicy"],"v":0,"sp":1,"d":{"en":"Spaghetti with garlic, chili, anchovies, cherry tomatoes and mint.","fr":"Spaghetti à l'ail, piment, anchois, tomates cerises et menthe.","th":"สปาเกตตีผัดกระเทียม พริก ปลาแอนโชวี่ มะเขือเทศเชอร์รี่ และสะระแหน่","de":"Spaghetti mit Knoblauch, Chili, Sardellen, Kirschtomaten und Minze.","ru":"Спагетти с чесноком, чили, анчоусами, томатами черри и мятой.","zh":"意大利面配大蒜、辣椒、凤尾鱼、樱桃番茄与薄荷。"},"nn":{"fr":"Spaghetti Povero Mare","th":"สปาเก็ตตี้ Povero Mare","de":"Spaghetti Povero Mare","ru":"Spaghetti Povero Mare","zh":"海鲜意面"}},{"id":"vongole","c":"pasta","n":"Spaghetti alla Vongole","p":450,"e":"🍝","a":["gluten","shellfish","spicy"],"v":0,"sp":1,"d":{"en":"Spaghetti or black ink spaghetti with clams, garlic and chili.","fr":"Spaghetti ou spaghetti à l'encre noire, palourdes, ail et piment.","th":"สปาเกตตีหรือสปาเกตตีหมึกดำ ผัดกับหอยลาย กระเทียม และพริก","de":"Spaghetti oder schwarze Tintenfisch-Spaghetti mit Venusmuscheln, Knoblauch und Chili.","ru":"Спагетти или спагетти с чернилами каракатицы, моллюски вонголе, чеснок и чили.","zh":"意大利面或墨鱼汁意面，配蛤蜊、大蒜与辣椒。"},"nn":{"fr":"Spaghetti alla Vongole","th":"สปาเก็ตตี้ Vongole","de":"Spaghetti alla Vongole","ru":"Спагетти Вонголе","zh":"蛤蜊意面"}},{"id":"carbonara","c":"pasta","n":"Spaghetti Carbonara","p":450,"e":"🍝","a":["gluten","egg","dairy"],"v":0,"d":{"en":"Carbonara bacon, egg, parmesan cheese.","fr":"Carbonara au bacon, œuf, parmesan.","th":"ซอสคาโบนารา เบคอน ไข่ และชีสพาร์เมซาน","de":"Carbonara mit Bacon, Ei und Parmesan.","ru":"Карбонара с беконом, яйцом и сыром пармезан.","zh":"培根、鸡蛋与帕尔马干酪调制的经典奶油蛋酱。"},"nn":{"fr":"Spaghetti Carbonara","th":"สปาเก็ตตี้ Carbonara","de":"Spaghetti Carbonara","ru":"Спагетти Карбонара","zh":"卡邦尼意面"}},{"id":"bolognese","c":"pasta","n":"Spaghetti Bolognese","p":450,"e":"🍝","a":["gluten","beef"],"v":0,"d":{"en":"Spaghetti with beef sauce and garlic.","fr":"Spaghetti à la sauce au bœuf et à l'ail.","th":"สปาเกตตีราดซอสเนื้อวัวและกระเทียม","de":"Spaghetti mit Rinderragout und Knoblauch.","ru":"Спагетти с говяжьим соусом и чесноком.","zh":"意大利面配牛肉酱与大蒜。"},"nn":{"fr":"Spaghetti Bolognese","th":"สปาเก็ตตี้ Bolognese","de":"Spaghetti Bolognese","ru":"Спагетти Болоньезе","zh":"博洛尼亚肉酱意面"}},{"id":"olio","c":"pasta","n":"Spaghetti Olio","p":450,"e":"🍝","a":["gluten","dairy","spicy"],"v":0,"sp":1,"d":{"en":"Spaghetti with garlic, chili, basil, bacon and parmesan.","fr":"Spaghetti à l'ail, piment, basilic, bacon et parmesan.","th":"สปาเกตตีผัดกระเทียม พริก เบซิล เบคอน และพาร์เมซาน","de":"Spaghetti mit Knoblauch, Chili, Basilikum, Bacon und Parmesan.","ru":"Спагетти с чесноком, чили, базиликом, беконом и пармезаном.","zh":"意大利面配大蒜、辣椒、罗勒、培根与帕尔马干酪。"},"nn":{"fr":"Spaghetti Olio","th":"สปาเก็ตตี้ Olio","de":"Spaghetti Olio","ru":"Спагетти Олио","zh":"蒜香橄榄油意面"}},{"id":"linguine","c":"pasta","n":"Linguine con Frutti di Mare","p":450,"e":"🦐","a":["gluten","shellfish","fish"],"v":0,"d":{"en":"Linguine with fresh seafood, garlic and cherry tomato.","fr":"Linguine aux fruits de mer frais, ail et tomate cerise.","th":"ลิงกวีเน่ผัดอาหารทะเลสด กระเทียม และมะเขือเทศเชอร์รี่","de":"Linguine mit frischen Meeresfrüchten, Knoblauch und Kirschtomaten.","ru":"Лингвине со свежими морепродуктами, чесноком и томатами черри.","zh":"扁意面配新鲜海鲜、大蒜与樱桃番茄。"},"nn":{"fr":"Linguine con Frutti di Mare","th":"Linguine Frutti di Mare","de":"Linguine con Frutti di Mare","ru":"Лингвине с морепродуктами","zh":"海鲜扁意面"}},{"id":"risotto","c":"pasta","n":"Risotto Black Ink","p":500,"e":"🦑","a":["shellfish"],"v":0,"d":{"en":"Squid ink risotto with fried squid.","fr":"Risotto à l'encre de seiche et calamars frits.","th":"ริซอตโต้หมึกดำ เสิร์ฟกับปลาหมึกทอด","de":"Risotto mit Tintenfischtinte und frittiertem Tintenfisch.","ru":"Ризотто с чернилами каракатицы и обжаренным кальмаром.","zh":"墨鱼汁烩饭，配香炸鱿鱼。"},"nn":{"fr":"Risotto Black Ink","th":"ริซอตโต้หมึกดำ","de":"Risotto mit Tintenfischtinte","ru":"Ризотто с чернилами каракатицы","zh":"墨鱼汁烩饭"}},{"id":"gambas","c":"tapas","n":"Gambas al Ajillo","p":260,"e":"🦐","a":["shellfish","spicy"],"v":0,"sp":1,"d":{"en":"Spanish garlic shrimp.","fr":"Crevettes à l'ail à l'espagnole.","th":"กุ้งผัดกระเทียมสไตล์สเปน","de":"Spanische Knoblauchgarnelen.","ru":"Испанские креветки с чесноком.","zh":"西班牙蒜香橄榄油虾。"},"nn":{"fr":"Gambas al Ajillo","th":"Gambas al Ajillo","de":"Gambas al Ajillo","ru":"Гамбас аль ахильо","zh":"蒜香虾"}},{"id":"albondigas","c":"tapas","n":"Albondigas","p":290,"e":"🍖","a":["beef","gluten","egg"],"v":0,"d":{"en":"Spanish meatballs.","fr":"Boulettes de viande à l'espagnole.","th":"มีตบอลสไตล์สเปน","de":"Spanische Fleischbällchen.","ru":"Испанские тефтели.","zh":"西班牙风味肉丸。"},"nn":{"fr":"Albondigas","th":"Albondigas","de":"Albondigas","ru":"Альбондигас","zh":"西班牙肉丸"}},{"id":"espinacas","c":"tapas","n":"Espinacas con Garbanzos","p":200,"e":"🥬","a":[],"v":1,"d":{"en":"Spanish spinach with chick peas.","fr":"Épinards aux pois chiches à l'espagnole.","th":"ผักโขมผัดถั่วลูกไก่สไตล์สเปน","de":"Spanischer Spinat mit Kichererbsen.","ru":"Испанский шпинат с нутом.","zh":"西班牙风味菠菜炖鹰嘴豆。"},"nn":{"fr":"Espinacas con Garbanzos","th":"Espinacas con Garbanzos","de":"Espinacas con Garbanzos","ru":"Шпинат с нутом","zh":"菠菜炖鹰嘴豆"}},{"id":"pipirrana","c":"tapas","n":"Pipirrana","p":200,"e":"🥗","a":[],"v":1,"d":{"en":"Spanish summer salad.","fr":"Salade d'été espagnole.","th":"สลัดฤดูร้อนสไตล์สเปน","de":"Spanischer Sommersalat.","ru":"Испанский летний салат.","zh":"西班牙夏日蔬菜沙拉。"},"nn":{"fr":"Pipirrana","th":"Pipirrana","de":"Pipirrana","ru":"Pipirrana","zh":"西班牙蔬菜沙拉"}},{"id":"panjamon","c":"tapas","n":"Pan con Jamon Serrano","p":260,"e":"🥖","a":["gluten"],"v":0,"d":{"en":"Spanish dried ham bread.","fr":"Pain au jambon sec espagnol.","th":"ขนมปังกับแฮมแห้งสไตล์สเปน","de":"Spanisches Brot mit luftgetrocknetem Schinken.","ru":"Испанский хлеб с вяленым хамоном.","zh":"西班牙风干火腿面包。"},"nn":{"fr":"Pan con Jamon Serrano","th":"Pan con Jamon Serrano","de":"Pan con Jamon Serrano","ru":"Хлеб с хамоном серрано","zh":"塞拉诺火腿面包"}},{"id":"pantomate","c":"tapas","n":"Pan con Tomate","p":200,"e":"🍅","a":["gluten"],"v":1,"d":{"en":"Spanish tomato bread.","fr":"Pain à la tomate à l'espagnole.","th":"ขนมปังทามะเขือเทศสไตล์สเปน","de":"Spanisches Tomatenbrot.","ru":"Испанский хлеб с томатом.","zh":"西班牙番茄面包。"},"nn":{"fr":"Pan con Tomate","th":"Pan con Tomate","de":"Pan con Tomate","ru":"Хлеб с томатом","zh":"番茄面包"}},{"id":"olives","c":"tapas","n":"Warm Marinated Olives","p":200,"e":"🫒","a":[],"v":1,"d":{"en":"Warm marinated olives with herbs.","fr":"Olives marinées tièdes aux herbes.","th":"มะกอกหมักสมุนไพร เสิร์ฟอุ่น ๆ","de":"Warme marinierte Oliven mit Kräutern.","ru":"Тёплые маринованные оливки с травами.","zh":"香草腌渍温热橄榄。"},"nn":{"fr":"Olives marinées tièdes","th":"โอลีฟหมักอุ่น","de":"Warme marinierte Oliven","ru":"Тёплые маринованные оливки","zh":"温热腌橄榄"}},{"id":"gambasalioli","c":"tapas","n":"Gambas a la Parrilla con Alioli","p":260,"e":"🦐","a":["shellfish","egg"],"v":0,"d":{"en":"Grilled prawns with homemade alioli.","fr":"Crevettes grillées et alioli maison.","th":"กุ้งย่าง เสิร์ฟพร้อมซอสอาลิโอลีโฮมเมด","de":"Gegrillte Garnelen mit hausgemachtem Alioli.","ru":"Креветки на гриле с домашним алиоли.","zh":"炭烤大虾，配自制蒜香蛋黄酱。"},"nn":{"fr":"Gambas a la Parrilla con Alioli","th":"กุ้งย่าง Alioli","de":"Gambas a la Parrilla con Alioli","ru":"Креветки гриль с айоли","zh":"蒜香蛋黄酱烤虾"}},{"id":"chorizo","c":"tapas","n":"Cider Glazed Chorizo","p":290,"e":"🌭","a":["spicy"],"v":0,"sp":1,"d":{"en":"Chorizo glazed in cider.","fr":"Chorizo glacé au cidre.","th":"ไส้กรอกโชริโซเคลือบไซเดอร์","de":"In Cidre glasierte Chorizo.","ru":"Чоризо, глазированное в сидре.","zh":"苹果酒煨西班牙辣香肠。"},"nn":{"fr":"Chorizo glacé au cidre","th":"ไส้กรอก Chorizo","de":"Chorizo in Cidre glasiert","ru":"Чоризо в сидре","zh":"苹果酒西班牙香肠"}},{"id":"tortillaesp","c":"tapas","n":"Tortilla","p":200,"e":"🥚","a":["egg"],"v":1,"d":{"en":"Spanish omelette.","fr":"Omelette espagnole.","th":"ไข่เจียวสไตล์สเปน","de":"Spanisches Omelett.","ru":"Испанский омлет.","zh":"西班牙土豆蛋饼。"},"nn":{"fr":"Tortilla","th":"Tortilla","de":"Tortilla","ru":"Тортилья","zh":"西班牙土豆蛋饼"}},{"id":"calamaresfritos","c":"tapas","n":"Calamares Fritos","p":260,"e":"🦑","a":["shellfish","gluten"],"v":0,"d":{"en":"Fried calamari with Spanish paprika.","fr":"Calamars frits au paprika espagnol.","th":"ปลาหมึกทอดโรยปาปริก้าสเปน","de":"Frittierte Calamares mit spanischem Paprika.","ru":"Жареный кальмар с испанской паприкой.","zh":"香炸鱿鱼，佐西班牙红椒粉。"},"nn":{"fr":"Calamares Fritos","th":"Calamares Fritos","de":"Calamares Fritos","ru":"Жареные кальмары","zh":"西班牙炸鱿鱼"}},{"id":"pulpo","c":"tapas","n":"Pulpo a la Gallega","p":290,"e":"🐙","a":["shellfish","spicy"],"v":0,"sp":1,"d":{"en":"Octopus with paprika, Galician recipe.","fr":"Poulpe au paprika, recette galicienne.","th":"ปลาหมึกยักษ์โรยปาปริก้า สูตรกาลิเซีย","de":"Oktopus mit Paprika nach galicischem Rezept.","ru":"Осьминог с паприкой по-галисийски.","zh":"加利西亚风味章鱼，佐红椒粉。"},"nn":{"fr":"Pulpo a la Gallega","th":"Pulpo a la Gallega","de":"Pulpo a la Gallega","ru":"Осьминог по-галисийски","zh":"加利西亚风味章鱼"}},{"id":"bravas","c":"tapas","n":"Patatas Bravas","p":200,"e":"🥔","a":["egg","spicy"],"v":1,"sp":1,"d":{"en":"Fried potatoes with spicy bravas sauce.","fr":"Pommes de terre frites, sauce bravas relevée.","th":"มันฝรั่งทอด ราดซอสบราวาสรสเผ็ด","de":"Frittierte Kartoffeln mit pikanter Bravas-Sauce.","ru":"Жареный картофель с острым соусом бравас.","zh":"炸土豆块，佐西班牙辣番茄酱。"},"nn":{"fr":"Patatas Bravas","th":"Patatas Bravas","de":"Patatas Bravas","ru":"Пататас бравас","zh":"辣味炸土豆块"}},{"id":"corvina","c":"tapas","n":"Filete de Corvina Frita","p":260,"e":"🐟","a":["fish","gluten"],"v":0,"d":{"en":"Fried sea bass fillet.","fr":"Filet de bar frit.","th":"เนื้อปลากะพงทอด","de":"Frittiertes Wolfsbarschfilet.","ru":"Обжаренное филе сибаса.","zh":"香炸鲈鱼柳。"},"nn":{"fr":"Filete de Corvina Frita","th":"Filete de Corvina Frita","de":"Filete de Corvina Frita","ru":"Жареное филе корвины","zh":"西班牙炸鱼柳"}},{"id":"mango","c":"dess","n":"Mango Sticky Rice","p":220,"e":"🥭","a":[],"v":1,"d":{"en":"Sticky rice with mango and mango sorbet.","fr":"Riz gluant à la mangue et sorbet mangue.","th":"ข้าวเหนียวมูนกับมะม่วงสุก เสิร์ฟพร้อมซอร์เบต์มะม่วง","de":"Klebreis mit Mango und Mangosorbet.","ru":"Клейкий рис с манго и сорбетом из манго.","zh":"芒果糯米饭，配芒果雪葩。"},"nn":{"fr":"Riz gluant à la mangue","th":"ข้าวเหนียวมะม่วง","de":"Mango Sticky Rice","ru":"Манго со сладким рисом","zh":"芒果糯米饭"}},{"id":"rotitob","c":"dess","n":"Roti Tob","p":160,"e":"🥞","a":["gluten","dairy","egg"],"v":1,"tn":"โรตีตบ","d":{"en":"Traditional roti served with condensed milk.","fr":"Roti traditionnel servi avec du lait concentré.","th":"โรตีสูตรดั้งเดิม เสิร์ฟพร้อมนมข้นหวาน","de":"Traditionelles Roti, serviert mit Kondensmilch.","ru":"Традиционный роти со сгущённым молоком.","zh":"传统泰式煎饼，佐炼乳。"},"nn":{"fr":"Roti Tob","th":"โรตี","de":"Roti Tob","ru":"Роти Тоб","zh":"泰式煎饼"}},{"id":"banfritter","c":"dess","n":"Banana Fritter","p":220,"e":"🍌","a":["gluten","dairy","egg"],"v":1,"d":{"en":"Fried banana served with vanilla ice cream.","fr":"Banane frite servie avec une glace vanille.","th":"กล้วยทอด เสิร์ฟพร้อมไอศกรีมวานิลลา","de":"Frittierte Banane, serviert mit Vanilleeis.","ru":"Жареный банан с ванильным мороженым.","zh":"香炸香蕉，配香草冰淇淋。"},"nn":{"fr":"Beignet de banane","th":"กล้วยทอด","de":"Gebackene Banane","ru":"Жареные бананы","zh":"炸香蕉"}},{"id":"tiramisu","c":"dess","n":"Tiramisu","p":220,"e":"🍰","a":["gluten","dairy","egg"],"v":1,"d":{"en":"Espresso-soaked ladyfingers, mascarpone cream, lightly dusted with cocoa powder, Baileys.","fr":"Biscuits cuillère imbibés d'espresso, crème mascarpone, léger voile de cacao, Baileys.","th":"เลดี้ฟิงเกอร์ชุบเอสเพรสโซ ครีมมาสคาร์โปเน โรยผงโกโก้บาง ๆ และเบลีย์ส","de":"In Espresso getränkte Löffelbiskuits, Mascarponecreme, leicht mit Kakao bestäubt, Baileys.","ru":"Савоярди, пропитанные эспрессо, крем маскарпоне, лёгкая пудра какао, Baileys.","zh":"浓缩咖啡浸润手指饼干、马斯卡彭奶酪慕斯，轻撒可可粉，佐百利甜酒。"},"nn":{"fr":"Tiramisu","th":"ทีรามิสุ","de":"Tiramisu","ru":"Тирамису","zh":"提拉米苏"}},{"id":"limoncello","c":"dess","n":"Coupe Limoncello","p":220,"e":"🍋","a":["nut","egg"],"v":1,"d":{"en":"Homemade raspberry sorbet with limoncello liqueur served with a macaron.","fr":"Sorbet framboise maison au limoncello, servi avec un macaron.","th":"ซอร์เบต์ราสป์เบอร์รี่โฮมเมดกับเหล้าลิมอนเชลโล เสิร์ฟพร้อมมาการอง","de":"Hausgemachtes Himbeersorbet mit Limoncello-Likör, serviert mit einem Macaron.","ru":"Домашний малиновый сорбет с ликёром лимончелло и макаруном.","zh":"自制覆盆子雪葩配柠檬甜酒，佐马卡龙。"},"nn":{"fr":"Coupe Limoncello","th":"Coupe Limoncello","de":"Coupe Limoncello","ru":"Купе Лимончелло","zh":"柠檬酒冰淇淋杯"}},{"id":"icecream","c":"dess","n":"Homemade Ice Cream","p":120,"e":"🍨","a":["dairy"],"v":1,"p2":150,"d":{"en":"Chocolate, vanilla, coconut, raspberry, thai tea, palm sugar. Cup 120 / cone 150.","fr":"Chocolat, vanille, coco, framboise, thé thaï, sucre de palme. Coupe 120 / cornet 150.","th":"ช็อกโกแลต วานิลลา มะพร้าว ราสป์เบอร์รี่ ชาไทย น้ำตาลมะพร้าว ถ้วย 120 / โคน 150","de":"Schokolade, Vanille, Kokos, Himbeere, Thai Tea, Palmzucker. Becher 120 / Waffel 150.","ru":"Шоколад, ваниль, кокос, малина, тайский чай, пальмовый сахар. Креманка 120 / рожок 150.","zh":"巧克力、香草、椰子、覆盆子、泰式奶茶、棕榈糖口味。杯装 120 ／蛋筒 150。"},"nn":{"fr":"Glace maison","th":"ไอศกรีมโฮมเมด","de":"Hausgemachtes Eis","ru":"Домашнее мороженое","zh":"自制冰淇淋"}},{"id":"fruitplatter","c":"dess","n":"Mixed Fruits Platter","p":150,"e":"🍉","a":[],"v":1,"d":{"en":"Seasonal fresh fruits from local markets.","fr":"Fruits frais de saison des marchés locaux.","th":"ผลไม้สดตามฤดูกาลจากตลาดท้องถิ่น","de":"Frische Früchte der Saison von lokalen Märkten.","ru":"Свежие сезонные фрукты с местных рынков.","zh":"当地市集当季新鲜水果。"},"nn":{"fr":"Assiette de fruits frais","th":"ผลไม้รวม","de":"Frischer Obstteller","ru":"Фруктовая тарелка","zh":"综合水果拼盘"}},{"id":"bansplit","c":"dess","n":"Banana Split","p":300,"e":"🍌","a":["dairy"],"v":1,"d":{"en":"Ice cream scoops served over a fresh banana, topped with whipped cream and chocolate syrup.","fr":"Boules de glace sur une banane fraîche, crème fouettée et sirop de chocolat.","th":"ไอศกรีมหลายสกู๊ปวางบนกล้วยสด ราดวิปครีมและช็อกโกแลตไซรัป","de":"Eiskugeln auf einer frischen Banane, gekrönt mit Schlagsahne und Schokoladensauce.","ru":"Шарики мороженого на свежем банане, взбитые сливки и шоколадный сироп.","zh":"冰淇淋球佐新鲜香蕉，淋鲜奶油与巧克力酱。"},"nn":{"fr":"Banana Split","th":"บานาน่าสปลิท","de":"Banana Split","ru":"Банана сплит","zh":"香蕉船"}},{"id":"churros","c":"dess","n":"Churros","p":220,"e":"🍩","a":["gluten","dairy","egg"],"v":1,"d":{"en":"Crispy churros dusted with sugar and cinnamon, paired with our coconut ice cream.","fr":"Churros croustillants au sucre et à la cannelle, accompagnés de notre glace à la noix de coco.","th":"ชูรอสกรอบโรยน้ำตาลและอบเชย เสิร์ฟคู่ไอศกรีมมะพร้าวของเรา","de":"Knusprige Churros mit Zimt und Zucker, dazu unser Kokoseis.","ru":"Хрустящие чуррос в сахаре с корицей и наше кокосовое мороженое.","zh":"香脆吉事果撒肉桂砂糖，配自制椰子冰淇淋。"},"nn":{"fr":"Churros","th":"ชูรอส","de":"Churros","ru":"Чуррос","zh":"西班牙油条"}},{"id":"cremacat","c":"dess","n":"Crema Catalana","p":220,"e":"🍮","a":["dairy","egg"],"v":1,"d":{"en":"Rich custard base topped with a layer of hardened caramelized sugar.","fr":"Crème onctueuse recouverte d'une fine couche de sucre caramélisé.","th":"คัสตาร์ดเนื้อเข้มข้น เคลือบหน้าด้วยน้ำตาลคาราเมลกรอบ","de":"Sämige Vanillecreme unter einer Schicht knackig karamellisiertem Zucker.","ru":"Нежный заварной крем под хрустящей карамельной корочкой.","zh":"浓郁蛋奶布丁，覆以焦糖脆壳。"},"nn":{"fr":"Crema Catalana","th":"Crema Catalana","de":"Crema Catalana","ru":"Крема каталана","zh":"加泰罗尼亚焦糖布丁"}},{"id":"icedlatte","c":"drink","n":"Iced Latte","p":120,"e":"🧊","a":["dairy"],"v":1,"d":{"en":"Espresso over ice with cold milk.","fr":"Espresso sur glace et lait froid.","th":"เอสเพรสโซราดบนน้ำแข็ง ผสมนมเย็น","de":"Espresso auf Eis mit kalter Milch.","ru":"Эспрессо со льдом и холодным молоком.","zh":"浓缩咖啡加冰，配冷牛奶。"},"nn":{"fr":"Latte glacé","th":"ลาเต้เย็น","de":"Latte eisgekühlt","ru":"Айс латте","zh":"冰拿铁"}},{"id":"icedcapp","c":"drink","n":"Iced Cappuccino","p":120,"e":"🧊","a":["dairy"],"v":1,"d":{"en":"Chilled cappuccino, lightly foamed.","fr":"Cappuccino glacé, légèrement mousseux.","th":"คาปูชิโนเย็น ตีฟองนมบางเบา","de":"Gekühlter Cappuccino, leicht aufgeschäumt.","ru":"Охлаждённый капучино с лёгкой пенкой.","zh":"冰镇卡布奇诺，覆轻盈奶泡。"},"nn":{"fr":"Cappuccino glacé","th":"คาปูชิโน่เย็น","de":"Cappuccino eisgekühlt","ru":"Айс капучино","zh":"冰卡布奇诺"}},{"id":"thaitea","c":"drink","n":"Thai Iced Tea","p":120,"e":"🧋","a":["dairy"],"v":1,"d":{"en":"Traditional Thai tea with condensed milk over ice.","fr":"Thé thaï traditionnel au lait concentré, sur glace.","th":"ชาไทยสูตรดั้งเดิมกับนมข้นหวาน เสิร์ฟเย็น","de":"Traditioneller Thai-Tee mit Kondensmilch auf Eis.","ru":"Традиционный тайский чай со сгущённым молоком и льдом.","zh":"传统泰式茶加炼乳，冰爽呈现。"},"nn":{"fr":"Thé thaï glacé","th":"ชาไทยเย็น","de":"Thai-Eistee","ru":"Тайский чай со льдом","zh":"泰式冰奶茶"}},{"id":"thaicoffee","c":"drink","n":"Thai Iced Coffee","p":120,"e":"🧋","a":["dairy"],"v":1,"d":{"en":"Strong Thai coffee served over ice.","fr":"Café thaï corsé servi sur glace.","th":"กาแฟไทยรสเข้ม เสิร์ฟเย็น","de":"Kräftiger thailändischer Kaffee auf Eis serviert.","ru":"Крепкий тайский кофе со льдом.","zh":"浓郁泰式咖啡，加冰享用。"},"nn":{"fr":"Café thaï glacé","th":"กาแฟไทยเย็น","de":"Thai-Eiskaffee","ru":"Тайский кофе со льдом","zh":"泰式冰咖啡"}},{"id":"konjac","c":"drink","n":"Konjac Pearl Tea","p":120,"e":"🧋","a":["dairy"],"v":1,"d":{"en":"Iced tea with konjac pearls.","fr":"Thé glacé aux perles de konjac.","th":"ชาเย็นกับไข่มุกบุก","de":"Eistee mit Konjac-Perlen.","ru":"Холодный чай с жемчужинами конжака.","zh":"冰茶配蒟蒻珍珠。"},"nn":{"fr":"Thé aux perles de konjac","th":"ชาไข่มุกบุก","de":"Konjac-Perlentee","ru":"Чай с шариками конжак","zh":"蒟蒻珍珠茶"}},{"id":"mocha","c":"drink","n":"Mocha","p":120,"e":"☕","a":["dairy"],"v":1,"d":{"en":"Espresso with chocolate and steamed milk.","fr":"Espresso, chocolat et lait chaud mousseux.","th":"เอสเพรสโซกับช็อกโกแลตและนมสตีม","de":"Espresso mit Schokolade und aufgeschäumter Milch.","ru":"Эспрессо с шоколадом и взбитым молоком.","zh":"浓缩咖啡配巧克力与蒸奶。"},"nn":{"fr":"Moka","th":"มอคค่า","de":"Mocha","ru":"Мокко","zh":"摩卡"}},{"id":"espresso","c":"drink","n":"Espresso","p":100,"e":"☕","a":[],"v":1,"d":{"en":"Single shot of our house espresso.","fr":"Un shot de notre espresso maison.","th":"เอสเพรสโซสูตรของทางร้าน หนึ่งช็อต","de":"Ein Shot unseres Haus-Espressos.","ru":"Одна порция нашего фирменного эспрессо.","zh":"本店招牌浓缩咖啡，单份。"},"nn":{"fr":"Espresso","th":"เอสเพรสโซ่","de":"Espresso","ru":"Эспрессо","zh":"浓缩咖啡"}},{"id":"regcoffee","c":"drink","n":"Regular Coffee","p":100,"e":"☕","a":[],"v":1,"d":{"en":"Freshly brewed coffee.","fr":"Café fraîchement infusé.","th":"กาแฟสดชงใหม่","de":"Frisch aufgebrühter Kaffee.","ru":"Свежесваренный кофе.","zh":"新鲜现煮咖啡。"},"nn":{"fr":"Café classique","th":"กาแฟธรรมดา","de":"Filterkaffee","ru":"Обычный кофе","zh":"普通咖啡"}},{"id":"decaf","c":"drink","n":"Decaffeinated Coffee","p":100,"e":"☕","a":[],"v":1,"d":{"en":"Freshly brewed decaffeinated coffee.","fr":"Café décaféiné fraîchement infusé.","th":"กาแฟสกัดคาเฟอีนชงใหม่","de":"Frisch aufgebrühter entkoffeinierter Kaffee.","ru":"Свежесваренный кофе без кофеина.","zh":"新鲜现煮低因咖啡。"},"nn":{"fr":"Café décaféiné","th":"กาแฟไม่มีคาเฟอีน","de":"Entkoffeinierter Kaffee","ru":"Кофе без кофеина","zh":"低因咖啡"}},{"id":"latte","c":"drink","n":"Latte","p":120,"e":"☕","a":["dairy"],"v":1,"d":{"en":"Espresso with steamed milk.","fr":"Espresso et lait chaud mousseux.","th":"เอสเพรสโซกับนมสตีม","de":"Espresso mit aufgeschäumter Milch.","ru":"Эспрессо со взбитым молоком.","zh":"浓缩咖啡配蒸奶。"},"nn":{"fr":"Latte","th":"ลาเต้","de":"Latte","ru":"Латте","zh":"拿铁"}},{"id":"macchiato","c":"drink","n":"Macchiato","p":120,"e":"☕","a":["dairy"],"v":1,"d":{"en":"Espresso marked with a spoon of milk foam.","fr":"Espresso taché d'une cuillère de mousse de lait.","th":"เอสเพรสโซแต่งหน้าด้วยฟองนมหนึ่งช้อน","de":"Espresso, verfeinert mit einem Löffel Milchschaum.","ru":"Эспрессо с ложкой молочной пены.","zh":"浓缩咖啡上点缀一勺奶泡。"},"nn":{"fr":"Macchiato","th":"Macchiato","de":"Macchiato","ru":"Макиато","zh":"玛奇朵"}},{"id":"cappuccino","c":"drink","n":"Cappuccino","p":120,"e":"☕","a":["dairy"],"v":1,"d":{"en":"Espresso, steamed milk and a thick foam cap.","fr":"Espresso, lait chaud et généreuse mousse.","th":"เอสเพรสโซ นมสตีม และฟองนมหนานุ่มด้านบน","de":"Espresso, aufgeschäumte Milch und eine dichte Schaumhaube.","ru":"Эспрессо, взбитое молоко и плотная молочная пенка.","zh":"浓缩咖啡、蒸奶与绵密奶泡。"},"nn":{"fr":"Cappuccino","th":"คาปูชิโน่","de":"Cappuccino","ru":"Капучино","zh":"卡布奇诺"}},{"id":"engbreakfast","c":"drink","n":"English Breakfast Tea","p":100,"e":"🫖","a":[],"v":1,"d":{"en":"Classic black tea, served hot.","fr":"Thé noir classique, servi chaud.","th":"ชาดำคลาสสิก เสิร์ฟร้อน","de":"Klassischer Schwarztee, heiß serviert.","ru":"Классический чёрный чай, подаётся горячим.","zh":"经典红茶，热饮呈上。"},"nn":{"fr":"Thé English Breakfast","th":"ชา English Breakfast","de":"English Breakfast Tee","ru":"Чай Английский завтрак","zh":"英式早餐茶"}},{"id":"earlgrey","c":"drink","n":"French Earl Grey","p":100,"e":"🫖","a":[],"v":1,"d":{"en":"Black tea scented with bergamot and flowers.","fr":"Thé noir parfumé à la bergamote et aux fleurs.","th":"ชาดำแต่งกลิ่นเบอร์กาม็อตและดอกไม้","de":"Schwarztee, aromatisiert mit Bergamotte und Blüten.","ru":"Чёрный чай с бергамотом и цветочными нотами.","zh":"佛手柑与花香熏制红茶。"},"nn":{"fr":"Earl Grey français","th":"ชา French Earl Grey","de":"French Earl Grey","ru":"Французский Эрл Грей","zh":"法式伯爵茶"}},{"id":"chamomile","c":"drink","n":"Chamomile","p":100,"e":"🌼","a":[],"v":1,"d":{"en":"Caffeine-free chamomile infusion.","fr":"Infusion de camomille sans caféine.","th":"ชาคาโมมายล์ ปราศจากคาเฟอีน","de":"Koffeinfreier Kamillenaufguss.","ru":"Настой ромашки без кофеина.","zh":"无咖啡因洋甘菊花草茶。"},"nn":{"fr":"Camomille","th":"ชาคาโมมายล์","de":"Kamillentee","ru":"Ромашковый чай","zh":"洋甘菊茶"}},{"id":"minttea","c":"drink","n":"Fresh Mint Tea","p":100,"e":"🌿","a":[],"v":1,"d":{"en":"Fresh mint leaves from our garden.","fr":"Feuilles de menthe fraîche de notre jardin.","th":"ใบสะระแหน่สดจากสวนของเรา","de":"Frische Minzblätter aus unserem Garten.","ru":"Свежие листья мяты из нашего сада.","zh":"取自自家花园的新鲜薄荷叶。"},"nn":{"fr":"Thé à la menthe fraîche","th":"ชาสะระแหน่สด","de":"Frischer Minztee","ru":"Чай с мятой","zh":"新鲜薄荷茶"}},{"id":"gingertea","c":"drink","n":"Fresh Ginger Tea","p":100,"e":"🫚","a":[],"v":1,"d":{"en":"Fresh ginger root infusion with honey on the side.","fr":"Infusion de gingembre frais, miel à part.","th":"ชาขิงสดชงร้อน เสิร์ฟพร้อมน้ำผึ้งแยกข้าง","de":"Aufguss aus frischer Ingwerwurzel, Honig separat.","ru":"Настой свежего корня имбиря, мёд подаётся отдельно.","zh":"鲜姜根茶，另配蜂蜜。"},"nn":{"fr":"Thé au gingembre frais","th":"ชาขิงสด","de":"Frischer Ingwertee","ru":"Чай с имбирём","zh":"新鲜姜茶"}}];
+
+</script>
+<script>
+
+/* ============ HOTEL SERVICES (concierge persona) ============ */
+var S=[
+{id:'rs',e:'\u{1F37D}',p:0,
+ n:{en:'In-room dining',fr:'Room service',th:'บริการอาหารในห้องพัก',de:'Zimmerservice',ru:'Обслуживание в номере',zh:'客房送餐'},
+ d:{en:'Full beach club menu served in your room, 07:00–22:00.',
+    fr:'Toute la carte du beach club servie en chambre, 7h–22h.',
+    th:'สั่งอาหารจากบีชคลับส่งถึงห้อง 07:00–22:00 น.',
+    de:'Die komplette Beach-Club-Karte aufs Zimmer, 07:00–22:00.',
+    ru:'Всё меню бич-клуба в номер, с 07:00 до 22:00.',
+    zh:'海滩俱乐部全菜单送餐至客房，07:00–22:00。'}},
+{id:'spa',e:'\u{1F486}',p:1200,
+ n:{en:'Thai massage & spa',fr:'Massage thaï & spa',th:'นวดแผนไทยและสปา',de:'Thai-Massage & Spa',ru:'Тайский массаж и спа',zh:'泰式按摩与水疗'},
+ d:{en:'60 min traditional Thai or oil massage, in the spa or on your terrace.',
+    fr:'60 min de massage thaï traditionnel ou à l’huile, au spa ou sur votre terrasse.',
+    th:'นวดไทยหรือนวดน้ำมัน 60 นาที ที่สปาหรือระเบียงห้องพัก',
+    de:'60 Min. traditionelle Thai- oder Ölmassage, im Spa oder auf Ihrer Terrasse.',
+    ru:'60 мин традиционного тайского или масляного массажа.',
+    zh:'60分钟传统泰式或精油按摩，可于水疗中心或您的露台。'}},
+{id:'tour',e:'\u{1F6A4}',p:2500,
+ n:{en:'4 Islands longtail tour',fr:'Excursion 4 îles en longtail',th:'ทัวร์ 4 เกาะเรือหางยาว',de:'4-Inseln-Longtail-Tour',ru:'Тур по 4 островам',zh:'四岛长尾船之旅'},
+ d:{en:'Private longtail boat, departs 09:00 from our beach. Lunch and snorkelling included.',
+    fr:'Longtail privé, départ 9h de notre plage. Déjeuner et snorkeling inclus.',
+    th:'เรือหางยาวส่วนตัว ออกเดินทาง 09:00 น. จากหาดของเรา รวมอาหารกลางวันและดำน้ำตื้น',
+    de:'Privates Longtail-Boot, Abfahrt 09:00 von unserem Strand. Mittagessen und Schnorcheln inklusive.',
+    ru:'Частная лодка, отправление в 09:00 с нашего пляжа. Обед и снорклинг включены.',
+    zh:'私人长尾船，09:00从本店海滩出发，含午餐与浮潜。'}},
+{id:'taxi',e:'\u{1F695}',p:800,
+ n:{en:'Airport transfer',fr:'Transfert aéroport',th:'รถรับส่งสนามบิน',de:'Flughafentransfer',ru:'Трансфер в аэропорт',zh:'机场接送'},
+ d:{en:'Private car to Krabi airport, 45 min. Tell me your flight time.',
+    fr:'Voiture privée jusqu’à l’aéroport de Krabi, 45 min. Dites-moi l’heure de votre vol.',
+    th:'รถส่วนตัวไปสนามบินกระบี่ 45 นาที แจ้งเวลาเที่ยวบินได้เลย',
+    de:'Privatwagen zum Flughafen Krabi, 45 Min. Nennen Sie mir Ihre Flugzeit.',
+    ru:'Частный автомобиль в аэропорт Краби, 45 мин. Скажите время рейса.',
+    zh:'私家车前往甲米机场，约45分钟。请告知航班时间。'}},
+{id:'late',e:'\u{1F55B}',p:0,
+ n:{en:'Late check-out',fr:'Départ tardif',th:'เช็คเอาท์สาย',de:'Später Check-out',ru:'Поздний выезд',zh:'延迟退房'},
+ d:{en:'Until 14:00 free of charge when the hotel allows. I can request it now.',
+    fr:'Jusqu’à 14h sans supplément si l’hôtel le permet. Je peux le demander tout de suite.',
+    th:'ถึง 14:00 น. ไม่มีค่าใช้จ่ายหากห้องว่าง แจ้งให้ได้ทันที',
+    de:'Bis 14:00 kostenfrei, sofern möglich. Ich frage sofort an.',
+    ru:'До 14:00 бесплатно при наличии возможности. Могу запросить сейчас.',
+    zh:'如房态允许，可免费延至14:00。我可以立即为您申请。'}},
+{id:'house',e:'\u{1F9F4}',p:0,
+ n:{en:'Housekeeping & towels',fr:'Ménage & serviettes',th:'แม่บ้านและผ้าเช็ดตัว',de:'Housekeeping & Handtücher',ru:'Уборка и полотенца',zh:'客房清洁与毛巾'},
+ d:{en:'Fresh towels, extra pillows or a room refresh — usually within 15 minutes.',
+    fr:'Serviettes propres, oreillers en plus ou remise en état — en général sous 15 minutes.',
+    th:'ผ้าเช็ดตัวใหม่ หมอนเสริม หรือทำความสะอาดห้อง ภายใน 15 นาที',
+    de:'Frische Handtücher, extra Kissen oder Zimmerreinigung — meist in 15 Minuten.',
+    ru:'Свежие полотенца, дополнительные подушки или уборка — обычно за 15 минут.',
+    zh:'更换毛巾、加枕头或整理房间，通常15分钟内完成。'}},
+{id:'bfast',e:'\u{1F373}',p:0,
+ n:{en:'Breakfast',fr:'Petit-déjeuner',th:'อาหารเช้า',de:'Frühstück',ru:'Завтрак',zh:'早餐'},
+ d:{en:'Served 07:00–10:30 on the beach terrace. Included in your stay.',
+    fr:'Servi de 7h à 10h30 sur la terrasse plage. Inclus dans votre séjour.',
+    th:'เสิร์ฟ 07:00–10:30 น. ที่ระเบียงริมหาด รวมในค่าห้องพัก',
+    de:'07:00–10:30 auf der Strandterrasse. Im Aufenthalt inbegriffen.',
+    ru:'С 07:00 до 10:30 на пляжной террасе. Включён в проживание.',
+    zh:'07:00–10:30于海滩露台供应，已含在房价内。'}},
+{id:'laundry',e:'\u{1F455}',p:350,
+ n:{en:'Laundry service',fr:'Blanchisserie',th:'บริการซักรีด',de:'Wäscheservice',ru:'Прачечная',zh:'洗衣服务'},
+ d:{en:'Collected before 10:00, returned the same evening.',
+    fr:'Ramassage avant 10h, retour le soir même.',
+    th:'รับผ้าก่อน 10:00 น. คืนภายในเย็นวันเดียวกัน',
+    de:'Abholung vor 10:00, Rückgabe am selben Abend.',
+    ru:'Забираем до 10:00, возвращаем тем же вечером.',
+    zh:'10:00前收取，当晚送回。'}}
+];
+</script>
+<script>
+var LANGS=[
+ {c:'en',f:'\u{1F1EC}\u{1F1E7}',n:'English',v:'en-US'},
+ {c:'fr',f:'\u{1F1EB}\u{1F1F7}',n:'Français',v:'fr-FR'},
+ {c:'th',f:'\u{1F1F9}\u{1F1ED}',n:'ไทย',v:'th-TH'},
+ {c:'de',f:'\u{1F1E9}\u{1F1EA}',n:'Deutsch',v:'de-DE'},
+ {c:'ru',f:'\u{1F1F7}\u{1F1FA}',n:'Русский',v:'ru-RU'},
+ {c:'zh',f:'\u{1F1E8}\u{1F1F3}',n:'中文',v:'zh-CN'}
+];
+
+var T={
+en:{ph:'Ask me anything…',lang:'Language',cart:'Your order',filt:'Allergies & diet',
+ fbtn:'Show what I can eat',fnote:'Allergen data shown for demonstration — to be validated with the chef.',
+ empty:'Nothing yet. Just tell me what you feel like.',total:'Total',svc:'Prices in THB, subject to government tax and 10% service charge.',
+ sendk:'Send to the kitchen',sendd:'Send this request',okt:'Sent to the kitchen',
+ okd:'Table {T} — the team is on it. Anything else, I am right here.',
+ okc:'Noted for room {R}. The team will confirm in a moment.',
+ role:'Your AI host',crole:'Your AI concierge',
+ chips:['What do you recommend?','I have an allergy','Something vegetarian','A cocktail','Call a waiter'],
+ cchips:['What can I do here?','Book a massage','Island tour','Late check-out','Fresh towels'],
+ greet:'Welcome to The Beach Club, table {T}. I am {N}, I speak your language — ask me anything about the menu, allergies, or just tell me what you feel like.',
+ cgreet:'Welcome to The Beach Club, room {R}. I am {N}, your concierge. Massage, excursions, dinner, transfers — tell me what you need and I take care of it.',
+ rec:'These are what our guests come back for:',
+ alg:'Understood — I have removed everything containing {A}. Here is what you can eat safely:',
+ nofilt:'Nothing on the menu matches that right now — let me ask the chef what he can prepare for you.',
+ veg:'Everything here is vegetarian, most of it from our organic farm 2 km away:',
+ spicy:'Our Thai dishes, and I can adjust the heat exactly to your taste:',
+ sea:'Caught this morning by the fishermen of Klong Muang:',
+ drink:'Sunset happy hour is on right now:',
+ dess:'To finish on a sweet note:',
+ thai:'Our Thai side of the kitchen:',
+ pizza:'From the wood-fired oven and the pasta pan:',
+ start:'To share while you look at the sea:',
+ salad:'From our organic farm, picked this morning:',burger:'Burgers, sandwiches and our Mexican corner:',tapas:'Our Spanish tapas, made to share:',pasta:'Fresh pasta and risotto:',meat:'From the grill and from the sea:',pizza:'Straight from the wood-fired oven, all 10 inches:',more:'…and there is more on the card — just ask.',byweight:'by weight',
+ add:'{X} added to your order.',
+ hours:'We serve from 10:00 to 22:00 every day, and happy hour starts at sunset.',
+ wifi:'Wi-Fi: BeachClub_Guest — the password is on your table card. I can also send it to your phone.',
+ bill:'I have called your server, they are coming with the bill. Card, cash and QR payment all work.',
+ waiter:'Your server has been called — someone will be with you in a moment.',
+ kids:'Yes — we have a smaller portion of most dishes, high chairs, and the pool is shallow on the left side.',
+ thanks:'With pleasure. Enjoy the sunset.',
+ fb:'I did not catch that one. I can talk about the menu, allergies, drinks, or call a member of staff for you — what would help?',
+ cfb:'Let me note that for the team. Meanwhile I can arrange a massage, an island tour, a transfer or late check-out — just say the word.',
+ serv:'Here is what I can arrange for you right now:',
+ free:'included'},
+
+fr:{ph:'Posez-moi votre question…',lang:'Langue',cart:'Votre commande',filt:'Allergies & régime',
+ fbtn:'Montrer ce que je peux manger',fnote:'Données allergènes de démonstration — à valider avec le chef.',
+ empty:'Rien pour l’instant. Dites-moi simplement ce qui vous ferait plaisir.',total:'Total',
+ svc:'Prix en THB, hors taxe gouvernementale et 10% de service.',
+ sendk:'Envoyer en cuisine',sendd:'Envoyer la demande',okt:'Envoyé en cuisine',
+ okd:'Table {T} — l’équipe s’en occupe. Si besoin d’autre chose, je reste là.',
+ okc:'C’est noté pour la chambre {R}. L’équipe confirme dans un instant.',
+ role:'Votre hôtesse IA',crole:'Votre concierge IA',
+ chips:['Que me conseillez-vous ?','J’ai une allergie','Quelque chose de végétarien','Un cocktail','Appeler un serveur'],
+ cchips:['Que puis-je faire ici ?','Réserver un massage','Excursion aux îles','Départ tardif','Serviettes propres'],
+ greet:'Bienvenue au Beach Club, table {T}. Je suis {N}, je parle votre langue — posez-moi vos questions sur la carte, les allergènes, ou dites-moi simplement votre envie.',
+ cgreet:'Bienvenue au Beach Club, chambre {R}. Je suis {N}, votre concierge. Massage, excursions, dîner, transferts — dites-moi ce qu’il vous faut, je m’en occupe.',
+ rec:'Voilà ce pour quoi nos clients reviennent :',
+ alg:'C’est noté — j’ai retiré tout ce qui contient {A}. Voici ce que vous pouvez manger en toute sécurité :',
+ nofilt:'Rien ne correspond sur la carte pour l’instant — je demande au chef ce qu’il peut vous préparer.',
+ veg:'Tout ceci est végétarien, en grande partie de notre ferme bio à 2 km :',
+ spicy:'Nos plats thaïs, et j’ajuste le piment exactement à votre goût :',
+ sea:'Pêché ce matin par les pêcheurs de Klong Muang :',
+ drink:'C’est justement l’happy hour du coucher de soleil :',
+ dess:'Pour finir sur une note sucrée :',
+ thai:'Le côté thaï de notre cuisine :',
+ pizza:'Du four à bois et de la casserole à pâtes :',
+ start:'À partager en regardant la mer :',
+ salad:'De notre ferme bio, cueilli ce matin :',burger:'Burgers, sandwichs et notre coin mexicain :',tapas:'Nos tapas espagnoles, à partager :',pasta:'Pâtes fraîches et risotto :',meat:'Du gril et de la mer :',pizza:'Tout droit sorties du four à bois, toutes en 25 cm :',more:'…et il y en a encore sur la carte, demandez-moi.',byweight:'au poids',
+ add:'{X} ajouté à votre commande.',
+ hours:'Nous servons de 10h à 22h tous les jours, et l’happy hour commence au coucher du soleil.',
+ wifi:'Wi-Fi : BeachClub_Guest — le mot de passe est sur le chevalet de votre table. Je peux aussi vous l’envoyer.',
+ bill:'J’ai prévenu votre serveur, il arrive avec l’addition. Carte, espèces et paiement QR sont acceptés.',
+ waiter:'Votre serveur est prévenu — quelqu’un arrive dans un instant.',
+ kids:'Oui — nous faisons des demi-portions sur la plupart des plats, nous avons des chaises hautes, et la piscine est peu profonde côté gauche.',
+ thanks:'Avec plaisir. Profitez bien du coucher de soleil.',
+ fb:'Là je n’ai pas bien saisi. Je peux parler de la carte, des allergènes, des boissons, ou appeler quelqu’un pour vous — que préférez-vous ?',
+ cfb:'Je le note pour l’équipe. En attendant je peux organiser un massage, une excursion, un transfert ou un départ tardif — dites-moi.',
+ serv:'Voici ce que je peux organiser pour vous tout de suite :',
+ free:'inclus'},
+
+th:{ph:'ถามฉันได้ทุกเรื่องค่ะ…',lang:'ภาษา',cart:'รายการสั่งของคุณ',filt:'ภูมิแพ้และอาหารเฉพาะ',
+ fbtn:'แสดงเมนูที่ทานได้',fnote:'ข้อมูลสารก่อภูมิแพ้สำหรับการสาธิต โปรดยืนยันกับเชฟ',
+ empty:'ยังไม่มีรายการค่ะ บอกฉันได้เลยว่าอยากทานอะไร',total:'รวม',
+ svc:'ราคาเป็นเงินบาท ยังไม่รวมภาษีและค่าบริการ 10%',
+ sendk:'ส่งไปที่ครัว',sendd:'ส่งคำขอ',okt:'ส่งไปที่ครัวแล้ว',
+ okd:'โต๊ะ {T} — ทีมงานกำลังจัดการค่ะ หากต้องการอะไรเพิ่ม ฉันอยู่ตรงนี้',
+ okc:'รับทราบสำหรับห้อง {R} ทีมงานจะยืนยันในอีกสักครู่',
+ role:'พนักงานต้อนรับ AI',crole:'คอนเซียร์จ AI',
+ chips:['แนะนำอะไรดีคะ','ฉันมีอาการแพ้อาหาร','เมนูมังสวิรัติ','ค็อกเทล','เรียกพนักงาน'],
+ cchips:['ที่นี่มีบริการอะไรบ้าง','จองนวด','ทัวร์เกาะ','เช็คเอาท์สาย','ขอผ้าเช็ดตัว'],
+ greet:'ยินดีต้อนรับสู่ The Beach Club โต๊ะ {T} ค่ะ ฉันชื่อ {N} พูดได้หลายภาษา ถามเรื่องเมนู สารก่อภูมิแพ้ หรือบอกได้เลยว่าอยากทานอะไร',
+ cgreet:'ยินดีต้อนรับสู่ The Beach Club ห้อง {R} ค่ะ ฉันชื่อ {N} คอนเซียร์จของคุณ นวด ทัวร์ อาหาร รถรับส่ง บอกได้เลยค่ะ',
+ rec:'เมนูที่ลูกค้าประจำสั่งซ้ำบ่อยที่สุด:',
+ alg:'รับทราบค่ะ ฉันตัดทุกเมนูที่มี {A} ออกแล้ว นี่คือเมนูที่ทานได้อย่างปลอดภัย:',
+ nofilt:'ตอนนี้ยังไม่มีเมนูที่ตรงเงื่อนไข ขอสอบถามเชฟให้ทำพิเศษนะคะ',
+ veg:'ทั้งหมดนี้เป็นมังสวิรัติ ส่วนใหญ่มาจากฟาร์มอินทรีย์ของเราห่างไป 2 กม.:',
+ spicy:'เมนูไทยของเรา ปรับความเผ็ดได้ตามใจค่ะ:',
+ sea:'จับสดเช้านี้โดยชาวประมงคลองม่วง:',
+ drink:'ตอนนี้เป็นช่วงแฮปปี้อาวร์ยามพระอาทิตย์ตกพอดีค่ะ:',
+ dess:'ปิดท้ายด้วยของหวาน:',
+ thai:'เมนูไทยจากครัวของเรา:',
+ pizza:'จากเตาฟืนและกระทะพาสต้า:',
+ start:'ทานเล่นพร้อมชมวิวทะเล:',
+ salad:'จากฟาร์มออร์แกนิกของเรา เก็บสดเช้านี้',burger:'เบอร์เกอร์ แซนด์วิช และเมนูเม็กซิกันของเรา',tapas:'ทาปาสสเปนของเรา เหมาะสำหรับแบ่งกันทาน',pasta:'พาสต้าสดและริซอตโต้',meat:'จากเตาย่างและจากท้องทะเล',pizza:'จากเตาฟืนของเรา ขนาด 10 นิ้วทุกถาด',more:'…ยังมีอีกหลายเมนูในเล่ม ถามฉันได้เลยค่ะ',byweight:'ตามน้ำหนัก',
+ add:'เพิ่ม {X} ลงรายการแล้วค่ะ',
+ hours:'เปิดบริการ 10:00–22:00 น. ทุกวัน และแฮปปี้อาวร์เริ่มตอนพระอาทิตย์ตก',
+ wifi:'Wi-Fi: BeachClub_Guest รหัสผ่านอยู่บนป้ายที่โต๊ะค่ะ',
+ bill:'เรียกพนักงานให้แล้วค่ะ กำลังนำบิลมา รับบัตร เงินสด และ QR',
+ waiter:'เรียกพนักงานให้แล้วค่ะ สักครู่จะมาที่โต๊ะ',
+ kids:'มีค่ะ เรามีเมนูครึ่งส่วน เก้าอี้เด็ก และสระฝั่งซ้ายตื้นสำหรับเด็ก',
+ thanks:'ด้วยความยินดีค่ะ ขอให้สนุกกับพระอาทิตย์ตก',
+ fb:'ขออภัย ฉันยังไม่เข้าใจค่ะ ฉันช่วยเรื่องเมนู สารก่อภูมิแพ้ เครื่องดื่ม หรือเรียกพนักงานได้นะคะ',
+ cfb:'ฉันจะแจ้งทีมงานให้ค่ะ ระหว่างนี้จองนวด ทัวร์ รถรับส่ง หรือเช็คเอาท์สายได้เลย',
+ serv:'บริการที่ฉันจัดให้ได้ทันที:',
+ free:'รวมแล้ว'},
+
+de:{ph:'Fragen Sie mich alles…',lang:'Sprache',cart:'Ihre Bestellung',filt:'Allergien & Ernährung',
+ fbtn:'Zeig, was ich essen kann',fnote:'Allergendaten zu Demonstrationszwecken — mit dem Küchenchef abzustimmen.',
+ empty:'Noch nichts. Sagen Sie mir einfach, worauf Sie Lust haben.',total:'Gesamt',
+ svc:'Preise in THB, zzgl. staatlicher Steuer und 10% Service.',
+ sendk:'An die Küche senden',sendd:'Anfrage senden',okt:'An die Küche gesendet',
+ okd:'Tisch {T} — das Team kümmert sich darum. Ich bleibe hier, falls Sie noch etwas brauchen.',
+ okc:'Notiert für Zimmer {R}. Das Team bestätigt gleich.',
+ role:'Ihre KI-Gastgeberin',crole:'Ihre KI-Concierge',
+ chips:['Was empfehlen Sie?','Ich habe eine Allergie','Etwas Vegetarisches','Ein Cocktail','Kellner rufen'],
+ cchips:['Was kann ich hier machen?','Massage buchen','Inseltour','Später auschecken','Frische Handtücher'],
+ greet:'Willkommen im Beach Club, Tisch {T}. Ich bin {N} und spreche Ihre Sprache — fragen Sie mich zur Karte, zu Allergenen, oder sagen Sie einfach, worauf Sie Lust haben.',
+ cgreet:'Willkommen im Beach Club, Zimmer {R}. Ich bin {N}, Ihre Concierge. Massage, Ausflüge, Abendessen, Transfers — sagen Sie mir, was Sie brauchen.',
+ rec:'Dafür kommen unsere Gäste wieder:',
+ alg:'Verstanden — ich habe alles mit {A} entfernt. Das können Sie bedenkenlos essen:',
+ nofilt:'Dazu passt gerade nichts auf der Karte — ich frage den Küchenchef, was er für Sie zubereiten kann.',
+ veg:'Alles hier ist vegetarisch, das meiste von unserer Bio-Farm 2 km entfernt:',
+ spicy:'Unsere thailändischen Gerichte — die Schärfe stelle ich genau nach Ihrem Geschmack ein:',
+ sea:'Heute Morgen von den Fischern aus Klong Muang gefangen:',
+ drink:'Gerade läuft die Sunset Happy Hour:',
+ dess:'Zum süßen Abschluss:',
+ thai:'Die thailändische Seite unserer Küche:',
+ pizza:'Aus dem Holzofen und vom Pastaherd:',
+ start:'Zum Teilen mit Blick aufs Meer:',
+ salad:'Von unserer Bio-Farm, heute Morgen geerntet:',burger:'Burger, Sandwiches und unsere mexikanische Ecke:',tapas:'Unsere spanischen Tapas, zum Teilen:',pasta:'Frische Pasta und Risotto:',meat:'Vom Grill und aus dem Meer:',pizza:'Frisch aus dem Holzofen, alle 10 Zoll:',more:'…und es gibt noch mehr auf der Karte, fragen Sie mich.',byweight:'nach Gewicht',
+ add:'{X} zur Bestellung hinzugefügt.',
+ hours:'Wir servieren täglich von 10:00 bis 22:00, Happy Hour beginnt bei Sonnenuntergang.',
+ wifi:'WLAN: BeachClub_Guest — das Passwort steht auf der Tischkarte.',
+ bill:'Ich habe Ihren Kellner gerufen, er kommt mit der Rechnung. Karte, Bargeld und QR-Zahlung möglich.',
+ waiter:'Ihr Kellner wurde gerufen — gleich ist jemand bei Ihnen.',
+ kids:'Ja — die meisten Gerichte gibt es als kleine Portion, wir haben Hochstühle, und der Pool ist links flach.',
+ thanks:'Sehr gerne. Genießen Sie den Sonnenuntergang.',
+ fb:'Das habe ich nicht ganz verstanden. Ich kann zur Karte, zu Allergenen oder Getränken beraten oder jemanden rufen — was hilft Ihnen?',
+ cfb:'Ich notiere das fürs Team. In der Zwischenzeit: Massage, Inseltour, Transfer oder später auschecken — sagen Sie einfach Bescheid.',
+ serv:'Das kann ich sofort für Sie arrangieren:',
+ free:'inklusive'},
+
+ru:{ph:'Спросите меня о чём угодно…',lang:'Язык',cart:'Ваш заказ',filt:'Аллергии и питание',
+ fbtn:'Показать, что мне можно',fnote:'Данные об аллергенах показаны для демонстрации — уточните у шеф-повара.',
+ empty:'Пока пусто. Просто скажите, чего вам хочется.',total:'Итого',
+ svc:'Цены в батах, без учёта налога и 10% сервисного сбора.',
+ sendk:'Отправить на кухню',sendd:'Отправить запрос',okt:'Отправлено на кухню',
+ okd:'Столик {T} — команда уже занимается. Если что-то ещё, я здесь.',
+ okc:'Записала для номера {R}. Команда подтвердит через минуту.',
+ role:'Ваша AI-хостес',crole:'Ваш AI-консьерж',
+ chips:['Что посоветуете?','У меня аллергия','Что-то вегетарианское','Коктейль','Позвать официанта'],
+ cchips:['Что здесь можно?','Записать на массаж','Тур по островам','Поздний выезд','Свежие полотенца'],
+ greet:'Добро пожаловать в The Beach Club, столик {T}. Меня зовут {N}, я говорю на вашем языке — спрашивайте о меню, аллергенах, или просто скажите, чего хочется.',
+ cgreet:'Добро пожаловать в The Beach Club, номер {R}. Меня зовут {N}, я ваш консьерж. Массаж, экскурсии, ужин, трансфер — скажите, что нужно.',
+ rec:'Вот ради чего гости возвращаются:',
+ alg:'Поняла — убрала всё, что содержит {A}. Вот что можно есть спокойно:',
+ nofilt:'Сейчас под это ничего не подходит — уточню у шефа, что он может приготовить.',
+ veg:'Всё это вегетарианское, большая часть — с нашей органической фермы в 2 км:',
+ spicy:'Наши тайские блюда — остроту настрою точно под вас:',
+ sea:'Поймано сегодня утром рыбаками Клонг Муанга:',
+ drink:'Как раз идёт закатный happy hour:',
+ dess:'Чтобы закончить на сладком:',
+ thai:'Тайская сторона нашей кухни:',
+ pizza:'Из дровяной печи и с пасты:',
+ start:'Разделить на двоих с видом на море:',
+ salad:'С нашей органической фермы, собрано сегодня утром:',burger:'Бургеры, сэндвичи и наш мексиканский уголок:',tapas:'Наши испанские тапас — чтобы разделить на всех:',pasta:'Свежая паста и ризотто:',meat:'С гриля и из моря:',pizza:'Прямо из дровяной печи, все 25 см:',more:'…в карте есть и другое — просто спросите.',byweight:'по весу',
+ add:'{X} добавлено в заказ.',
+ hours:'Мы работаем с 10:00 до 22:00 каждый день, happy hour начинается на закате.',
+ wifi:'Wi-Fi: BeachClub_Guest — пароль на карточке у вас на столе.',
+ bill:'Позвала официанта, он несёт счёт. Принимаем карту, наличные и QR-оплату.',
+ waiter:'Официанта позвала — подойдут через минуту.',
+ kids:'Да — большинство блюд есть в детской порции, есть стульчики, и бассейн слева мелкий.',
+ thanks:'С удовольствием. Приятного заката.',
+ fb:'Это я не совсем поняла. Могу рассказать про меню, аллергены, напитки или позвать сотрудника — что удобнее?',
+ cfb:'Записываю для команды. А пока могу организовать массаж, тур, трансфер или поздний выезд — только скажите.',
+ serv:'Вот что я могу организовать прямо сейчас:',
+ free:'включено'},
+
+zh:{ph:'有什么想问的都可以…',lang:'语言',cart:'您的订单',filt:'过敏与饮食',
+ fbtn:'看看我能吃什么',fnote:'过敏原信息仅为演示，请与主厨确认。',
+ empty:'还没有点单。告诉我您想吃点什么就好。',total:'合计',
+ svc:'价格为泰铢，未含政府税及10%服务费。',
+ sendk:'发送至厨房',sendd:'发送请求',okt:'已发送至厨房',
+ okd:'{T}号桌 — 团队正在处理。还需要什么，我随时在。',
+ okc:'已为{R}号房记录，团队稍后确认。',
+ role:'您的AI接待员',crole:'您的AI礼宾',
+ chips:['有什么推荐吗？','我有食物过敏','素食选择','来杯鸡尾酒','叫服务员'],
+ cchips:['这里有什么服务？','预约按摩','海岛之旅','延迟退房','需要毛巾'],
+ greet:'欢迎来到 The Beach Club，{T}号桌。我是{N}，会说您的语言——菜单、过敏原，或者直接告诉我您想吃什么。',
+ cgreet:'欢迎来到 The Beach Club，{R}号房。我是{N}，您的专属礼宾。按摩、出海、晚餐、接送，尽管吩咐。',
+ rec:'这几道是客人一再回来点的：',
+ alg:'明白了——我已removed含{A}的菜品。以下这些您可以放心享用：',
+ nofilt:'目前菜单上暂时没有符合的，我去请主厨为您单独安排。',
+ veg:'这些全部是素食，大部分来自我们2公里外的有机农场：',
+ spicy:'我们的泰式菜品，辣度可以完全按您的口味调整：',
+ sea:'今晨由 Klong Muang 的渔民捕捞：',
+ drink:'现在正是日落欢乐时光：',
+ dess:'以甜点收尾：',
+ thai:'我们厨房的泰式一面：',
+ pizza:'来自柴火烤炉与意面锅：',
+ start:'一边看海一边分享：',
+ salad:'来自我们的有机农场，今晨采摘：',burger:'汉堡、三明治与我们的墨西哥风味：',tapas:'我们的西班牙小食，适合分享：',pasta:'新鲜意面与烩饭：',meat:'来自炭火烤架与海洋：',pizza:'柴火炉现烤，均为10英寸：',more:'…菜单上还有更多，随时问我。',byweight:'按重量计价',
+ add:'已将{X}加入您的订单。',
+ hours:'我们每天10:00至22:00营业，欢乐时光从日落开始。',
+ wifi:'Wi-Fi：BeachClub_Guest — 密码在您桌上的卡片上。',
+ bill:'已请服务员送账单过来。支持刷卡、现金与扫码支付。',
+ waiter:'已为您叫服务员，马上就到。',
+ kids:'有的——大部分菜品可做儿童份，备有儿童椅，泳池左侧较浅。',
+ thanks:'很高兴为您服务，祝您日落愉快。',
+ fb:'这个我没太听明白。我可以介绍菜单、过敏原、饮品，或者帮您叫服务员——您需要哪一样？',
+ cfb:'我先记给团队。同时也可以安排按摩、海岛游、接送或延迟退房，随时吩咐。',
+ serv:'这些我现在就可以为您安排：',
+ free:'已包含'}
+};
+T.zh.alg='明白了——我已去掉所有含{A}的菜品。以下这些您可以放心享用：';
+
+var ALG={
+ shellfish:{en:'shellfish',fr:'fruits de mer',th:'อาหารทะเลเปลือกแข็ง',de:'Schalentiere',ru:'моллюски',zh:'甲壳类'},
+ gluten:{en:'gluten',fr:'gluten',th:'กลูเตน',de:'Gluten',ru:'глютен',zh:'麸质'},
+ beef:{en:'beef',fr:'bœuf',th:'เนื้อวัว',de:'Rindfleisch',ru:'говядина',zh:'牛肉'},
+ nut:{en:'nuts',fr:'fruits à coque',th:'ถั่ว',de:'Nüsse',ru:'орехи',zh:'坚果'},
+ dairy:{en:'dairy',fr:'produits laitiers',th:'นม',de:'Milchprodukte',ru:'молочное',zh:'乳制品'},
+ egg:{en:'egg',fr:'œuf',th:'ไข่',de:'Ei',ru:'яйцо',zh:'鸡蛋'},
+ fish:{en:'fish',fr:'poisson',th:'ปลา',de:'Fisch',ru:'рыба',zh:'鱼'},
+ soy:{en:'soy',fr:'soja',th:'ถั่วเหลือง',de:'Soja',ru:'соя',zh:'大豆'},
+ sesame:{en:'sesame',fr:'sésame',th:'งา',de:'Sesam',ru:'кунжут',zh:'芝麻'},
+ spicy:{en:'spicy',fr:'piquant',th:'เผ็ด',de:'scharf',ru:'острое',zh:'辣'}
+};
+var VEGL={en:'Vegetarian',fr:'Végétarien',th:'มังสวิรัติ',de:'Vegetarisch',ru:'Вегетарианское',zh:'素食'};
+var VEGO={en:'Veggie option',fr:'Version végé',th:'สั่งแบบมังสวิรัติได้',de:'Veggie-Variante',ru:'Есть вег. вариант',zh:'可做素食'};
+</script>
+<script>
+/* ============ STATE ============ */
+var Q=new URLSearchParams(location.search);
+var ROLE=(Q.get('role')||'waitress').toLowerCase();
+var TABLE=Q.get('table')||'12';
+var ROOM=Q.get('room')||'204';
+var NAME=Q.get('name')||(ROLE==='concierge'?'Malee':'Alina');
+var L=(Q.get('lang')||'en').toLowerCase(); if(!T[L])L='en';
+var VOICE=true, CART=[], FILT=[], SHEET=null, BUSY=false;
+var $=function(i){return document.getElementById(i)};
+
+/* ============ INTENT ENGINE ============ */
+var K={
+ greet:['hello','hi ','hey','bonjour','salut','coucou','สวัสดี','hallo','guten tag','привет','здрав','你好','您好'],
+ recommend:['recommend','suggest','best','popular','what should','conseil','recommand','sugger','meilleur','populaire','quoi prendre','แนะนำ','อร่อย','empfehl','beste','beliebt','посовет','рекоменд','лучш','推荐','招牌','好吃'],
+ alg_gluten:['gluten','coeliac','celiac','sans gluten','กลูเตน','глютен','麸质','无麸'],
+ alg_nut:['nut','peanut','almond','arachide','noix','fruits à coque','ถั่ว','nuss','erdnuss','орех','арахис','坚果','花生'],
+ alg_shell:['shellfish','shrimp','prawn','crab','crustac','fruits de mer','กุ้ง','หอย','schalentier','garnel','морепрод','креветк','моллюск','甲壳','虾','贝'],
+ alg_dairy:['dairy','lactose','milk','cheese','laitier','lactose','fromage','นม','milch','käse','молочн','лактоз','乳制品','牛奶'],
+ alg_egg:['egg','œuf','oeuf','ไข่','ei ','eier','яйц','鸡蛋'],
+ alg_fish:['allergic to fish','fish allergy','allergie au poisson','แพ้ปลา','fischallergie','аллергия на рыбу','鱼过敏'],
+ allergy:['allerg','แพ้','аллерг','过敏','unverträglich','intolerance','intolérance'],
+ veg:['vegetarian','vegan','végétarien','vegetarien','végan','vegan','มังสวิรัติ','เจ','vegetarisch','vegan','вегетариан','веган','素食','素'],
+ spicy:['spicy','chilli','chili','hot ','piquant','épicé','epice','pimen','เผ็ด','scharf','остр','辣'],
+ sea:['seafood','fish','sea bass','prawn','squid','poisson','fruits de mer','gambas','ปลา','ทะเล','fisch','meeresfrüchte','рыб','морепрод','海鲜','鱼'],
+ thai:['thai','curry','pad thai','som tam','ไทย','แกง','thailändisch','тайск','泰式','咖喱'],
+ pizza:['pizza','pasta','italian','italien','pâtes','pate','พิซซ่า','พาสต้า','nudeln','italien','пицц','паст','披萨','意面'],
+ dess:['dessert','sweet','cake','sucré','sucre','gâteau','ของหวาน','nachtisch','süß','десерт','сладк','甜点','甜品'],
+ drink:['drink','cocktail','beer','wine','beverage','boisson','bière','biere','vin','เครื่องดื่ม','ค็อกเทล','เบียร์','getränk','bier','wein','напит','коктейл','пив','饮','酒','鸡尾酒'],
+ salad:['salad','salade','bowl','สลัด','salat','салат','沙拉','轻食'],
+ burger:['burger','sandwich','burrito','fajita','quesadilla','taco','tortilla','nugget','wrap','hamburger','сэндвич','бургер','бурито','汉堡','三明治','卷饼','เบอร์เกอร์','แซนด์วิช'],
+ tapas:['tapas','spanish','espagnol','tapa','spanisch','испанск','тапас','西班牙','小食','ทาปาส'],
+ pasta:['pasta','spaghetti','linguine','risotto','carbonara','bolognese','vongole','pâtes','pates','nudeln','паст','спагетти','ризотто','意面','意大利面','พาสต้า'],
+ meat:['meat','grill','bbq','steak','lamb','lobster','oyster','viande','grillade','agneau','homard','huitre','huître','fleisch','hummer','auster','мясо','гриль','лобстер','устриц','烧烤','龙虾','生蚝','牛排','เนื้อ','ย่าง','ล็อบสเตอร์'],
+ start:['starter','appetiz','snack','share','entrée','entree','apéritif','apero','ของว่าง','เรียกน้ำย่อย','vorspeise','закус','前菜','小食','开胃'],
+ hours:['open','hour','close','what time','horaire','ouvert','ferme','heure','เปิด','ปิด','กี่โมง','öffnung','geöffnet','uhrzeit','час','открыт','工作时间','几点','营业'],
+ wifi:['wifi','wi-fi','internet','password','mot de passe','ไวไฟ','รหัส','passwort','пароль','вай-фай','无线','密码'],
+ bill:['bill','check please','pay','addition','payer','เช็คบิล','จ่าย','rechnung','zahlen','счёт','счет','оплат','买单','结账'],
+ waiter:['waiter','staff','someone','call','serveur','appel','quelqu','พนักงาน','เรียก','kellner','rufen','официант','позов','服务员','叫人'],
+ kids:['kid','child','baby','enfant','bébé','bebe','เด็ก','kind','baby','ребен','дет','儿童','孩子'],
+ thanks:['thank','merci','ขอบคุณ','danke','спасиб','谢谢','感谢'],
+ /* concierge */
+ spa:['massage','spa','นวด','สปา','масс','спа','按摩','水疗'],
+ tour:['tour','island','excursion','boat','snorkel','île','ile','bateau','ทัวร์','เกาะ','เรือ','insel','ausflug','boot','тур','остров','лодк','海岛','出海','浮潜'],
+ taxi:['taxi','transfer','airport','car','transfert','aéroport','aeroport','voiture','แท็กซี่','สนามบิน','รถ','flughafen','wagen','такси','аэропорт','машин','机场','接送','出租'],
+ late:['check out','checkout','check-out','late','départ tardif','depart tardif','tardif','เช็คเอาท์','สาย','auschecken','spät','поздн','выезд','退房','延迟'],
+ towel:['towel','housekeep','clean','pillow','serviette','ménage','menage','oreiller','ผ้าเช็ดตัว','แม่บ้าน','หมอน','handtuch','reinigung','kissen','полотенц','уборк','подушк','毛巾','清洁','枕头'],
+ bfast:['breakfast','petit-déj','petit dej','déjeuner','อาหารเช้า','frühstück','fruhstuck','завтрак','早餐'],
+ laundry:['laundry','wash','linge','blanchiss','ซักรีด','wäsche','wasche','стирк','прачеч','洗衣'],
+ roomsvc:['room service','in-room','eat in my room','room dining','service en chambre','en chambre','รูมเซอร์วิส','ในห้อง','zimmerservice','в номер','обслуживание в','客房送餐','送到房间'],
+ services:['what can','services','what do you offer','activities','que puis','services','activités','activite','บริการ','อะไรบ้าง','was kann','angebot','что можно','услуг','有什么','服务']
+};
+function hit(s,list){for(var i=0;i<list.length;i++){if(s.indexOf(list[i])>-1)return true}return false}
+
+function pick(f,n){var r=D.filter(f);return n?r.slice(0,n):r}
+function safe(list){ // remove dishes matching active allergen filters
+  if(!FILT.length)return list;
+  return list.filter(function(d){
+    for(var i=0;i<FILT.length;i++){
+      if(FILT[i]==='veg'){if(!d.v)return false}
+      else if(d.a.indexOf(FILT[i])>-1)return false;
+    }return true});
+}
+
+function respond(raw){
+  var s=' '+raw.toLowerCase().replace(/[’']/g,'\'')+' ';
+  var t=T[L], C=ROLE==='concierge';
+
+  if(C){
+    if(hit(s,K.spa))     return {t:svcTxt('spa'),svc:['spa']};
+    if(hit(s,K.tour))    return {t:svcTxt('tour'),svc:['tour']};
+    if(hit(s,K.taxi))    return {t:svcTxt('taxi'),svc:['taxi']};
+    if(hit(s,K.late))    return {t:svcTxt('late'),svc:['late']};
+    if(hit(s,K.towel))   return {t:svcTxt('house'),svc:['house']};
+    if(hit(s,K.bfast))   return {t:svcTxt('bfast'),svc:['bfast']};
+    if(hit(s,K.laundry)) return {t:svcTxt('laundry'),svc:['laundry']};
+    if(hit(s,K.roomsvc)) return {t:svcTxt('rs'),svc:['rs']};
+    if(hit(s,K.services))return {t:t.serv,svc:S.map(function(x){return x.id})};
+  }
+
+  var al=[];
+  if(hit(s,K.alg_gluten))al.push('gluten');
+  if(hit(s,K.alg_nut))al.push('nut');
+  if(hit(s,K.alg_shell))al.push('shellfish');
+  if(hit(s,K.alg_dairy))al.push('dairy');
+  if(hit(s,K.alg_egg))al.push('egg');
+  if(hit(s,K.alg_fish))al.push('fish');
+  if(al.length){
+    FILT=al.slice(); syncFilt();
+    var ok=safe(D.filter(function(d){return d.c!=='drink'}));
+    var nm=al.map(function(a){return ALG[a][L]}).join(' / ');
+    if(!ok.length)return {t:t.nofilt};
+    return {t:t.alg.replace('{A}',nm),items:ok.slice(0,6)};
+  }
+  if(hit(s,K.allergy)) {openSheet('filt');return {t:t.filt+' →'}}
+  if(hit(s,K.veg))     return {t:t.veg,items:safe(pick(function(d){return d.v&&d.c!=='drink'},6))};
+  if(hit(s,K.spicy))   return cat(t.spicy,function(d){return d.sp});
+  if(hit(s,K.pasta))   return cat(t.pasta,function(d){return d.c==='pasta'});
+  if(hit(s,K.pizza))   return cat(t.pizza,function(d){return d.c==='pizza'});
+  if(hit(s,K.tapas))   return cat(t.tapas,function(d){return d.c==='tapas'});
+  if(hit(s,K.burger))  return cat(t.burger,function(d){return d.c==='burger'});
+  if(hit(s,K.salad))   return cat(t.salad,function(d){return d.c==='salad'});
+  if(hit(s,K.thai))    return cat(t.thai,function(d){return d.c==='thai'});
+  if(hit(s,K.dess))    return cat(t.dess,function(d){return d.c==='dess'});
+  if(hit(s,K.drink))   return cat(t.drink,function(d){return d.c==='drink'});
+  if(hit(s,K.meat))    return cat(t.meat,function(d){return d.c==='meat'});
+  if(hit(s,K.sea))     return cat(t.sea,function(d){return d.a.indexOf('fish')>-1||d.a.indexOf('shellfish')>-1});
+  if(hit(s,K.start))   return cat(t.start,function(d){return d.c==='start'});
+  if(hit(s,K.recommend))return{t:t.rec,items:safe(D.filter(function(d){return ['oriental','seabass','padthai','margherita','mango'].indexOf(d.id)>-1}))};
+  if(hit(s,K.wifi))    return {t:t.wifi};
+  if(hit(s,K.hours))   return {t:t.hours};
+  if(hit(s,K.bill))    return {t:t.bill};
+  if(hit(s,K.kids))    return {t:t.kids};
+  if(hit(s,K.waiter))  return {t:t.waiter};
+  if(hit(s,K.thanks))  return {t:t.thanks};
+  if(hit(s,K.greet))   return {t:(C?t.cgreet:t.greet).replace('{T}',TABLE).replace('{R}',ROOM).replace('{N}',NAME)};
+  /* name match on any dish */
+  var m=D.filter(function(d){
+    var c=[d.n]; if(d.nn&&d.nn[L])c.push(d.nn[L]); if(d.tn)c.push(d.tn);
+    for(var k=0;k<c.length;k++){var w=c[k].split(' ')[0];if(w.length>3&&s.indexOf(w.toLowerCase())>-1)return true}
+    return false});
+  if(m.length)return {t:t.rec,items:m.slice(0,3)};
+  return {t:C?t.cfb:t.fb};
+}
+function cat(txt,f){
+  var all=safe(D.filter(f)), t=T[L];
+  if(!all.length)return {t:t.nofilt};
+  return {t:txt+(all.length>8?' '+t.more:''),items:all.slice(0,8)};
+}
+function svcTxt(id){var x=S.filter(function(y){return y.id===id})[0];return x.n[L]+' — '+x.d[L]}
+</script>
+<script>
+/* ============ RENDER ============ */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function bubble(cls,html){
+  var d=document.createElement('div');d.className='msg '+cls;d.innerHTML=html;
+  $('chat').appendChild(d);scroll();return d;
+}
+function scroll(){var c=$('chat');setTimeout(function(){c.scrollTop=c.scrollHeight},30)}
+
+function nm(d){return (d.nn&&d.nn[L])||d.n}
+function price(d){
+  if(!d.p)return T[L].byweight;
+  return d.p2?'฿'+d.p+' / '+d.p2:'฿'+d.p;
+}
+function dishHTML(d,i){
+  var tags='';
+  d.a.forEach(function(a){tags+='<span class="tag al">'+ALG[a][L]+'</span>'});
+  if(d.v)tags+='<span class="tag vg">'+(d.v===2?VEGO[L]:VEGL[L])+'</span>';
+
+  return '<div class="card" style="animation-delay:'+(i*60)+'ms">'
+   +'<div class="em">'+d.e+'</div><div class="in">'
+   +'<div class="ttl"><b>'+esc(nm(d))+(d.tn?' <i class="tn">'+d.tn+'</i>':'')+'</b><span class="pr">'+price(d)+'</span></div>'
+   +'<div class="ds">'+esc(d.d[L]||d.d.en)+'</div>'
+   +'<div class="tags">'+tags+'</div></div>'
+   +'<button class="add" onclick="addCart(\''+d.id+'\',this)">+</button></div>';
+}
+function svcHTML(x,i){
+  return '<div class="card" style="animation-delay:'+(i*60)+'ms">'
+   +'<div class="em">'+x.e+'</div><div class="in">'
+   +'<div class="ttl"><b>'+esc(x.n[L])+'</b><span class="pr">'+(x.p?'฿'+x.p:T[L].free)+'</span></div>'
+   +'<div class="ds">'+esc(x.d[L])+'</div></div>'
+   +'<button class="add" onclick="addSvc(\''+x.id+'\',this)">+</button></div>';
+}
+function showCards(html){
+  var d=document.createElement('div');d.className='cards';d.innerHTML=html;
+  $('chat').appendChild(d);scroll();
+}
+
+/* ============ SPEECH ============ */
+function speak(txt){
+  if(!VOICE||!window.speechSynthesis)return;
+  try{
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(txt.replace(/[฿]/g,''));
+    var lv=LANGS.filter(function(x){return x.c===L})[0].v;
+    u.lang=lv;u.rate=.98;u.pitch=1.08;
+    var vs=speechSynthesis.getVoices()||[];
+    var f=vs.filter(function(v){return v.lang&&v.lang.replace('_','-').toLowerCase().indexOf(lv.slice(0,2))===0});
+    var fem=f.filter(function(v){return /female|woman|samantha|amelie|amélie|anna|milena|tingting|kanya|zira|google/i.test(v.name)});
+    if(fem[0])u.voice=fem[0];else if(f[0])u.voice=f[0];
+    u.onstart=function(){$('av').classList.add('talk')};
+    u.onend=function(){$('av').classList.remove('talk')};
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function toggleVoice(){
+  VOICE=!VOICE;$('pVoice').classList.toggle('on',VOICE);
+  $('pVoice').innerHTML=VOICE?'\u{1F50A}':'\u{1F507}';
+  if(!VOICE&&window.speechSynthesis)speechSynthesis.cancel();
+}
+
+/* ============ CONVERSATION ============ */
+function say(text,cb){
+  BUSY=true;
+  var tp=bubble('a','<div class="typing"><i></i><i></i><i></i></div>');
+  $('av').classList.add('talk');
+  var wait=Math.min(1500,500+text.length*7);
+  setTimeout(function(){
+    tp.remove();bubble('a',esc(text));speak(text);
+    if(!VOICE)setTimeout(function(){$('av').classList.remove('talk')},600);
+    BUSY=false;if(cb)cb();
+  },wait);
+}
+function ask(txt){
+  if(!txt.trim())return;
+  if(BUSY){setTimeout(function(){ask(txt)},250);return}
+  bubble('u',esc(txt));$('q').value='';$('stage').classList.add('mini');
+  var r=respond(txt);
+  say(r.t,function(){
+    if(r.items&&r.items.length)showCards(r.items.map(dishHTML).join(''));
+    if(r.svc)showCards(r.svc.map(function(id){return S.filter(function(x){return x.id===id})[0]}).map(svcHTML).join(''));
+  });
+}
+function send(){ask($('q').value)}
+
+/* ============ CART ============ */
+function addCart(id,btn){
+  var d=D.filter(function(x){return x.id===id})[0];
+  CART.push({n:nm(d),p:d.p});btn.classList.add('done');btn.innerHTML='✓';
+  syncCart();say(T[L].add.replace('{X}',nm(d)));
+}
+function addSvc(id,btn){
+  var x=S.filter(function(y){return y.id===id})[0];
+  CART.push({n:x.n[L],p:x.p});btn.classList.add('done');btn.innerHTML='✓';
+  syncCart();say(T[L].add.replace('{X}',x.n[L]));
+}
+function syncCart(){
+  $('cnt').style.display=CART.length?'flex':'none';$('cnt').textContent=CART.length;
+}
+function drawCart(){
+  var t=T[L],b=$('cartBody');
+  if(!CART.length){b.innerHTML='<p class="note" style="padding:14px 0 20px;font-size:13.5px">'+t.empty+'</p>';return}
+  var s=0,h='';
+  CART.forEach(function(i,k){s+=i.p;h+='<div class="crow"><span>'+esc(i.n)+'</span><b>'+(i.p?'฿'+i.p:t.free)+'</b></div>'});
+  h+='<div class="tot"><span>'+t.total+'</span><span>฿'+s+'</span></div>';
+  h+='<p class="note" style="text-align:left">'+t.svc+'</p>';
+  h+='<button class="btn" onclick="confirmOrder()">'+(ROLE==='concierge'?t.sendd:t.sendk)+'</button>';
+  b.innerHTML=h;
+}
+function confirmOrder(){
+  var t=T[L];
+  $('cartBody').innerHTML='<div class="ok"><div class="ic">✅</div><b>'+t.okt+'</b><p>'
+   +(ROLE==='concierge'?t.okc.replace('{R}',ROOM):t.okd.replace('{T}',TABLE))+'</p></div>';
+  speak(ROLE==='concierge'?t.okc.replace('{R}',ROOM):t.okd.replace('{T}',TABLE));
+  CART=[];syncCart();
+  setTimeout(closeSheet,2600);
+}
+
+/* ============ SHEETS ============ */
+function openSheet(k){
+  closeSheet();
+  if(k==='cart')drawCart();
+  if(k==='lang')drawLang();
+  if(k==='filt')drawFilt();
+  SHEET=$(k==='cart'?'sCart':k==='lang'?'sLang':'sFilt');
+  SHEET.classList.add('on');$('scrim').classList.add('on');
+}
+function closeSheet(){
+  if(SHEET)SHEET.classList.remove('on');
+  $('scrim').classList.remove('on');SHEET=null;
+}
+function drawLang(){
+  $('langList').innerHTML=LANGS.map(function(x){
+    return '<div class="lang'+(x.c===L?' on':'')+'" onclick="setLang(\''+x.c+'\')"><b>'+x.f+'</b>'+x.n+'</div>'
+  }).join('');
+}
+function setLang(c){
+  L=c;closeSheet();applyLang();
+  $('chat').innerHTML='';
+  var t=T[L];
+  say((ROLE==='concierge'?t.cgreet:t.greet).replace('{T}',TABLE).replace('{R}',ROOM).replace('{N}',NAME));
+}
+function applyLang(){
+  var t=T[L],x=LANGS.filter(function(y){return y.c===L})[0];
+  $('flag').textContent=x.f;$('lcode').textContent=L.toUpperCase();
+  $('q').placeholder=t.ph;$('hLang').textContent=t.lang;$('hCart').textContent=t.cart;
+  $('hFilt').textContent=t.filt;$('bFilt').textContent=t.fbtn;$('nFilt').textContent=t.fnote;
+  $('arol').textContent=ROLE==='concierge'?t.crole:t.role;
+  var cs=ROLE==='concierge'?t.cchips:t.chips;
+  $('chips').innerHTML=cs.map(function(c){return '<div class="chip" onclick="ask(this.textContent)">'+c+'</div>'}).join('')
+   + (ROLE==='concierge'?'':'<div class="chip" onclick="openSheet(\'filt\')">\u{1F9EA} '+t.filt+'</div>');
+}
+function drawFilt(){
+  var keys=['gluten','shellfish','nut','dairy','egg','fish','beef','soy','sesame','spicy','veg'];
+  $('filtList').innerHTML=keys.map(function(k){
+    var lab=k==='veg'?VEGL[L]:ALG[k][L];
+    return '<div class="fchip'+(FILT.indexOf(k)>-1?' on':'')+'" data-k="'+k+'" onclick="tog(this)">'+lab+'</div>'
+  }).join('');
+}
+function tog(el){
+  var k=el.dataset.k,i=FILT.indexOf(k);
+  if(i>-1)FILT.splice(i,1);else FILT.push(k);
+  el.classList.toggle('on');
+}
+function syncFilt(){if(SHEET===$('sFilt'))drawFilt()}
+function applyFilt(){
+  closeSheet();
+  var t=T[L],ok=safe(D.filter(function(d){return d.c!=='drink'}));
+  if(!FILT.length){say(t.rec,function(){showCards(D.filter(function(d){return ['oriental','seabass','padthai'].indexOf(d.id)>-1}).map(dishHTML).join(''))});return}
+  var nm=FILT.map(function(k){return k==='veg'?VEGL[L]:ALG[k][L]}).join(' / ');
+  if(!ok.length){say(t.nofilt);return}
+  say(t.alg.replace('{A}',nm),function(){showCards(ok.slice(0,8).map(dishHTML).join(''))});
+}
+
+/* ============ INIT ============ */
+(function(){
+  $('avsvg').innerHTML=avatarSVG(ROLE);
+  // photo-realistic portraits; the drawn avatar stays as a fallback if they can't load
+  var PH={waitress:'https://d8j0ntlcm91z4.cloudfront.net/user_3F0V4q0SgO18RJdYsIoJe3pHiVQ/hf_20260731_110222_6cf20a8a-c75c-41de-b8fb-09ed25ec3f60_min.webp',
+          concierge:'https://d8j0ntlcm91z4.cloudfront.net/user_3F0V4q0SgO18RJdYsIoJe3pHiVQ/hf_20260731_110224_c356857d-f052-4c62-9b94-a21ef5618f25_min.webp'};
+  if(PH[ROLE]){
+    var pim=new Image();
+    pim.onload=function(){$('avimg').src=PH[ROLE];$('av').classList.add('ph')};
+    pim.src=PH[ROLE];
+  }
+  $('anam').textContent=NAME;
+  applyLang();
+  if(window.speechSynthesis)speechSynthesis.getVoices();
+  var t=T[L];
+  setTimeout(function(){
+    say((ROLE==='concierge'?t.cgreet:t.greet).replace('{T}',TABLE).replace('{R}',ROOM).replace('{N}',NAME),function(){
+      if(ROLE==='concierge')showCards(S.slice(0,3).map(svcHTML).join(''));
+    });
+  },500);
+  $('chat').addEventListener('scroll',function(){
+    $('stage').classList.toggle('mini',$('chat').scrollTop>40);
+  });
+  document.addEventListener('touchstart',function unlock(){
+    if(window.speechSynthesis){var u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}
+    document.removeEventListener('touchstart',unlock);
+  },{once:true});
+})();
+</script>
+</body>
+</html>
