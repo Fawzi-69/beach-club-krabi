@@ -672,7 +672,8 @@ function respond(raw){
 function cat(txt,f){
   var all=safe(D.filter(f)), t=T[L];
   if(!all.length)return {t:t.nofilt};
-  return {t:txt+(all.length>8?' '+t.more:''),items:all.slice(0,8)};
+  if(all.length>8)txt=txt.replace(/[\s]*[:：]+[\s]*$/,'')+'… '+t.more.replace(/^[…\s]+/,'');
+  return {t:txt,items:all.slice(0,8)};
 }
 function svcTxt(id){var x=S.filter(function(y){return y.id===id})[0];return x.n[L]+' — '+x.d[L]}
 </script>
