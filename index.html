@@ -803,7 +803,39 @@ function showCards(html){
 }
 
 /* ============ SPEECH ============ */
+/* voix enregistrée (mp3) pour les phrases fixes ; synthèse du navigateur en repli */
+var VFILES={},VAU=null;
+(function(){
+  var ks=['veg','spicy','pasta','pizza','tapas','burger','salad','thai','dess','drink','nofilt'];
+  ['en','th'].forEach(function(lg){
+    if(!T[lg])return;
+    ks.forEach(function(k){ if(T[lg][k])VFILES[lg+'|'+T[lg][k]]='media/voice/'+lg+'-'+k+'.mp3' });
+    if(T[lg].filt){VFILES[lg+'|'+T[lg].filt]='media/voice/'+lg+'-filt.mp3';
+      VFILES[lg+'|'+T[lg].filt+' →']='media/voice/'+lg+'-filt.mp3'}
+    if(T[lg].greet)VFILES[lg+'|'+T[lg].greet.replace('{T}',TABLE).replace('{N}',NAME)]='media/voice/'+lg+'-greet.mp3';
+    Object.keys(ALG).forEach(function(a){
+      if(T[lg].alg)VFILES[lg+'|'+T[lg].alg.replace('{A}',ALG[a][lg])]='media/voice/'+lg+'-alg-'+a+'.mp3';
+    });
+  });
+})();
 function speak(txt){
+  if(!VOICE)return;
+  var f=VFILES[L+'|'+txt];
+  if(f){
+    try{
+      if(VAU){try{VAU.pause()}catch(e){}}
+      if(window.speechSynthesis)speechSynthesis.cancel();
+      VAU=new Audio(f);
+      VAU.onplay=function(){$('av').classList.add('talk')};
+      VAU.onended=function(){$('av').classList.remove('talk')};
+      var pr=VAU.play();
+      if(pr&&pr.catch)pr.catch(function(){synthSpeak(txt)});
+      return;
+    }catch(e){}
+  }
+  synthSpeak(txt);
+}
+function synthSpeak(txt){
   if(!VOICE||!window.speechSynthesis)return;
   try{
     speechSynthesis.cancel();
@@ -822,7 +854,11 @@ function speak(txt){
 function toggleVoice(){
   VOICE=!VOICE;$('pVoice').classList.toggle('on',VOICE);
   $('pVoice').innerHTML=VOICE?'\u{1F50A}':'\u{1F507}';
-  if(!VOICE&&window.speechSynthesis)speechSynthesis.cancel();
+  if(!VOICE){
+    if(window.speechSynthesis)speechSynthesis.cancel();
+    if(VAU){try{VAU.pause()}catch(e){}}
+    $('av').classList.remove('talk');
+  }
 }
 
 /* ============ CONVERSATION ============ */
