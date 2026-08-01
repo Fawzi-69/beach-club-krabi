@@ -176,6 +176,8 @@ color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;just
 @keyframes iup{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:none}}
 .iflags{margin-top:11px;display:flex;flex-wrap:wrap;gap:9px;justify-content:center;max-width:330px;
   animation:iup .7s .46s both}
+.isoon{margin-top:12px;color:rgba(255,255,255,.45);font-size:10px;letter-spacing:1.2px;
+  text-transform:uppercase;animation:iup .7s .54s both}
 .iflag{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);
   border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(8px);color:#fff;
   padding:9px 13px;border-radius:26px;font-size:13px;font-weight:600;cursor:pointer;
@@ -240,6 +242,7 @@ color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;just
   <div class="irole" id="irole"></div>
   <div class="ipick">Select your language</div>
   <div class="iflags" id="iflags"></div>
+  <div class="isoon">More languages coming soon</div>
 </div>
 
 <div class="spkw" id="spkw">
@@ -954,7 +957,8 @@ var PH={waitress:'media/waitress.webp',
         concierge:'media/concierge.webp'};
 
 /* ============ SCAN INTRO ============ */
-var VIDS={waitress:['media/loop1.mp4',
+var VIDS={waitress:['media/spk-en.mp4',
+                    'media/loop1.mp4',
                     'media/loop2.mp4']};
 var VN=Math.max(1,parseInt(Q.get('v')||'1',10)||1);
 var VID={}; for(var _r in VIDS){VID[_r]=VIDS[_r][Math.min(VN,VIDS[_r].length)-1]}
