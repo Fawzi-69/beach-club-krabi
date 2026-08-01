@@ -150,19 +150,30 @@ color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;just
 
 /* ===== scan intro ===== */
 .intro{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:22px 18px calc(22px + env(safe-area-inset-bottom));opacity:1;
+  transition:opacity .55s ease,padding .65s cubic-bezier(.3,.9,.3,1)}
+.intro:before{content:'';position:absolute;inset:0;z-index:-1;
   background:linear-gradient(165deg,#0d2f2c 0%,#12514c 38%,#2f8f80 62%,#e8a86a 100%);
-  padding:22px 18px calc(22px + env(safe-area-inset-bottom));opacity:1;transition:opacity .55s ease}
+  transition:opacity .6s ease}
 .intro.gone{opacity:0;pointer-events:none}
-.ivid{position:relative;width:min(64vw,240px);aspect-ratio:9/13;border-radius:22px;overflow:hidden;
+/* pendant qu'elle parle : le fond s'efface, la carte glisse en cercle en haut, le chat est utilisable */
+.intro.talking{pointer-events:none;padding-bottom:calc(100vh - 128px)}
+.intro.talking:before{opacity:0}
+.ivid{position:relative;width:min(64vw,240px);height:min(92.4vw,346px);border-radius:22px;overflow:hidden;
   background:#0d2f2c;box-shadow:0 26px 60px rgba(0,0,0,.42),0 0 0 1px rgba(255,255,255,.16);
-  animation:ipop .8s cubic-bezier(.2,1.3,.4,1) both}
+  animation:ipop .8s cubic-bezier(.2,1.3,.4,1) both;
+  transition:width .65s cubic-bezier(.3,.9,.3,1),height .65s cubic-bezier(.3,.9,.3,1),
+    border-radius .65s ease,box-shadow .65s ease}
+.intro.talking .ivid{width:78px;height:78px;border-radius:50%;pointer-events:auto;cursor:pointer;
+  box-shadow:0 10px 26px rgba(0,0,0,.35),0 0 0 2px rgba(255,255,255,.35)}
 @keyframes ipop{0%{opacity:0;transform:scale(.82) translateY(26px)}100%{opacity:1;transform:none}}
-.ivid video,.ivid img.fb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.ivid video,.ivid img.fb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 28%;display:block}
 .ivid img.fb{z-index:0}
 .ivid video{z-index:1;opacity:0;transition:opacity .6s ease}
 .ivid video.rdy{opacity:1}
 .ivid:after{content:'';position:absolute;left:0;right:0;bottom:0;height:38%;z-index:2;
-  background:linear-gradient(to top,rgba(8,38,36,.55),rgba(8,38,36,0))}
+  background:linear-gradient(to top,rgba(8,38,36,.55),rgba(8,38,36,0));transition:opacity .4s}
+.intro.talking .ivid:after,.intro.talking .ilive{opacity:0}
 .ilive{position:absolute;top:9px;left:9px;z-index:3;display:flex;align-items:center;gap:5px;
   background:rgba(8,32,30,.55);backdrop-filter:blur(6px);color:#fff;font-size:9px;font-weight:800;
   letter-spacing:.9px;padding:4px 8px;border-radius:20px}
@@ -178,6 +189,12 @@ color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;just
   animation:iup .7s .46s both}
 .isoon{margin-top:12px;color:rgba(255,255,255,.45);font-size:10px;letter-spacing:1.2px;
   text-transform:uppercase;animation:iup .7s .54s both}
+.iname,.irole,.ipick,.iflags,.isoon{max-height:96px;overflow:hidden;
+  transition:opacity .35s ease,max-height .55s ease,margin .55s ease}
+.intro.talking .iname,.intro.talking .irole,.intro.talking .ipick,
+.intro.talking .iflags,.intro.talking .isoon{opacity:0;max-height:0;margin:0}
+.av{transition:opacity .5s ease}
+body.vtalk .av{opacity:0}
 .iflag{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);
   border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(8px);color:#fff;
   padding:9px 13px;border-radius:26px;font-size:13px;font-weight:600;cursor:pointer;
@@ -233,7 +250,7 @@ color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;just
 </div>
 
 <div class="intro" id="intro">
-  <div class="ivid">
+  <div class="ivid" onclick="if($('intro').classList.contains('talking'))introTalkEnd()">
     <img class="fb" id="ifb" alt="" onerror="this.style.display='none'">
     <video id="ivid" playsinline muted loop preload="auto" disablepictureinpicture></video>
     <div class="ilive"><i></i>LIVE</div>
@@ -988,10 +1005,40 @@ function introGo(c){
   try{if(window.speechSynthesis){var u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}}catch(e){}
   L=(c&&T[c])?c:L;
   applyLang();
-  var el=$('intro');
+  var el=$('intro'),v=$('ivid');
+  var src=(SPK[ROLE]||{})[L];
+  if(!src){ /* pas de clip pour cette langue : chat direct, comme avant */
+    el.classList.add('gone');
+    setTimeout(function(){try{v.pause()}catch(e){}; if(el.parentNode)el.parentNode.removeChild(el)},700);
+    setTimeout(function(){ introChat() },380);
+    return;
+  }
+  /* elle switche de langue DANS la même carte (aucun saut de taille),
+     le chat apparaît pendant qu'elle parle, la carte glisse en cercle en haut */
+  document.body.classList.add('vtalk');
+  el.classList.add('talking');
+  v.classList.remove('rdy');
+  v.loop=false; v.muted=false; v.src=src; v.load();
+  v.onended=introTalkEnd; v.onerror=introTalkEnd;
+  v.onplaying=function(){v.classList.add('rdy');TALKED=true;setTimeout(introChatOnce,650)};
+  var p=v.play();
+  if(p&&p.catch)p.catch(function(){ /* le navigateur refuse le son : muet plutôt que rien */
+    v.muted=true; var q=v.play(); if(q&&q.catch)q.catch(introTalkEnd);
+  });
+  /* filet de sécurité : si la vidéo ne démarre pas, la synthèse prend le relais */
+  TWATCH=setTimeout(function(){ if(v.currentTime<0.15)introTalkEnd() },6000);
+}
+var CHATTED=false;
+function introChatOnce(){ if(CHATTED)return; CHATTED=true; introChat(); }
+function introTalkEnd(){
+  if(TWATCH){clearTimeout(TWATCH);TWATCH=null}
+  var el=$('intro'),v=$('ivid');
+  if(!el||!el.parentNode)return;
+  try{v.pause()}catch(e){}
+  document.body.classList.remove('vtalk');
   el.classList.add('gone');
-  setTimeout(function(){try{$('ivid').pause()}catch(e){}; if(el.parentNode)el.parentNode.removeChild(el)},700);
-  setTimeout(function(){ talkPlay(introChat) },380);
+  setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el)},700);
+  introChatOnce();
 }
 function introChat(){
   var t=T[L];
