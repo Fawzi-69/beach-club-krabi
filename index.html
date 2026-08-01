@@ -953,12 +953,12 @@ function applyFilt(){
 }
 
 /* photo-realistic portraits; the drawn avatar stays as a fallback if they can't load */
-var PH={waitress:'https://d8j0ntlcm91z4.cloudfront.net/user_3F0V4q0SgO18RJdYsIoJe3pHiVQ/hf_20260731_110222_6cf20a8a-c75c-41de-b8fb-09ed25ec3f60_min.webp',
-        concierge:'https://d8j0ntlcm91z4.cloudfront.net/user_3F0V4q0SgO18RJdYsIoJe3pHiVQ/hf_20260731_110224_c356857d-f052-4c62-9b94-a21ef5618f25_min.webp'};
+var PH={waitress:'media/waitress.webp',
+        concierge:'media/concierge.webp'};
 
 /* ============ SCAN INTRO ============ */
-var VIDS={waitress:['https://d8j0ntlcm91z4.cloudfront.net/user_3F0V4q0SgO18RJdYsIoJe3pHiVQ/hf_20260801_205110_0787a8b2-d0f2-4026-9451-27f575397779.mp4',
-                    'https://d8j0ntlcm91z4.cloudfront.net/user_3F0V4q0SgO18RJdYsIoJe3pHiVQ/hf_20260801_205110_f7d9300a-221f-4cac-a03c-f0e9bcdd25f6.mp4']};
+var VIDS={waitress:['media/loop1.mp4',
+                    'media/loop2.mp4']};
 var VN=Math.max(1,parseInt(Q.get('v')||'1',10)||1);
 var VID={}; for(var _r in VIDS){VID[_r]=VIDS[_r][Math.min(VN,VIDS[_r].length)-1]}
 var PICK={en:'Select your language',fr:'Choisissez votre langue',th:'\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E20\u0E32\u0E29\u0E32',de:'Sprache w\u00e4hlen',ru:'\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u044f\u0437\u044b\u043a',zh:'\u9009\u62e9\u8bed\u8a00'};
@@ -1003,8 +1003,8 @@ function introChat(){
 /* ============ ELLE PARLE ============ */
 /* une vidéo parlée par langue ; les langues absentes passent direct au chat + voix de synthèse */
 var SPK={waitress:{
-  en:'https://d8j0ntlcm91z4.cloudfront.net/user_3F0V4q0SgO18RJdYsIoJe3pHiVQ/hf_20260801_210251_6ded8a13-b087-4ca3-875d-8633fab92dd4.mp4',
-  th:'https://d8j0ntlcm91z4.cloudfront.net/user_3F0V4q0SgO18RJdYsIoJe3pHiVQ/hf_20260801_210917_90d01cee-db2d-4c5e-9bce-63ae491e4755.mp4'
+  en:'media/spk-en.mp4',
+  th:'media/spk-th.mp4'
 }};
 var SKIP={en:'Skip',fr:'Passer',th:'\u0E02\u0E49\u0E32\u0E21',de:'\u00dcberspringen',ru:'\u041f\u0440\u043e\u043f\u0443\u0441\u0442\u0438\u0442\u044c',zh:'\u8df3\u8fc7'};
 var LOADT={en:'Connecting…',fr:'Connexion…',th:'\u0E01\u0E33\u0E25\u0E31\u0E07\u0E40\u0E0A\u0E37\u0E48\u0E2D\u0E21\u0E15\u0E48\u0E2D…',de:'Verbinden…',ru:'\u0421\u043e\u0435\u0434\u0438\u043d\u0435\u043d\u0438\u0435…',zh:'\u6b63\u5728\u8fde\u63a5…'};
