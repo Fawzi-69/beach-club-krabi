@@ -110,6 +110,10 @@ box-shadow:0 6px 22px rgba(0,0,0,.18)}
 .inp input{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;padding:10px 0;background:transparent;min-width:0}
 .snd{flex:none;width:40px;height:40px;border-radius:50%;border:none;background:var(--teal);color:#fff;font-size:17px;cursor:pointer}
 .snd:active{transform:scale(.9)}
+.mic{flex:none;width:40px;height:40px;border-radius:50%;border:none;background:#eaf2f1;color:var(--tealdk);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.mic:active{transform:scale(.9)}
+.mic.on{background:#e5484d;color:#fff;animation:micp 1.15s ease-out infinite}
+@keyframes micp{0%{box-shadow:0 0 0 0 rgba(229,72,77,.5)}100%{box-shadow:0 0 0 15px rgba(229,72,77,0)}}
 
 /* ---------- SHEETS ---------- */
 .scrim{position:fixed;inset:0;background:rgba(6,30,32,.5);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:.25s;z-index:40}
@@ -173,6 +177,7 @@ color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;just
   <div class="dock">
     <div class="inp">
       <input id="q" autocomplete="off" placeholder="Ask me anything…" onkeydown="if(event.key==='Enter')send()">
+      <button class="mic" id="mic" onclick="micTap()" aria-label="voice">&#127908;</button>
       <button class="snd" onclick="send()">&#10148;</button>
     </div>
   </div>
@@ -762,6 +767,37 @@ function ask(txt){
 }
 function send(){ask($('q').value)}
 
+/* ============ VOICE INPUT ============ */
+var LISTEN={en:'Listening…',fr:'Je vous écoute…',th:'\u0e01\u0e33\u0e25\u0e31\u0e07\u0e1f\u0e31\u0e07\u0e2d\u0e22\u0e39\u0e48\u0e04\u0e48\u0e30…',de:'Ich h\u00f6re zu…',ru:'\u0421\u043b\u0443\u0448\u0430\u044e \u0432\u0430\u0441…',zh:'\u6211\u5728\u542c…'};
+var REC=null,RECON=false;
+function micInit(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){$('mic').style.display='none';return}
+  try{REC=new SR()}catch(e){$('mic').style.display='none';return}
+  REC.interimResults=true;REC.maxAlternatives=1;REC.continuous=false;
+  REC.onstart=function(){RECON=true;$('mic').classList.add('on');$('q').placeholder=LISTEN[L]||LISTEN.en};
+  REC.onerror=function(){micOff()};
+  REC.onend=function(){micOff()};
+  REC.onresult=function(e){
+    var fin='',itr='';
+    for(var i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal)fin+=e.results[i][0].transcript;else itr+=e.results[i][0].transcript;
+    }
+    $('q').value=fin||itr;
+    if(fin){micOff();try{REC.stop()}catch(x){};ask(fin)}
+  };
+}
+function micOff(){RECON=false;$('mic').classList.remove('on');$('q').placeholder=T[L].ph}
+function micTap(){
+  if(!REC)return;
+  if(RECON){try{REC.stop()}catch(e){};return}
+  try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}
+  var lg=LANGS.filter(function(x){return x.c===L})[0];
+  REC.lang=(lg&&lg.v)||'en-US';
+  $('q').value='';
+  try{REC.start()}catch(e){micOff()}
+}
+
 /* ============ CART ============ */
 function addCart(id,btn){
   var d=D.filter(function(x){return x.id===id})[0];
@@ -865,6 +901,7 @@ function applyFilt(){
   $('anam').textContent=NAME;
   applyLang();
   if(window.speechSynthesis)speechSynthesis.getVoices();
+  micInit();
   var t=T[L];
   setTimeout(function(){
     say((ROLE==='concierge'?t.cgreet:t.greet).replace('{T}',TABLE).replace('{R}',ROOM).replace('{N}',NAME),function(){
