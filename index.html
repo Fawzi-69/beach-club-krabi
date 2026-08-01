@@ -1168,6 +1168,20 @@ function talkEnd(){
   if(window.speechSynthesis)speechSynthesis.getVoices();
   micInit();
   introInit();
+  /* cache hors-ligne : vidéos+voix+photos disponibles même si le wifi lâche */
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',function(){
+      navigator.serviceWorker.register('sw.js').then(function(){
+        setTimeout(function(){
+          var urls=[],k;
+          for(k in VFILES)if(urls.indexOf(VFILES[k])<0)urls.push(VFILES[k]);
+          for(k in PHOTOS)urls.push('media/dishes/'+k+'.webp');
+          (function next(){var u=urls.shift();if(!u)return;
+            fetch(u).catch(function(){}).then(function(){setTimeout(next,150)})})();
+        },4000);
+      }).catch(function(){});
+    });
+  }
   if(!INTRO_ON){
     var t=T[L];
     setTimeout(function(){
