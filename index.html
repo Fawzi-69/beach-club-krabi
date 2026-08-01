@@ -977,6 +977,9 @@ function introInit(){
   $('iflags').innerHTML=LANGS.map(function(x){
     return '<div class="iflag" onclick="introGo(\''+x.c+'\')"><span>'+x.f+'</span>'+x.n+'</div>';
   }).join('');
+  /* on précharge les clips parlés pendant qu'il choisit sa langue : au tap, ça part tout de suite */
+  try{var sp=SPK[ROLE]||{};for(var k in sp){var ln=document.createElement('link');
+    ln.rel='prefetch';ln.as='video';ln.href=sp[k];document.head.appendChild(ln)}}catch(e){}
 }
 function introGo(c){
   if(!INTRO_ON)return; INTRO_ON=false;
@@ -1009,7 +1012,6 @@ var TALKED=false;
 function talkPlay(done){
   var src=(SPK[ROLE]||{})[L];
   if(!src){done();return}
-  TALKED=true;
   var el=$('spkw'),v=$('tvid');
   $('tskip').textContent=SKIP[L]||SKIP.en;
   $('tload').textContent=LOADT[L]||LOADT.en;
@@ -1018,13 +1020,15 @@ function talkPlay(done){
   el.classList.add('on');
   v.onended=talkEnd;
   v.onerror=talkEnd;
-  v.onplaying=function(){$('tload').style.display='none'};
+  /* TALKED ne passe à true que si la vidéo démarre vraiment :
+     si elle ne charge pas, la voix de synthèse prend le relais au lieu du silence */
+  v.onplaying=function(){TALKED=true;$('tload').style.display='none'};
   var p=v.play();
   if(p&&p.catch)p.catch(function(){ /* le navigateur refuse le son : on remet en muet plutôt que rien */
     v.muted=true; var q=v.play(); if(q&&q.catch)q.catch(talkEnd);
   });
-  /* filet de sécurité : si rien ne démarre en 6 s, on n'immobilise pas le client */
-  TWATCH=setTimeout(function(){ if(v.currentTime<0.15)talkEnd() },6000);
+  /* filet de sécurité : on laisse 12 s au réseau, puis on rend la main */
+  TWATCH=setTimeout(function(){ if(v.currentTime<0.15)talkEnd() },12000);
 }
 var TDONE=null,TWATCH=null;
 function talkEnd(){
