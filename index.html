@@ -375,11 +375,7 @@ var S=[
 <script>
 var LANGS=[
  {c:'en',f:'\u{1F1EC}\u{1F1E7}',n:'English',v:'en-US'},
- {c:'fr',f:'\u{1F1EB}\u{1F1F7}',n:'Français',v:'fr-FR'},
- {c:'th',f:'\u{1F1F9}\u{1F1ED}',n:'ไทย',v:'th-TH'},
- {c:'de',f:'\u{1F1E9}\u{1F1EA}',n:'Deutsch',v:'de-DE'},
- {c:'ru',f:'\u{1F1F7}\u{1F1FA}',n:'Русский',v:'ru-RU'},
- {c:'zh',f:'\u{1F1E8}\u{1F1F3}',n:'中文',v:'zh-CN'}
+ {c:'th',f:'\u{1F1F9}\u{1F1ED}',n:'ไทย',v:'th-TH'}
 ];
 
 var T={
@@ -623,6 +619,7 @@ var TABLE=Q.get('table')||'12';
 var ROOM=Q.get('room')||'204';
 var NAME=Q.get('name')||(ROLE==='concierge'?'Malee':'Alina');
 var L=(Q.get('lang')||'en').toLowerCase(); if(!T[L])L='en';
+if(!LANGS.some(function(x){return x.c===L}))L='en';
 var VOICE=true, CART=[], FILT=[], SHEET=null, BUSY=false;
 var $=function(i){return document.getElementById(i)};
 
