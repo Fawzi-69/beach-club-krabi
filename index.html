@@ -147,6 +147,41 @@ font-size:15.5px;font-weight:800;padding:15px;margin-top:12px;cursor:pointer;fon
 .badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:9px;background:var(--gold);
 color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 5px}
 .rel{position:relative}
+
+/* ===== scan intro ===== */
+.intro{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(165deg,#0d2f2c 0%,#12514c 38%,#2f8f80 62%,#e8a86a 100%);
+  padding:22px 18px calc(22px + env(safe-area-inset-bottom));opacity:1;transition:opacity .55s ease}
+.intro.gone{opacity:0;pointer-events:none}
+.ivid{position:relative;width:min(64vw,240px);aspect-ratio:9/13;border-radius:22px;overflow:hidden;
+  background:#0d2f2c;box-shadow:0 26px 60px rgba(0,0,0,.42),0 0 0 1px rgba(255,255,255,.16);
+  animation:ipop .8s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes ipop{0%{opacity:0;transform:scale(.82) translateY(26px)}100%{opacity:1;transform:none}}
+.ivid video,.ivid img.fb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.ivid img.fb{z-index:0}
+.ivid video{z-index:1;opacity:0;transition:opacity .6s ease}
+.ivid video.rdy{opacity:1}
+.ivid:after{content:'';position:absolute;left:0;right:0;bottom:0;height:38%;z-index:2;
+  background:linear-gradient(to top,rgba(8,38,36,.55),rgba(8,38,36,0))}
+.ilive{position:absolute;top:9px;left:9px;z-index:3;display:flex;align-items:center;gap:5px;
+  background:rgba(8,32,30,.55);backdrop-filter:blur(6px);color:#fff;font-size:9px;font-weight:800;
+  letter-spacing:.9px;padding:4px 8px;border-radius:20px}
+.ilive i{width:5px;height:5px;border-radius:50%;background:#e5484d;animation:iblink 1.3s infinite}
+@keyframes iblink{0%,100%{opacity:1}50%{opacity:.15}}
+.iname{margin-top:18px;color:#fff;font-family:Georgia,serif;font-size:26px;letter-spacing:.5px;
+  text-shadow:0 2px 14px rgba(0,0,0,.3);animation:iup .7s .22s both}
+.irole{margin-top:3px;color:rgba(255,255,255,.82);font-size:12.5px;letter-spacing:.4px;animation:iup .7s .3s both}
+.ipick{margin-top:20px;color:rgba(255,255,255,.72);font-size:11px;letter-spacing:1.4px;
+  text-transform:uppercase;font-weight:700;animation:iup .7s .38s both}
+@keyframes iup{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:none}}
+.iflags{margin-top:11px;display:flex;flex-wrap:wrap;gap:9px;justify-content:center;max-width:330px;
+  animation:iup .7s .46s both}
+.iflag{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);
+  border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(8px);color:#fff;
+  padding:9px 13px;border-radius:26px;font-size:13px;font-weight:600;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;transition:transform .12s,background .2s}
+.iflag span{font-size:16px;line-height:1}
+.iflag:active{transform:scale(.93);background:rgba(255,255,255,.3)}
 </style>
 </head>
 <body>
@@ -181,6 +216,18 @@ color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;just
       <button class="snd" onclick="send()">&#10148;</button>
     </div>
   </div>
+</div>
+
+<div class="intro" id="intro">
+  <div class="ivid">
+    <img class="fb" id="ifb" alt="" onerror="this.style.display='none'">
+    <video id="ivid" playsinline muted loop preload="auto" disablepictureinpicture></video>
+    <div class="ilive"><i></i>LIVE</div>
+  </div>
+  <div class="iname" id="iname">Alina</div>
+  <div class="irole" id="irole"></div>
+  <div class="ipick">Select your language</div>
+  <div class="iflags" id="iflags"></div>
 </div>
 
 <div class="scrim" id="scrim" onclick="closeSheet()"></div>
@@ -887,12 +934,53 @@ function applyFilt(){
   say(t.alg.replace('{A}',nm),function(){showCards(ok.slice(0,8).map(dishHTML).join(''))});
 }
 
+/* photo-realistic portraits; the drawn avatar stays as a fallback if they can't load */
+var PH={waitress:'https://d8j0ntlcm91z4.cloudfront.net/user_3F0V4q0SgO18RJdYsIoJe3pHiVQ/hf_20260731_110222_6cf20a8a-c75c-41de-b8fb-09ed25ec3f60_min.webp',
+        concierge:'https://d8j0ntlcm91z4.cloudfront.net/user_3F0V4q0SgO18RJdYsIoJe3pHiVQ/hf_20260731_110224_c356857d-f052-4c62-9b94-a21ef5618f25_min.webp'};
+
+/* ============ SCAN INTRO ============ */
+var VIDS={waitress:['https://d8j0ntlcm91z4.cloudfront.net/user_3F0V4q0SgO18RJdYsIoJe3pHiVQ/hf_20260801_205110_0787a8b2-d0f2-4026-9451-27f575397779.mp4',
+                    'https://d8j0ntlcm91z4.cloudfront.net/user_3F0V4q0SgO18RJdYsIoJe3pHiVQ/hf_20260801_205110_f7d9300a-221f-4cac-a03c-f0e9bcdd25f6.mp4']};
+var VN=Math.max(1,parseInt(Q.get('v')||'1',10)||1);
+var VID={}; for(var _r in VIDS){VID[_r]=VIDS[_r][Math.min(VN,VIDS[_r].length)-1]}
+var PICK={en:'Select your language',fr:'Choisissez votre langue',th:'\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E20\u0E32\u0E29\u0E32',de:'Sprache w\u00e4hlen',ru:'\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u044f\u0437\u044b\u043a',zh:'\u9009\u62e9\u8bed\u8a00'};
+var INTRO_ON=true;
+function introInit(){
+  var el=$('intro');
+  if(!VID[ROLE]){el.parentNode.removeChild(el);INTRO_ON=false;return}
+  $('iname').textContent=NAME;
+  $('irole').textContent=ROLE==='concierge'?T[L].crole:T[L].role;
+  document.querySelector('.ipick').textContent=PICK[L]||PICK.en;
+  if(PH[ROLE])$('ifb').src=PH[ROLE];
+  var v=$('ivid');
+  v.src=VID[ROLE];
+  v.addEventListener('playing',function(){v.classList.add('rdy')});
+  var p=v.play(); if(p&&p.catch)p.catch(function(){});
+  $('iflags').innerHTML=LANGS.map(function(x){
+    return '<div class="iflag" onclick="introGo(\''+x.c+'\')"><span>'+x.f+'</span>'+x.n+'</div>';
+  }).join('');
+}
+function introGo(c){
+  if(!INTRO_ON)return; INTRO_ON=false;
+  /* the tap is the user gesture that unlocks audio on iOS */
+  try{if(window.speechSynthesis){var u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}}catch(e){}
+  L=(c&&T[c])?c:L;
+  applyLang();
+  var el=$('intro');
+  el.classList.add('gone');
+  setTimeout(function(){try{$('ivid').pause()}catch(e){}; if(el.parentNode)el.parentNode.removeChild(el)},700);
+  var t=T[L];
+  setTimeout(function(){
+    say((ROLE==='concierge'?t.cgreet:t.greet).replace('{T}',TABLE).replace('{R}',ROOM).replace('{N}',NAME),function(){
+      if(ROLE==='concierge')showCards(S.slice(0,3).map(svcHTML).join(''));
+    });
+  },420);
+}
+
 /* ============ INIT ============ */
 (function(){
   $('avsvg').innerHTML=avatarSVG(ROLE);
   // photo-realistic portraits; the drawn avatar stays as a fallback if they can't load
-  var PH={waitress:'https://d8j0ntlcm91z4.cloudfront.net/user_3F0V4q0SgO18RJdYsIoJe3pHiVQ/hf_20260731_110222_6cf20a8a-c75c-41de-b8fb-09ed25ec3f60_min.webp',
-          concierge:'https://d8j0ntlcm91z4.cloudfront.net/user_3F0V4q0SgO18RJdYsIoJe3pHiVQ/hf_20260731_110224_c356857d-f052-4c62-9b94-a21ef5618f25_min.webp'};
   if(PH[ROLE]){
     var pim=new Image();
     pim.onload=function(){$('avimg').src=PH[ROLE];$('av').classList.add('ph')};
@@ -902,12 +990,15 @@ function applyFilt(){
   applyLang();
   if(window.speechSynthesis)speechSynthesis.getVoices();
   micInit();
-  var t=T[L];
-  setTimeout(function(){
-    say((ROLE==='concierge'?t.cgreet:t.greet).replace('{T}',TABLE).replace('{R}',ROOM).replace('{N}',NAME),function(){
-      if(ROLE==='concierge')showCards(S.slice(0,3).map(svcHTML).join(''));
-    });
-  },500);
+  introInit();
+  if(!INTRO_ON){
+    var t=T[L];
+    setTimeout(function(){
+      say((ROLE==='concierge'?t.cgreet:t.greet).replace('{T}',TABLE).replace('{R}',ROOM).replace('{N}',NAME),function(){
+        if(ROLE==='concierge')showCards(S.slice(0,3).map(svcHTML).join(''));
+      });
+    },500);
+  }
   $('chat').addEventListener('scroll',function(){
     $('stage').classList.toggle('mini',$('chat').scrollTop>40);
   });
