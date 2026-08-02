@@ -1061,9 +1061,9 @@ function introInit(){
   $('iflags').innerHTML=LANGS.map(function(x){
     return '<div class="iflag" onclick="introGo(\''+x.c+'\')"><span>'+x.f+'</span>'+x.n+'</div>';
   }).join('');
-  /* on précharge les clips parlés pendant qu'il choisit sa langue : au tap, ça part tout de suite */
-  try{var sp=SPK[ROLE]||{};for(var k in sp){var ln=document.createElement('link');
-    ln.rel='prefetch';ln.as='video';ln.href=sp[k];document.head.appendChild(ln)}}catch(e){}
+  /* on précharge les clips parlés pendant qu'il choisit sa langue : au tap, ça part tout de suite.
+     fetch explicite (pas un simple prefetch) : les navigateurs ignorent souvent rel=prefetch en 4G */
+  try{var sp=SPK[ROLE]||{};for(var k in sp){fetch(sp[k]).catch(function(){})}}catch(e){}
 }
 function introGo(c){
   if(!INTRO_ON)return; INTRO_ON=false;
@@ -1093,12 +1093,22 @@ function introGo(c){
     try{v.pause()}catch(e){} /* la boucle muette reste visible dessous jusque-là : pas de trou noir */
     setTimeout(introChatOnce,650);
   };
+  tv.load();
   var p=tv.play();
-  if(p&&p.catch)p.catch(function(){ /* le navigateur refuse le son : muet plutôt que rien */
-    tv.muted=true; var q=tv.play(); if(q&&q.catch)q.catch(introTalkEnd);
+  if(p&&p.catch)p.catch(function(){
+    /* iPhone : play() sonore rejeté quand la vidéo n'a pas fini de charger.
+       Le tap a déjà déverrouillé l'élément → on RETENTE en sonore dès que c'est prêt ;
+       le muet n'est que l'ultime recours. */
+    var done=false;
+    var retry=function(){ if(done)return; done=true;
+      var q=tv.play();
+      if(q&&q.catch)q.catch(function(){ tv.muted=true; var r=tv.play(); if(r&&r.catch)r.catch(introTalkEnd) });
+    };
+    tv.addEventListener('canplaythrough',retry,{once:true});
+    setTimeout(retry,3000);
   });
   /* filet de sécurité : si la vidéo ne démarre pas, la synthèse prend le relais */
-  TWATCH=setTimeout(function(){ if(tv.currentTime<0.15)introTalkEnd() },6000);
+  TWATCH=setTimeout(function(){ if(tv.currentTime<0.15)introTalkEnd() },9000);
 }
 var CHATTED=false;
 function introChatOnce(){ if(CHATTED)return; CHATTED=true; introChat(); }
