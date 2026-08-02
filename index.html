@@ -1093,7 +1093,6 @@ function introGo(c){
     try{v.pause()}catch(e){} /* la boucle muette reste visible dessous jusque-là : pas de trou noir */
     setTimeout(introChatOnce,650);
   };
-  tv.load();
   var p=tv.play();
   if(p&&p.catch)p.catch(function(){
     /* iPhone : play() sonore rejeté quand la vidéo n'a pas fini de charger.
@@ -1104,8 +1103,8 @@ function introGo(c){
       var q=tv.play();
       if(q&&q.catch)q.catch(function(){ tv.muted=true; var r=tv.play(); if(r&&r.catch)r.catch(introTalkEnd) });
     };
-    tv.addEventListener('canplaythrough',retry,{once:true});
-    setTimeout(retry,3000);
+    if(tv.readyState>=3)retry();
+    else{tv.addEventListener('canplaythrough',retry,{once:true});setTimeout(retry,3000)}
   });
   /* filet de sécurité : si la vidéo ne démarre pas, la synthèse prend le relais */
   TWATCH=setTimeout(function(){ if(tv.currentTime<0.15)introTalkEnd() },9000);
