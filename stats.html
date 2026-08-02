@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a3d40">
+<title>The Beach Club — Alina Insights</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--teal:#0e6b6b;--tealdk:#0a3d40;--gold:#b8860b;--ink:#12262b;--muted:#6b7f85;
+--card:rgba(255,255,255,.92);--line:rgba(255,255,255,.35)}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,sans-serif;color:var(--ink);
+background:linear-gradient(180deg,#0a3d40 0%,#14676a 32%,#3f9c93 56%,#e9b678 82%,#f4d3a4 100%);
+background-attachment:fixed;min-height:100vh;padding-bottom:40px}
+.wrap{max-width:560px;margin:0 auto;padding:0 14px}
+header{padding:calc(env(safe-area-inset-top) + 22px) 4px 14px;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.25)}
+header b{display:block;font-size:14px;letter-spacing:.22em;font-weight:800}
+header h1{margin:10px 0 0;font-size:22px;font-weight:800;letter-spacing:.01em}
+header p{margin:6px 0 0;font-size:12.5px;opacity:.85;line-height:1.5}
+.demo{display:inline-block;margin-top:9px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);
+backdrop-filter:blur(8px);border-radius:999px;padding:5px 11px;font-size:10.5px;font-weight:800;letter-spacing:.08em}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+.kpi{background:var(--card);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px;
+padding:13px 14px;box-shadow:0 6px 20px rgba(0,0,0,.12)}
+.kpi i{display:block;font-style:normal;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.kpi b{display:block;font-size:24px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi u{display:block;text-decoration:none;font-size:10.5px;color:var(--muted);margin-top:3px}
+.kpi.gold{background:linear-gradient(135deg,#fff7e3,#fdeec8);border-color:rgba(184,134,11,.3)}
+.kpi.gold b{color:var(--gold)}
+.sec{background:var(--card);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:18px;
+padding:15px 16px 14px;margin-top:11px;box-shadow:0 6px 20px rgba(0,0,0,.12)}
+.sec h2{margin:0;font-size:14px;font-weight:800}
+.sec .sub{font-size:11px;color:var(--muted);margin:3px 0 11px}
+.row{display:flex;align-items:center;gap:9px;margin:7px 0}
+.row .lb{flex:none;width:136px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;
+white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .tr{flex:1;height:14px;background:#eef2f3;border-radius:4px;position:relative;overflow:hidden}
+.row .fl{position:absolute;left:0;top:0;bottom:0;background:var(--teal);border-radius:0 4px 4px 0;min-width:3px}
+.row .vl{flex:none;width:44px;text-align:right;font-size:12px;font-weight:700;color:var(--ink);
+font-variant-numeric:tabular-nums}
+svg text{font-family:inherit}
+.chartbox{position:relative}
+.tip{position:absolute;pointer-events:none;background:#12262b;color:#fff;font-size:11px;font-weight:600;
+padding:5px 9px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-130%);opacity:0;transition:opacity .15s}
+.live .kpi{background:rgba(10,61,64,.55);border-color:rgba(255,255,255,.25);color:#fff}
+.live .kpi i,.live .kpi u{color:rgba(255,255,255,.7)}
+.live .kpi b{color:#fff}
+.livehead{display:flex;align-items:center;gap:7px}
+.dot{width:8px;height:8px;border-radius:50%;background:#e5484d;animation:blip 1.3s infinite}
+@keyframes blip{0%,100%{opacity:1}50%{opacity:.2}}
+.sec.live{background:rgba(10,61,64,.45);border-color:rgba(255,255,255,.28);color:#fff}
+.sec.live h2{color:#fff}
+.sec.live .sub{color:rgba(255,255,255,.72)}
+.empty{font-size:12.5px;color:rgba(255,255,255,.85);line-height:1.55;padding:4px 0 2px}
+.note{margin:22px 6px 0;font-size:11px;color:#4a3d28;opacity:.85;text-align:center;line-height:1.6}
+a.back{color:#0a3d40;font-size:12px;text-decoration:underline;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <b>THE BE&#916;CH CLUB</b>
+  <h1>What Alina learned this week</h1>
+  <p>Every conversation with your guests becomes data you own — languages, tastes, questions, revenue.</p>
+  <span class="demo">DEMO PREVIEW &middot; SAMPLE DATA</span>
+</header>
+
+<div class="kpis">
+  <div class="kpi"><i>Conversations</i><b>342</b><u>this week</u></div>
+  <div class="kpi"><i>Orders sent to kitchen</i><b>118</b><u>average &#3647;1,240 / order</u></div>
+  <div class="kpi gold"><i>Extra revenue — Alina's suggestions</i><b>&#3647;36,400</b><u>drinks &amp; desserts she proposed</u></div>
+  <div class="kpi"><i>Upsell accepted</i><b>31%</b><u>of guests said yes</u></div>
+</div>
+
+<div class="sec">
+  <h2>Languages your guests chose</h2>
+  <div class="sub">She greeted every one of them in their own language.</div>
+  <div id="langs"></div>
+</div>
+
+<div class="sec">
+  <h2>Most requested dishes</h2>
+  <div class="sub">What guests asked about — before the kitchen even saw them.</div>
+  <div id="dishes"></div>
+</div>
+
+<div class="sec">
+  <h2>Conversations by hour</h2>
+  <div class="sub">Sunset is your golden hour — happy hour promotion lands exactly there.</div>
+  <div class="chartbox">
+    <svg id="hours" width="100%" viewBox="0 0 520 190" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="tip" id="tip"></div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2>What guests ask about</h2>
+  <div class="sub">Every question is answered instantly, in 6 languages, without staff.</div>
+  <div id="topics"></div>
+</div>
+
+<div class="sec live">
+  <div class="livehead"><span class="dot"></span><h2>This phone — right now</h2></div>
+  <div class="sub">Real counters from the demo running on this device. Try the app, come back, watch them move.</div>
+  <div id="livebox"></div>
+</div>
+
+<p class="note">All figures above the live section are sample data for this demo.<br>
+The production version counts your real guests, on your own dashboard.<br><br>
+<a class="back" href="index.html">&larr; Back to Alina</a></p>
+
+</div>
+
+<script>
+/* ---- sample data (labelled as such on the page) ---- */
+var LANGS=[['🇬🇧 English',38],['🇷🇺 Русский',24],['🇨🇳 中文',14],['🇩🇪 Deutsch',10],['🇫🇷 Français',8],['🇹🇭 ไทย',6]];
+var DISHES=[['Pad Thai',64],['Mango Sticky Rice',51],['Seafood BBQ',47],['Margherita',39],['Passion Love',36],['Softshell Crab',28]];
+var TOPICS=[['Recommendations',31],['Allergies & diet',18],['Drinks & happy hour',16],['Wi-Fi & practical',14],['Call staff / bill',12],['Kids & pool',9]];
+var HOURS=[[10,4],[11,7],[12,14],[13,17],[14,11],[15,9],[16,12],[17,22],[18,31],[19,27],[20,17],[21,10],[22,5]];
+
+function bars(el,data,unit){
+  var mx=0,i;for(i=0;i<data.length;i++)if(data[i][1]>mx)mx=data[i][1];
+  var h='';
+  for(i=0;i<data.length;i++){
+    h+='<div class="row"><span class="lb">'+data[i][0]+'</span>'
+      +'<span class="tr"><span class="fl" style="width:'+Math.round(data[i][1]/mx*100)+'%"></span></span>'
+      +'<span class="vl">'+data[i][1]+(unit||'')+'</span></div>';
+  }
+  document.getElementById(el).innerHTML=h;
+}
+bars('langs',LANGS,'%');
+bars('dishes',DISHES,'');
+bars('topics',TOPICS,'%');
+
+/* ---- hourly line chart, hand-rolled svg ---- */
+(function(){
+  var svg=document.getElementById('hours'),tip=document.getElementById('tip');
+  var W=520,H=190,pl=30,pr=12,pt=14,pb=26;
+  var mx=0;HOURS.forEach(function(p){if(p[1]>mx)mx=p[1]});mx=Math.ceil(mx/10)*10;
+  var x=function(h){return pl+(h-10)/12*(W-pl-pr)};
+  var y=function(v){return pt+(1-v/mx)*(H-pt-pb)};
+  var s='';
+  [0,mx/2,mx].forEach(function(v){
+    s+='<line x1="'+pl+'" y1="'+y(v)+'" x2="'+(W-pr)+'" y2="'+y(v)+'" stroke="#e3eaec" stroke-width="1"/>';
+    s+='<text x="'+(pl-6)+'" y="'+(y(v)+3.5)+'" text-anchor="end" font-size="10" fill="#6b7f85">'+v+'</text>';
+  });
+  [10,13,16,19,22].forEach(function(h){
+    s+='<text x="'+x(h)+'" y="'+(H-8)+'" text-anchor="middle" font-size="10" fill="#6b7f85">'+h+':00</text>';
+  });
+  var pts=HOURS.map(function(p){return x(p[0])+','+y(p[1])}).join(' ');
+  s+='<polygon points="'+x(10)+','+y(0)+' '+pts+' '+x(22)+','+y(0)+'" fill="rgba(14,107,107,.12)"/>';
+  s+='<polyline points="'+pts+'" fill="none" stroke="#0e6b6b" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+  HOURS.forEach(function(p){
+    s+='<circle cx="'+x(p[0])+'" cy="'+y(p[1])+'" r="3" fill="#0e6b6b" stroke="#fff" stroke-width="2" data-h="'+p[0]+'" data-v="'+p[1]+'"/>';
+  });
+  var px=x(18),pyv=y(31);
+  s+='<text x="'+px+'" y="'+(pyv-10)+'" text-anchor="middle" font-size="11" font-weight="700" fill="#12262b">18:00 &middot; 31</text>';
+  svg.innerHTML=s;
+  function move(ev){
+    var r=svg.getBoundingClientRect();
+    var cx=(ev.touches?ev.touches[0].clientX:ev.clientX)-r.left;
+    var hx=Math.round((cx/r.width*W-pl)/(W-pl-pr)*12)+10;
+    hx=Math.max(10,Math.min(22,hx));
+    var p=HOURS[hx-10];
+    tip.style.left=(x(p[0])/W*100)+'%';
+    tip.style.top=(y(p[1])/H*100)+'%';
+    tip.textContent=p[0]+':00 — '+p[1]+' conversations';
+    tip.style.opacity=1;
+  }
+  svg.addEventListener('mousemove',move);
+  svg.addEventListener('touchstart',move);
+  svg.addEventListener('touchmove',move);
+  svg.addEventListener('mouseleave',function(){tip.style.opacity=0});
+})();
+
+/* ---- live counters from the demo on this device ---- */
+(function(){
+  var o={};try{o=JSON.parse(localStorage.bc_log||'{}')}catch(e){}
+  var asked=0,k;if(o.ask)for(k in o.ask)asked+=o.ask[k];
+  var added=0;if(o.dish)for(k in o.dish)added+=o.dish[k];
+  var langs=[];if(o.lang)for(k in o.lang)if(langs.indexOf(k.toUpperCase())<0)langs.push(k.toUpperCase());
+  var box=document.getElementById('livebox');
+  if(!asked&&!added&&!o.orders){
+    box.innerHTML='<div class="empty">Nothing yet on this phone — open Alina, ask her something, add a dish, send the order. Then come back here.</div>';
+    return;
+  }
+  box.innerHTML='<div class="kpis live" style="margin-top:2px">'
+   +'<div class="kpi"><i>Questions asked</i><b>'+asked+'</b></div>'
+   +'<div class="kpi"><i>Dishes added</i><b>'+added+'</b></div>'
+   +'<div class="kpi"><i>Orders sent</i><b>'+(o.orders||0)+'</b></div>'
+   +'<div class="kpi"><i>Order value</i><b>&#3647;'+(o.rev||0).toLocaleString('en')+'</b></div>'
+   +'</div>'
+   +(langs.length?'<div class="sub" style="margin:10px 0 0">Languages used: '+langs.join(' · ')+'</div>':'');
+})();
+</script>
+</body>
+</html>

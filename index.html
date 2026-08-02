@@ -653,6 +653,109 @@ var VEGL={en:'Vegetarian',fr:'Végétarien',th:'มังสวิรัติ',
 var VEGO={en:'Veggie option',fr:'Version végé',th:'สั่งแบบมังสวิรัติได้',de:'Veggie-Variante',ru:'Есть вег. вариант',zh:'可做素食'};
 </script>
 <script>
+/* ============ RÉPONSES AJOUTÉES : infos pratiques, relance de vente, secours ============ */
+var TX={
+en:{
+ rain:'No worries — a good part of our seating is covered, and honestly the sea is at its most dramatic under the rain. Your table stays dry.',
+ reserve:'I have let the team know — someone will come take your reservation in a moment. For a sunset table, 17:30 is the golden spot.',
+ sunset:'The sun sets around 18:30 here in Krabi — the show starts about twenty minutes before. Happy hour runs right through it.',
+ music:'We play relaxed beach playlists all day, and there is a DJ at sunset on weekends. A special request? Tell your server, they pass it on.',
+ bday:'Wonderful! I have let the team know. A dessert with a candle can appear at just the right moment — say the word.',
+ takeaway:'Of course — almost everything on the card can be packed to go. Add what you like to your order and tell your server it is takeaway.',
+ smoke:'Smoking is fine in the open-air beach area, away from the covered seating. Your server can point you to the best spot.',
+ pool:'The pool is open 10:00 to 19:00 and towels are included — just ask. The left side is shallow, perfect for kids.',
+ pets:'Well-behaved dogs are welcome on the beach terrace — water bowl on the house.',
+ park:'Free parking right at the entrance, and scooters fit under the trees next to it.',
+ loc:'We are on Klong Muang beach, about 25 minutes from Ao Nang. Search “The Beach Club Krabi” on Google Maps — it brings you straight to us.',
+ fb2:'I want you to get a real answer, not a guess — I have called a member of staff to your table. Meanwhile, the menu and I are all yours.',
+ upd:'May I suggest something to drink alongside? These pair beautifully:',
+ upds:'And save a little room — our guests rarely say no to this:'},
+fr:{
+ rain:'Aucun souci — une bonne partie des tables est couverte, et franchement la mer est encore plus belle sous la pluie. Votre table reste au sec.',
+ reserve:'J’ai prévenu l’équipe — quelqu’un vient prendre votre réservation dans un instant. Pour une table au coucher du soleil, 17h30 est le créneau en or.',
+ sunset:'Le soleil se couche vers 18h30 ici à Krabi — le spectacle commence vingt minutes avant. L’happy hour dure pendant tout ce temps.',
+ music:'Playlists détente toute la journée, et un DJ au coucher du soleil le week-end. Une envie particulière ? Dites-le à votre serveur, il transmet.',
+ bday:'Merveilleux ! J’ai prévenu l’équipe. Un dessert avec une bougie peut arriver au bon moment — un mot suffit.',
+ takeaway:'Bien sûr — presque toute la carte peut être emballée à emporter. Ajoutez ce qui vous plaît et dites à votre serveur que c’est à emporter.',
+ smoke:'On peut fumer côté plage, à l’air libre, à l’écart des tables couvertes. Votre serveur vous montre le meilleur coin.',
+ pool:'La piscine est ouverte de 10h à 19h, serviettes incluses — il suffit de demander. Le côté gauche est peu profond, parfait pour les enfants.',
+ pets:'Les chiens sages sont les bienvenus sur la terrasse plage — gamelle d’eau offerte.',
+ park:'Parking gratuit juste à l’entrée, et les scooters se garent sous les arbres à côté.',
+ loc:'Nous sommes sur la plage de Klong Muang, à 25 minutes d’Ao Nang. Cherchez « The Beach Club Krabi » sur Google Maps — il vous amène directement.',
+ fb2:'Je veux que vous ayez une vraie réponse, pas une supposition — j’ai appelé un membre de l’équipe à votre table. En attendant, la carte et moi sommes à vous.',
+ upd:'Je vous propose quelque chose à boire avec ? Ceux-ci s’accordent à merveille :',
+ upds:'Et gardez une petite place — nos clients disent rarement non à ceci :'},
+th:{
+ rain:'ไม่ต้องกังวลค่ะ ที่นั่งส่วนใหญ่มีหลังคาคลุม และทะเลตอนฝนตกก็สวยไปอีกแบบ โต๊ะของคุณไม่เปียกแน่นอนค่ะ',
+ reserve:'แจ้งทีมงานให้แล้วค่ะ สักครู่จะมารับจองที่โต๊ะ ถ้าอยากได้โต๊ะชมพระอาทิตย์ตก แนะนำเวลา 17:30 ค่ะ',
+ sunset:'พระอาทิตย์ตกประมาณ 18:30 ที่กระบี่ค่ะ ช่วงสวยที่สุดเริ่มก่อนราวยี่สิบนาที และแฮปปี้อาวร์ก็อยู่ในช่วงนั้นพอดีค่ะ',
+ music:'เราเปิดเพลงชิล ๆ ทั้งวัน และมีดีเจช่วงพระอาทิตย์ตกวันหยุดสุดสัปดาห์ค่ะ อยากขอเพลงบอกพนักงานได้เลยค่ะ',
+ bday:'ยินดีด้วยนะคะ! แจ้งทีมงานให้แล้วค่ะ ของหวานพร้อมเทียนพร้อมเสิร์ฟตอนไหนบอกได้เลยค่ะ',
+ takeaway:'ได้ค่ะ เกือบทุกเมนูห่อกลับบ้านได้ เลือกใส่รายการสั่งแล้วบอกพนักงานว่าห่อกลับค่ะ',
+ smoke:'สูบบุหรี่ได้โซนริมหาดกลางแจ้ง ห่างจากที่นั่งมีหลังคาค่ะ พนักงานพาไปจุดที่เหมาะได้ค่ะ',
+ pool:'สระว่ายน้ำเปิด 10:00–19:00 น. มีผ้าเช็ดตัวให้ฟรี แค่บอกพนักงานค่ะ ฝั่งซ้ายน้ำตื้น เหมาะกับเด็กค่ะ',
+ pets:'น้องหมาที่เรียบร้อยเข้าได้ที่เทอเรซริมหาดค่ะ มีชามน้ำให้ฟรีค่ะ',
+ park:'มีที่จอดรถฟรีหน้าทางเข้า และมอเตอร์ไซค์จอดใต้ต้นไม้ข้าง ๆ ได้ค่ะ',
+ loc:'เราอยู่หาดคลองม่วง ห่างอ่าวนางประมาณ 25 นาทีค่ะ ค้นหา “The Beach Club Krabi” ใน Google Maps มาถึงเลยค่ะ',
+ fb2:'อยากให้คุณได้คำตอบที่ถูกต้องจริง ๆ ค่ะ เรียกพนักงานมาที่โต๊ะให้แล้วนะคะ ระหว่างนี้ถามเรื่องเมนูได้เลยค่ะ',
+ upd:'รับเครื่องดื่มคู่กันไหมคะ? สามแก้วนี้เข้ากันมากค่ะ:',
+ upds:'เผื่อท้องไว้นิดนะคะ ลูกค้าของเราแทบไม่มีใครปฏิเสธจานนี้ค่ะ:'},
+de:{
+ rain:'Keine Sorge — ein großer Teil der Plätze ist überdacht, und ehrlich gesagt ist das Meer im Regen am eindrucksvollsten. Ihr Tisch bleibt trocken.',
+ reserve:'Ich habe das Team informiert — gleich kommt jemand für Ihre Reservierung. Für einen Sonnenuntergangs-Tisch ist 17:30 Uhr die goldene Zeit.',
+ sunset:'Die Sonne geht hier in Krabi gegen 18:30 Uhr unter — das Schauspiel beginnt etwa zwanzig Minuten vorher. Die Happy Hour läuft genau dann.',
+ music:'Tagsüber entspannte Beach-Playlists, am Wochenende ein DJ zum Sonnenuntergang. Ein Musikwunsch? Sagen Sie es dem Service.',
+ bday:'Wunderbar! Ich habe das Team informiert. Ein Dessert mit Kerze erscheint im richtigen Moment — ein Wort genügt.',
+ takeaway:'Natürlich — fast alles auf der Karte gibt es zum Mitnehmen. Einfach bestellen und dem Service Bescheid sagen.',
+ smoke:'Rauchen ist im offenen Strandbereich möglich, abseits der überdachten Plätze. Der Service zeigt Ihnen die beste Ecke.',
+ pool:'Der Pool ist von 10:00 bis 19:00 Uhr geöffnet, Handtücher inklusive — einfach fragen. Die linke Seite ist flach, perfekt für Kinder.',
+ pets:'Brave Hunde sind auf der Strandterrasse willkommen — Wassernapf aufs Haus.',
+ park:'Kostenlose Parkplätze direkt am Eingang, Roller passen unter die Bäume daneben.',
+ loc:'Wir liegen am Klong-Muang-Strand, etwa 25 Minuten von Ao Nang. Suchen Sie „The Beach Club Krabi“ auf Google Maps — es führt Sie direkt zu uns.',
+ fb2:'Sie sollen eine echte Antwort bekommen, keine Vermutung — ich habe jemanden vom Team an Ihren Tisch gerufen. Bis dahin bin ich für die Karte da.',
+ upd:'Darf ich etwas dazu zu trinken vorschlagen? Diese passen wunderbar:',
+ upds:'Und heben Sie sich ein Eckchen auf — dazu sagen unsere Gäste selten Nein:'},
+ru:{
+ rain:'Не волнуйтесь — большая часть столиков под крышей, а море в дождь по-своему прекрасно. Ваш столик останется сухим.',
+ reserve:'Я предупредила команду — через минуту к вам подойдут оформить бронь. Для столика на закате лучшее время — 17:30.',
+ sunset:'Солнце здесь, в Краби, садится около 18:30 — самое красивое начинается минут за двадцать до этого. Happy hour идёт как раз в это время.',
+ music:'Весь день — расслабленные пляжные плейлисты, по выходным на закате играет диджей. Есть пожелание? Скажите официанту, он передаст.',
+ bday:'Прекрасно! Я предупредила команду. Десерт со свечой появится в нужный момент — только скажите.',
+ takeaway:'Конечно — почти всё из меню можно упаковать с собой. Добавьте, что нравится, и скажите официанту, что это навынос.',
+ smoke:'Курить можно в открытой пляжной зоне, в стороне от столиков под крышей. Официант покажет удобное место.',
+ pool:'Бассейн открыт с 10:00 до 19:00, полотенца включены — просто попросите. Левая сторона мелкая, идеально для детей.',
+ pets:'Воспитанные собаки — желанные гости на пляжной террасе, миска с водой за наш счёт.',
+ park:'Бесплатная парковка прямо у входа, скутеры помещаются под деревьями рядом.',
+ loc:'Мы на пляже Клонг-Муанг, примерно в 25 минутах от Ао-Нанга. Наберите «The Beach Club Krabi» в Google Maps — он приведёт прямо к нам.',
+ fb2:'Хочу, чтобы вы получили точный ответ, а не догадку — я позвала к вашему столику сотрудника. А пока меню и я в вашем распоряжении.',
+ upd:'Предложить что-нибудь из напитков к этому? Вот что сочетается лучше всего:',
+ upds:'И оставьте немного места — от этого наши гости редко отказываются:'},
+zh:{
+ rain:'别担心——我们大部分座位都有遮蔽，而且说真的，雨中的大海别有一番景致。您的桌子不会淋湿。',
+ reserve:'我已通知团队——稍后会有人来为您办理预订。想要日落位，17:30 是黄金时段。',
+ sunset:'甲米这里太阳大约 18:30 落山——最美的时刻从提前二十分钟开始，欢乐时光正好贯穿全程。',
+ music:'白天是轻松的海滩歌单，周末日落时有 DJ。想点歌？告诉服务员即可。',
+ bday:'太好了！我已通知团队。带蜡烛的甜品会在合适的时刻登场——您一句话就行。',
+ takeaway:'当然可以——菜单上几乎所有菜品都能打包。把喜欢的加入订单，告诉服务员是外带即可。',
+ smoke:'海滩露天区域可以吸烟，远离有遮蔽的座位。服务员可以为您指个好位置。',
+ pool:'泳池开放时间 10:00–19:00，毛巾免费——开口即可。左侧水浅，很适合孩子。',
+ pets:'乖巧的狗狗欢迎来海滩露台——水碗免费提供。',
+ park:'入口处有免费停车场，旁边树下可以停摩托车。',
+ loc:'我们位于 Klong Muang 海滩，距奥南约 25 分钟。在 Google Maps 搜索 “The Beach Club Krabi” 即可直达。',
+ fb2:'我希望您得到准确的答案，而不是猜测——我已请工作人员到您桌边。在此期间，菜单方面尽管问我。',
+ upd:'配点喝的怎么样？这几款非常搭：',
+ upds:'留点肚子——我们的客人很少拒绝这一道：'}
+};
+(function(){for(var lg in TX){if(T[lg])for(var k in TX[lg])T[lg][k]=TX[lg][k]}})();
+
+/* journal local pour le tableau de bord patron (stats.html) — rien ne quitte le téléphone */
+function logE(k,v,n){try{
+  var o=JSON.parse(localStorage.bc_log||'{}');
+  if(n!=null)o[k]=(o[k]||0)+n;
+  else{var m=o[k]=o[k]||{};m[v]=(m[v]||0)+1}
+  localStorage.bc_log=JSON.stringify(o);
+}catch(e){}}
+
 /* ============ STATE ============ */
 var Q=new URLSearchParams(location.search);
 var ROLE=(Q.get('role')||'waitress').toLowerCase();
@@ -706,9 +809,23 @@ var K={
  bfast:['breakfast','petit-déj','petit dej','déjeuner','อาหารเช้า','frühstück','fruhstuck','завтрак','早餐'],
  laundry:['laundry','wash','linge','blanchiss','ซักรีด','wäsche','wasche','стирк','прачеч','洗衣'],
  roomsvc:['room service','in-room','eat in my room','room dining','service en chambre','en chambre','รูมเซอร์วิส','ในห้อง','zimmerservice','в номер','обслуживание в','客房送餐','送到房间'],
- services:['what can','services','what do you offer','activities','que puis','services','activités','activite','บริการ','อะไรบ้าง','was kann','angebot','что можно','услуг','有什么','服务']
+ services:['what can','services','what do you offer','activities','que puis','services','activités','activite','บริการ','อะไรบ้าง','was kann','angebot','что можно','услуг','有什么','服务'],
+ /* infos pratiques */
+ rain:['rain','covered','indoor','inside','shelter','pluie','pleut','couvert','abrit','ฝน','ที่ร่ม','ในร่ม','regen','überdacht','uberdacht','дожд','крыт','помещени','下雨','室内','遮'],
+ reserve:['reserv','book a table','booking','réserv','จองโต๊ะ','จองที่','reservier','tisch buchen','брони','заказать стол','预订','订位','订桌'],
+ sunset:['sunset','coucher de soleil','coucher du soleil','พระอาทิตย์ตก','ตะวันตกดิน','sonnenuntergang','закат','日落','夕阳'],
+ music:['music','musique',' dj','concert','ดนตรี','เพลง','musik','музык','концерт','音乐','现场'],
+ bday:['birthday','anniversary','celebrat','honeymoon','proposal','anniversaire','fêter','feter','วันเกิด','ฉลอง','ครบรอบ','geburtstag','jahrestag','feier','день рождения','годовщин','юбилей','отпраздн','生日','纪念日','庆祝','求婚'],
+ takeaway:['take away','takeaway','take-away','to go','doggy bag','emporter','ห่อกลับ','กลับบ้าน','mitnehmen','с собой','навынос','打包','外带'],
+ smoke:['smok','cigarette','vape','fumer','fumeur','สูบบุหรี่','ที่สูบ','rauch','курить','курен','покурить','吸烟','抽烟'],
+ pool:['pool','swim','piscine','baignade','สระว่ายน้ำ','ว่ายน้ำ','schwimm','бассейн','купаться','плавать','泳池','游泳'],
+ pets:['dog','pet ','pets','chien','animaux','หมา','สุนัข','สัตว์เลี้ยง','hund','haustier','собак','животн','宠物','狗'],
+ park:['parking','car park','se garer','stationn','ที่จอดรถ','จอดรถ','parkplatz','parken','парков','стоянк','припарк','停车'],
+ loc:['where are you','address','location','how to get','direction','google maps','où êtes','ou etes','adresse','itinéraire','itineraire','อยู่ที่ไหน','ที่อยู่','แผนที่','เดินทางยังไง','wo seid','wo sind sie','anfahrt','где вы','адрес','как добраться','在哪','地址','怎么走']
 };
-function hit(s,list){for(var i=0;i<list.length;i++){if(s.indexOf(list[i])>-1)return true}return false}
+/* les clients tapent sans accents : « reserver », « ou etes vous » doivent matcher quand même */
+function nrm(s){try{return s.normalize('NFD').replace(/[̀-ͯ]/g,'')}catch(e){return s}}
+function hit(s,list){var ns=nrm(s);for(var i=0;i<list.length;i++){if(s.indexOf(list[i])>-1||ns.indexOf(nrm(list[i]))>-1)return true}return false}
 
 function pick(f,n){var r=D.filter(f);return n?r.slice(0,n):r}
 function safe(list){ // remove dishes matching active allergen filters
@@ -767,11 +884,23 @@ function respond(raw){
   if(hit(s,K.meat))    return cat(t.meat,function(d){return d.c==='meat'});
   if(hit(s,K.sea))     return cat(t.sea,function(d){return d.a.indexOf('fish')>-1||d.a.indexOf('shellfish')>-1});
   if(hit(s,K.start))   return cat(t.start,function(d){return d.c==='start'});
+  /* infos pratiques — avant recommend (« what should we do for my birthday ») et hours (« what time is sunset ») */
+  if(hit(s,K.bday))    return {t:t.bday};
+  if(hit(s,K.takeaway))return {t:t.takeaway};
+  if(hit(s,K.reserve)) return {t:t.reserve};
+  if(hit(s,K.sunset))  return {t:t.sunset};
+  if(hit(s,K.rain))    return {t:t.rain};
+  if(hit(s,K.music))   return {t:t.music};
+  if(hit(s,K.smoke))   return {t:t.smoke};
+  if(hit(s,K.pets))    return {t:t.pets};
+  if(hit(s,K.park))    return {t:t.park};
+  if(hit(s,K.loc))     return {t:t.loc};
   if(hit(s,K.recommend))return{t:t.rec,items:safe(D.filter(function(d){return ['oriental','seabass','padthai','margherita','mango'].indexOf(d.id)>-1}))};
   if(hit(s,K.wifi))    return {t:t.wifi};
   if(hit(s,K.hours))   return {t:t.hours};
   if(hit(s,K.bill))    return {t:t.bill};
   if(hit(s,K.kids))    return {t:t.kids};
+  if(hit(s,K.pool))    return {t:t.pool};
   if(hit(s,K.waiter))  return {t:t.waiter};
   if(hit(s,K.thanks))  return {t:t.thanks};
   if(hit(s,K.greet))   return {t:(C?t.cgreet:t.greet).replace('{T}',TABLE).replace('{R}',ROOM).replace('{N}',NAME)};
@@ -911,11 +1040,14 @@ function say(text,cb,mute){
     BUSY=false;if(cb)cb();
   },wait);
 }
+var FBN=0; /* deux « je n'ai pas compris » d'affilée → elle appelle un humain plutôt que tourner en rond */
 function ask(txt){
   if(!txt.trim())return;
   if(BUSY){setTimeout(function(){ask(txt)},250);return}
   bubble('u',esc(txt));$('q').value='';$('stage').classList.add('mini');
+  logE('ask',txt.slice(0,80));
   var r=respond(txt);
+  if(r.t===T[L].fb||r.t===T[L].cfb){FBN++;if(FBN>=2){r={t:T[L].fb2};FBN=0}}else FBN=0;
   say(r.t,function(){
     if(r.items&&r.items.length)showCards(r.items.map(dishHTML).join(''));
     if(r.svc)showCards(r.svc.map(function(id){return S.filter(function(x){return x.id===id})[0]}).map(svcHTML).join(''));
@@ -957,13 +1089,29 @@ function micTap(){
 /* ============ CART ============ */
 function addCart(id,btn){
   var d=D.filter(function(x){return x.id===id})[0];
-  CART.push({n:nm(d),p:d.p});btn.classList.add('done');btn.innerHTML='✓';
-  syncCart();say(T[L].add.replace('{X}',nm(d)));
+  CART.push({id:d.id,c:d.c,n:nm(d),p:d.p});btn.classList.add('done');btn.innerHTML='✓';
+  syncCart();logE('dish',d.n);
+  say(T[L].add.replace('{X}',nm(d)),function(){upsell(d)});
+}
+/* relance de vente : un verre avec le plat, puis un dessert — une seule fois chacun, jamais harcelant */
+var UP={d:false,s:false};
+function upsell(d){
+  if(d.c==='drink'||d.c==='dess')return;
+  var t=T[L];
+  var hasDrink=CART.filter(function(x){return x.c==='drink'}).length;
+  var hasDess=CART.filter(function(x){return x.c==='dess'}).length;
+  var ids=null,txt='';
+  if(!UP.d&&!hasDrink){UP.d=true;ids=['passionlove','mojito','mangocolada'];txt=t.upd}
+  else if(!UP.s&&!hasDess){UP.s=true;ids=['mango','tiramisu'];txt=t.upds}
+  if(!ids)return;
+  var its=safe(D.filter(function(x){return ids.indexOf(x.id)>-1}));
+  if(!its.length)return;
+  setTimeout(function(){say(txt,function(){showCards(its.map(dishHTML).join(''))})},600);
 }
 function addSvc(id,btn){
   var x=S.filter(function(y){return y.id===id})[0];
-  CART.push({n:x.n[L],p:x.p});btn.classList.add('done');btn.innerHTML='✓';
-  syncCart();say(T[L].add.replace('{X}',x.n[L]));
+  CART.push({id:x.id,c:'svc',n:x.n[L],p:x.p});btn.classList.add('done');btn.innerHTML='✓';
+  syncCart();logE('dish',x.n.en);say(T[L].add.replace('{X}',x.n[L]));
 }
 function syncCart(){
   $('cnt').style.display=CART.length?'flex':'none';$('cnt').textContent=CART.length;
@@ -980,6 +1128,8 @@ function drawCart(){
 }
 function confirmOrder(){
   var t=T[L];
+  var sum=0;for(var i=0;i<CART.length;i++)sum+=CART[i].p||0;
+  logE('orders',null,1);logE('rev',null,sum);
   $('cartBody').innerHTML='<div class="ok"><div class="ic">✅</div><b>'+t.okt+'</b><p>'
    +(ROLE==='concierge'?t.okc.replace('{R}',ROOM):t.okd.replace('{T}',TABLE))+'</p></div>';
   speak(ROLE==='concierge'?t.okc.replace('{R}',ROOM):t.okd.replace('{T}',TABLE));
@@ -1006,7 +1156,7 @@ function drawLang(){
   }).join('');
 }
 function setLang(c){
-  L=c;closeSheet();applyLang();
+  L=c;closeSheet();applyLang();logE('lang',c);
   $('chat').innerHTML='';
   var t=T[L];
   say((ROLE==='concierge'?t.cgreet:t.greet).replace('{T}',TABLE).replace('{R}',ROOM).replace('{N}',NAME));
@@ -1101,7 +1251,7 @@ function introGo(c){
   /* the tap is the user gesture that unlocks audio on iOS */
   try{if(window.speechSynthesis){var u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}}catch(e){}
   L=(c&&T[c])?c:L;
-  applyLang();
+  applyLang();logE('lang',L);
   var el=$('intro'),v=$('ivid'),tv=$('italk');
   var src=(SPK[ROLE]||{})[L];
   if(!src){ /* pas de clip pour cette langue : chat direct, la synthèse dira le greeting */
