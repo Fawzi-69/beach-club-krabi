@@ -187,13 +187,6 @@ color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;just
 .ilive{position:absolute;top:9px;left:9px;z-index:3;display:flex;align-items:center;gap:5px;
   background:rgba(8,32,30,.55);backdrop-filter:blur(6px);color:#fff;font-size:9px;font-weight:800;
   letter-spacing:.9px;padding:4px 8px;border-radius:20px}
-/* le navigateur interdit le son avant un toucher : on rend le toucher évident */
-.itap{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:3;white-space:nowrap;
-  background:rgba(255,255,255,.92);color:#0d2f2c;font-size:10.5px;font-weight:800;letter-spacing:1.1px;
-  padding:8px 14px;border-radius:22px;box-shadow:0 6px 18px rgba(0,0,0,.35);cursor:pointer;
-  animation:tappulse 1.6s ease-in-out infinite;transition:opacity .3s}
-@keyframes tappulse{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.07)}}
-.intro.talking .itap{opacity:0;pointer-events:none}
 .ilive i{width:5px;height:5px;border-radius:50%;background:#e5484d;animation:iblink 1.3s infinite}
 @keyframes iblink{0%,100%{opacity:1}50%{opacity:.15}}
 .iname{margin-top:18px;color:#fff;font-family:Georgia,serif;font-size:26px;letter-spacing:.5px;
@@ -273,7 +266,6 @@ body.vtalk .av{opacity:0}
     <video id="ivid" playsinline muted loop preload="auto" disablepictureinpicture></video>
     <video id="italk" playsinline preload="none" disablepictureinpicture></video>
     <div class="ilive"><i></i>LIVE</div>
-    <div class="itap" id="itap">&#9654;&#xFE0E; TAP &mdash; SHE SPEAKS</div>
   </div>
   <div class="iname" id="iname">Alina</div>
   <div class="irole" id="irole"></div>
@@ -1080,6 +1072,29 @@ function introInit(){
   /* on précharge les clips parlés pendant qu'il choisit sa langue : au tap, ça part tout de suite.
      fetch explicite (pas un simple prefetch) : les navigateurs ignorent souvent rel=prefetch en 4G */
   try{var sp=SPK[ROLE]||{};for(var k in sp){fetch(sp[k]).catch(function(){})}}catch(e){}
+  /* elle parle dès l'apparition quand le navigateur l'autorise ;
+     sinon le tout premier toucher, où qu'il soit, déclenche le son */
+  introSpeakNow();
+  document.addEventListener('pointerdown',function(){introSpeakNow()},{once:true,capture:true});
+}
+/* clip parlé à l'apparition — ASPK : 0 pas lancé, 1 en cours, 2 entendu en entier */
+var ASPK=0,ASRC='';
+function introSpeakNow(){
+  if(!INTRO_ON||ASPK)return;
+  var src=(SPK[ROLE]||{})[L]; if(!src)return;
+  var tv=$('italk'),v=$('ivid');
+  ASRC=src;
+  tv.loop=false; tv.muted=false; tv.volume=1;
+  if(tv.getAttribute('src')!==src)tv.src=src;
+  tv.onplaying=function(){ ASPK=1; TALKED=true; tv.classList.add('rdy'); try{v.pause()}catch(e){} };
+  tv.onended=tv.onerror=function(){
+    if(ASPK!==1)return;
+    /* fin du clip : retour à la boucle muette, il choisit sa langue tranquillement */
+    ASPK=2; tv.classList.remove('rdy');
+    var p=v.play(); if(p&&p.catch)p.catch(function(){});
+  };
+  var p=tv.play();
+  if(p&&p.catch)p.catch(function(){ /* autoplay sonore refusé : on attend le premier toucher */ });
 }
 function introGo(c){
   if(!INTRO_ON)return; INTRO_ON=false;
@@ -1087,12 +1102,28 @@ function introGo(c){
   try{if(window.speechSynthesis){var u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}}catch(e){}
   L=(c&&T[c])?c:L;
   applyLang();
-  var el=$('intro'),v=$('ivid');
+  var el=$('intro'),v=$('ivid'),tv=$('italk');
   var src=(SPK[ROLE]||{})[L];
-  if(!src){ /* pas de clip pour cette langue : chat direct, comme avant */
+  if(!src){ /* pas de clip pour cette langue : chat direct, la synthèse dira le greeting */
+    TALKED=false;
     el.classList.add('gone');
-    setTimeout(function(){try{v.pause()}catch(e){}; if(el.parentNode)el.parentNode.removeChild(el)},700);
+    setTimeout(function(){try{v.pause();tv.pause()}catch(e){}; if(el.parentNode)el.parentNode.removeChild(el)},700);
     setTimeout(function(){ introChat() },380);
+    return;
+  }
+  if(src===ASRC&&ASPK===1){
+    /* elle est déjà en train de le dire (parti à l'apparition) : on ne la coupe pas, on enchaîne */
+    document.body.classList.add('vtalk');
+    el.classList.add('talking');
+    tv.onended=introTalkEnd; tv.onerror=introTalkEnd;
+    setTimeout(introChatOnce,650);
+    return;
+  }
+  if(src===ASRC&&ASPK===2){
+    /* clip déjà entendu en entier à l'apparition : direct au chat, sans la faire répéter */
+    el.classList.add('gone');
+    setTimeout(function(){try{v.pause();tv.pause()}catch(e){}; if(el.parentNode)el.parentNode.removeChild(el)},700);
+    setTimeout(introChatOnce,380);
     return;
   }
   /* elle switche de langue DANS la même carte (aucun saut de taille),
@@ -1101,8 +1132,8 @@ function introGo(c){
      refuse souvent de repasser en sonore sur mobile — le tap débloque celui-ci. */
   document.body.classList.add('vtalk');
   el.classList.add('talking');
-  var tv=$('italk');
-  tv.loop=false; tv.muted=false; tv.volume=1; tv.src=src;
+  tv.loop=false; tv.muted=false; tv.volume=1;
+  if(tv.getAttribute('src')!==src)tv.src=src;
   tv.onended=introTalkEnd; tv.onerror=introTalkEnd;
   tv.onplaying=function(){
     tv.classList.add('rdy'); TALKED=true;
