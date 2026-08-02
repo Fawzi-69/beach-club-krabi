@@ -173,6 +173,7 @@ color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;just
 .ivid img.fb{z-index:0}
 .ivid video{z-index:1;opacity:0;transition:opacity .6s ease}
 .ivid video.rdy{opacity:1}
+#italk{z-index:2}
 .ivid:after{content:'';position:absolute;left:0;right:0;bottom:0;height:38%;z-index:2;
   background:linear-gradient(to top,rgba(8,38,36,.55),rgba(8,38,36,0));transition:opacity .4s}
 .intro.talking .ivid:after,.intro.talking .ilive{opacity:0}
@@ -255,6 +256,7 @@ body.vtalk .av{opacity:0}
   <div class="ivid" onclick="if($('intro').classList.contains('talking'))introTalkEnd()">
     <img class="fb" id="ifb" alt="" onerror="this.style.display='none'">
     <video id="ivid" playsinline muted loop preload="auto" disablepictureinpicture></video>
+    <video id="italk" playsinline preload="none" disablepictureinpicture></video>
     <div class="ilive"><i></i>LIVE</div>
   </div>
   <div class="iname" id="iname">Alina</div>
@@ -1078,19 +1080,25 @@ function introGo(c){
     return;
   }
   /* elle switche de langue DANS la même carte (aucun saut de taille),
-     le chat apparaît pendant qu'elle parle, la carte glisse en cercle en haut */
+     le chat apparaît pendant qu'elle parle, la carte glisse en cercle en haut.
+     Lecteur séparé JAMAIS muet : une vidéo démarrée en muet (la boucle d'intro)
+     refuse souvent de repasser en sonore sur mobile — le tap débloque celui-ci. */
   document.body.classList.add('vtalk');
   el.classList.add('talking');
-  v.classList.remove('rdy');
-  v.loop=false; v.muted=false; v.src=src; v.load();
-  v.onended=introTalkEnd; v.onerror=introTalkEnd;
-  v.onplaying=function(){v.classList.add('rdy');TALKED=true;setTimeout(introChatOnce,650)};
-  var p=v.play();
+  var tv=$('italk');
+  tv.loop=false; tv.muted=false; tv.volume=1; tv.src=src;
+  tv.onended=introTalkEnd; tv.onerror=introTalkEnd;
+  tv.onplaying=function(){
+    tv.classList.add('rdy'); TALKED=true;
+    try{v.pause()}catch(e){} /* la boucle muette reste visible dessous jusque-là : pas de trou noir */
+    setTimeout(introChatOnce,650);
+  };
+  var p=tv.play();
   if(p&&p.catch)p.catch(function(){ /* le navigateur refuse le son : muet plutôt que rien */
-    v.muted=true; var q=v.play(); if(q&&q.catch)q.catch(introTalkEnd);
+    tv.muted=true; var q=tv.play(); if(q&&q.catch)q.catch(introTalkEnd);
   });
   /* filet de sécurité : si la vidéo ne démarre pas, la synthèse prend le relais */
-  TWATCH=setTimeout(function(){ if(v.currentTime<0.15)introTalkEnd() },6000);
+  TWATCH=setTimeout(function(){ if(tv.currentTime<0.15)introTalkEnd() },6000);
 }
 var CHATTED=false;
 function introChatOnce(){ if(CHATTED)return; CHATTED=true; introChat(); }
@@ -1099,6 +1107,7 @@ function introTalkEnd(){
   var el=$('intro'),v=$('ivid');
   if(!el||!el.parentNode)return;
   try{v.pause()}catch(e){}
+  try{$('italk').pause()}catch(e){}
   document.body.classList.remove('vtalk');
   el.classList.add('gone');
   setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el)},700);
