@@ -51,11 +51,10 @@ font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:c
 /* ---------- AVATAR ---------- */
 .stage{flex:none;display:flex;align-items:center;gap:13px;padding:2px 16px 12px;transition:opacity .5s ease}
 body.vtalk .stage{opacity:0}
+/* elle garde TOUJOURS le même format : 90×118, aucun redimensionnement */
 .av{position:relative;flex:none;width:90px;height:118px;border-radius:20px;overflow:hidden;cursor:pointer;
 background:linear-gradient(155deg,#0c4c50,#2b7f7c 45%,#d9a86f);
-box-shadow:0 12px 30px rgba(6,40,44,.4),0 0 0 2px rgba(255,255,255,.6);
-transition:width .32s cubic-bezier(.22,1,.36,1),height .32s cubic-bezier(.22,1,.36,1),border-radius .32s}
-.stage.mini .av{width:42px;height:42px;border-radius:999px}
+box-shadow:0 12px 30px rgba(6,40,44,.4),0 0 0 2px rgba(255,255,255,.6)}
 .av:after{content:'';position:absolute;inset:-40%;z-index:3;pointer-events:none;
 background:linear-gradient(100deg,rgba(255,255,255,0) 38%,rgba(255,255,255,.2) 50%,rgba(255,255,255,0) 62%);
 animation:bcSheen 5.5s ease-in-out infinite alternate}
@@ -69,8 +68,7 @@ animation:bcSheen 5.5s ease-in-out infinite alternate}
 .av .ring{position:absolute;inset:0;z-index:4;border-radius:inherit;border:2px solid rgba(255,255,255,.7);opacity:0;pointer-events:none}
 .av.talk .ring{opacity:1;animation:bcRing 1.3s ease-out infinite}
 .nameplate{min-width:0;line-height:1.1}
-.nameplate b{display:block;font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:28px;color:#fff;transition:font-size .3s}
-.stage.mini .nameplate b{font-size:16px}
+.nameplate b{display:block;font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:28px;color:#fff}
 .nameplate i{display:flex;align-items:center;gap:6px;font-style:normal;margin-top:3px;
 font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.72)}
 .nameplate i:before{content:'';flex:none;width:6px;height:6px;border-radius:999px;background:rgba(255,255,255,.5)}
@@ -78,16 +76,14 @@ font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,
 .stage .st-spk{display:none}
 .stage:has(.av.talk) .st-spk{display:inline}
 .stage:has(.av.talk) .st-ctx{display:none}
-.bars{display:none;align-items:flex-end;gap:3px;height:18px;margin-left:auto;padding-right:4px}
-.stage:has(.av.talk) .bars{display:flex}
-.bars span,.ibars span{width:3px;border-radius:2px;background:rgba(255,255,255,.9);transform-origin:bottom;animation:bcWave .8s ease-in-out infinite}
-.bars span:nth-child(1),.ibars span:nth-child(1){height:8px;animation-duration:.5s}
-.bars span:nth-child(2),.ibars span:nth-child(2){height:13px;animation-duration:.63s;animation-delay:.07s}
-.bars span:nth-child(3),.ibars span:nth-child(3){height:18px;animation-duration:.76s;animation-delay:.14s}
-.bars span:nth-child(4),.ibars span:nth-child(4){height:8px;animation-duration:.89s;animation-delay:.21s}
-.bars span:nth-child(5),.ibars span:nth-child(5){height:13px;animation-duration:.5s;animation-delay:.28s}
-.bars span:nth-child(6),.ibars span:nth-child(6){height:18px;animation-duration:.63s;animation-delay:.35s}
-.bars span:nth-child(7),.ibars span:nth-child(7){height:8px;animation-duration:.76s;animation-delay:.42s}
+.ibars span{width:3px;border-radius:2px;background:rgba(255,255,255,.9);transform-origin:bottom;animation:bcWave .8s ease-in-out infinite}
+.ibars span:nth-child(1){height:8px;animation-duration:.5s}
+.ibars span:nth-child(2){height:13px;animation-duration:.63s;animation-delay:.07s}
+.ibars span:nth-child(3){height:18px;animation-duration:.76s;animation-delay:.14s}
+.ibars span:nth-child(4){height:8px;animation-duration:.89s;animation-delay:.21s}
+.ibars span:nth-child(5){height:13px;animation-duration:.5s;animation-delay:.28s}
+.ibars span:nth-child(6){height:18px;animation-duration:.63s;animation-delay:.35s}
+.ibars span:nth-child(7){height:8px;animation-duration:.76s;animation-delay:.42s}
 
 /* ---------- FILTER SUMMARY ---------- */
 .fsum{align-self:center;display:none;align-items:center;gap:8px;margin:0 16px 4px;padding:7px 14px;border-radius:999px;
@@ -252,8 +248,9 @@ background:linear-gradient(180deg,#0a3d40 0%,#14676a 28%,#3f9c93 52%,#e9b678 82%
 .intro:after{content:'';position:absolute;left:50%;bottom:-160px;width:620px;height:420px;transform:translateX(-50%);z-index:-1;
 pointer-events:none;background:radial-gradient(closest-side,rgba(255,240,214,.85),rgba(255,240,214,0));transition:opacity .6s ease}
 .intro.gone{opacity:0;pointer-events:none}
-/* pendant qu'elle parle : le fond s'efface, la carte glisse en cercle en haut à gauche, le chat est utilisable */
-.intro.talking{pointer-events:none;align-items:flex-start;padding-left:16px;padding-top:calc(env(safe-area-inset-top) + 64px)}
+/* pendant qu'elle parle : le fond s'efface, la carte glisse EXACTEMENT au format et à la place
+   de l'avatar du chat (90×118, arrondi 20) — aucun saut de taille au raccord */
+.intro.talking{pointer-events:none;align-items:flex-start;padding-left:16px;padding-top:calc(env(safe-area-inset-top) + 60px)}
 .intro.talking:before,.intro.talking:after{opacity:0}
 .ibrand{color:rgba(255,255,255,.92);text-align:center;line-height:1;transition:opacity .35s ease,max-height .55s ease;max-height:60px;overflow:hidden}
 .ibrand b{font-size:14px;letter-spacing:.3em;font-weight:600}
@@ -266,8 +263,8 @@ box-shadow:0 26px 60px rgba(6,40,44,.5),0 0 0 1px rgba(255,255,255,.35);
 animation:ipop .8s cubic-bezier(.2,1.3,.4,1) both;
 transition:width .65s cubic-bezier(.3,.9,.3,1),height .65s cubic-bezier(.3,.9,.3,1),
 border-radius .65s ease,margin .65s ease,box-shadow .65s ease}
-.intro.talking .ivid{width:78px;height:78px;border-radius:50%;margin-top:0;pointer-events:auto;cursor:pointer;
-box-shadow:0 10px 26px rgba(0,0,0,.35),0 0 0 2px rgba(255,255,255,.35)}
+.intro.talking .ivid{width:90px;height:118px;border-radius:20px;margin-top:0;pointer-events:auto;cursor:pointer;
+box-shadow:0 12px 30px rgba(6,40,44,.4),0 0 0 2px rgba(255,255,255,.6)}
 @keyframes ipop{0%{opacity:0;transform:scale(.82) translateY(26px)}100%{opacity:1;transform:none}}
 .ivid:before{content:'';position:absolute;inset:-40%;z-index:3;pointer-events:none;
 background:linear-gradient(100deg,rgba(255,255,255,0) 38%,rgba(255,255,255,.22) 50%,rgba(255,255,255,0) 62%);
@@ -324,7 +321,6 @@ box-shadow:0 8px 22px rgba(20,60,60,.18);-webkit-tap-highlight-color:transparent
       <div class="ring"></div>
     </div>
     <div class="nameplate"><b id="anam">Alina</b><i><span class="st-spk" id="aspk">Speaking</span><span class="st-ctx" id="actx"></span></i></div>
-    <div class="bars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
   </div>
 
   <div class="fsum" id="fsum" onclick="openSheet('filt')"></div>
@@ -1161,6 +1157,9 @@ function toggleVoice(){
 /* ============ CONVERSATION ============ */
 function say(text,cb,mute){
   BUSY=true;
+  /* jamais deux voix en même temps : si le clip vidéo d'accueil parle encore, on le coupe
+     avant qu'elle dise autre chose (le greeting muet pendant le clip n'est pas concerné) */
+  if(!mute){try{var tvk=$('italk');if(tvk&&!tvk.paused&&!tvk.ended)introTalkEnd()}catch(e){}}
   var tp=bubble('a','<div class="typing"><i></i><i></i><i></i></div>');
   $('av').classList.add('talk');
   var wait=Math.min(1500,500+text.length*7);
@@ -1174,7 +1173,7 @@ var FBN=0; /* deux « je n'ai pas compris » d'affilée → elle appelle un huma
 function ask(txt){
   if(!txt.trim())return;
   if(BUSY){setTimeout(function(){ask(txt)},250);return}
-  bubble('u',esc(txt));$('q').value='';$('stage').classList.add('mini');
+  bubble('u',esc(txt));$('q').value='';
   logE('ask',txt.slice(0,80));
   var r=respond(txt);
   if(r.t===T[L].fb||r.t===T[L].cfb){FBN++;if(FBN>=2){r={t:T[L].fb2};FBN=0}}else FBN=0;
@@ -1209,7 +1208,11 @@ function micOff(){RECON=false;$('mic').classList.remove('on');$('q').placeholder
 function micTap(){
   if(!REC)return;
   if(RECON){try{REC.stop()}catch(e){};return}
+  /* tap micro = elle se tait et écoute : synthèse, mp3 et clip vidéo */
   try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}
+  try{if(VAU)VAU.pause()}catch(e){}
+  try{var tvk=$('italk');if(tvk&&!tvk.paused&&!tvk.ended)introTalkEnd()}catch(e){}
+  $('av').classList.remove('talk');
   var lg=LANGS.filter(function(x){return x.c===L})[0];
   REC.lang=(lg&&lg.v)||'en-US';
   $('q').value='';
@@ -1566,9 +1569,6 @@ var TWATCH=null;
       });
     },500);
   }
-  $('chat').addEventListener('scroll',function(){
-    $('stage').classList.toggle('mini',$('chat').scrollTop>40);
-  });
   document.addEventListener('touchstart',function unlock(){
     if(window.speechSynthesis){var u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}
     document.removeEventListener('touchstart',unlock);
