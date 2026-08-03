@@ -1,5 +1,5 @@
 /* Cache hors-ligne : la demo doit tourner meme si le wifi du club lache. */
-var V='bck-v4';
+var V='bck-v5';
 var CORE=[
  './','index.html',
  'media/spk-en.mp4','media/spk-th.mp4','media/loop1.mp4','media/loop2.mp4',
