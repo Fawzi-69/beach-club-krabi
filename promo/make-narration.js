@@ -9,7 +9,7 @@ const fs = require('fs');
    qu'elle parle en vidéo (Hook 3-13) et pendant Malee (29-39). */
 const LINES = [
   ['01', 0.4,  'It all starts with a simple scan.'],
-  ['02', 13.2, 'That was me — and this is how your guests order: right in the chat, straight to the kitchen.'],
+  ['02', 13.2, "That's how it works — just order in the chat, and I'll advise you."],
   ['03', 19.3, 'Whoever walks in, I welcome them in their own language.'],
   ['04', 24.3, 'And I know the whole menu by heart — photos, prices, everything.'],
   ['05', 39.3, 'An allergy? One tap — and every unsafe dish is gone.'],

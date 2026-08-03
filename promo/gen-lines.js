@@ -5,7 +5,7 @@ const fs = require('fs');
 
 const LINES = [
   ['01', 'It all starts with a simple scan.'],
-  ['02', 'That was me — and this is how your guests order: right in the chat, straight to the kitchen.'],
+  ['02', "That's how it works — just order in the chat, and I'll advise you."],
   ['03', 'Whoever walks in, I welcome them in their own language.'],
   ['04', 'And I know the whole menu by heart — photos, prices, everything.'],
   ['05', 'An allergy? One tap — and every unsafe dish is gone.'],

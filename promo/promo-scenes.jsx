@@ -99,17 +99,25 @@ function Scan() {
 }
 
 /* ── vidéo pilotée par l'horloge de scène.
-   `lead` : marge de démarrage — la vidéo reste N secondes « derrière » l'horloge,
-   pour que le temps de chargement ne coupe pas les premiers mots (le welcome d'Alina). ── */
-function SceneVideo({ src, style, muted, onFail, lead = 0 }) {
+   `through` : lecture naturelle du début à la fin — la vidéo part de 0 dès qu'elle est
+   prête et n'est JAMAIS avancée de force ; le temps de chargement ne coupe plus les
+   premiers mots (le welcome d'Alina). Elle revient à 0 quand la boucle recommence. ── */
+function SceneVideo({ src, style, muted, onFail, through = false }) {
   const { localTime, dur } = useScene();
   const ref = React.useRef(null);
   const st = React.useRef({ lastT: -1 });
   React.useEffect(() => {
     const v = ref.current; if (!v) return;
     const advancing = localTime > st.current.lastT && localTime - st.current.lastT < 0.3;
+    const rewound = st.current.lastT - localTime > 1;
     st.current.lastT = localTime;
-    const target = Math.min(Math.max(0, localTime - lead), (v.duration || dur) - .05);
+    if (through) {
+      if (rewound && v.currentTime > 0.5) { try { v.currentTime = 0 } catch(e){} }
+      if (advancing) { if (v.paused) { v.muted = !!muted; v.play().catch(() => { v.muted = true; v.play().catch(()=>{}); }); } }
+      else if (!v.paused) v.pause();
+      return;
+    }
+    const target = Math.min(localTime, (v.duration || dur) - .05);
     if (advancing) {
       if (v.paused) { v.muted = !!muted; v.play().catch(() => { v.muted = true; v.play().catch(()=>{}); }); }
       if (Math.abs(v.currentTime - target) > 0.35) v.currentTime = target;
@@ -133,7 +141,7 @@ function SceneVideo({ src, style, muted, onFail, lead = 0 }) {
 /* ── 2 · Hook : le vrai clip parlé de l'app, plein cadre, avec SA voix ── */
 function Hook({ scene }) {
   return <div style={{ position:'absolute', inset:0, background:'#08282c' }}>
-    <SceneVideo src="../media/spk-en.mp4" lead={0.7}
+    <SceneVideo src="../media/spk-en.mp4" through
       style={{ position:'absolute', inset:0, width:'100%', height:'100%' }} />
     <div style={{ position:'absolute', left:0, right:0, top:0, padding:'54px 0', display:'flex', justifyContent:'center', background:'linear-gradient(rgba(8,40,44,.5),transparent)' }}><Logo light /></div>
     <Caption dark text={scene.sub} />
@@ -143,18 +151,17 @@ function Hook({ scene }) {
 }
 
 /* ── 6 · Malee : le vrai clip du rôle concierge, avec SA voix et ses sous-titres ── */
-/* horodatage décalé de +0.4 s : la vidéo démarre avec cette marge (lead) */
 const MALEE_SUBS = [
-  [0.4, 2.6, 'Hello, I am Malee, your virtual receptionist.'],
-  [2.6, 4.6, 'I can answer all of your questions.'],
-  [4.6, 7.5, 'Feel free to order our services directly from your room.'],
-  [7.5, 10.0, 'Just scan the QR code to order in any language.'],
+  [0.0, 2.3, 'Hello, I am Malee, your virtual receptionist.'],
+  [2.3, 4.3, 'I can answer all of your questions.'],
+  [4.3, 7.2, 'Feel free to order our services directly from your room.'],
+  [7.2, 10.0, 'Just scan the QR code to order in any language.'],
 ];
 function Malee() {
   const { localTime: lt } = useScene();
   const line = MALEE_SUBS.find(([a, b]) => lt >= a && lt < b);
   return <div style={{ position:'absolute', inset:0, background:'#1a2420' }}>
-    <SceneVideo src="../media/malee-clip.mp4" lead={0.4}
+    <SceneVideo src="../media/malee-clip.mp4" through
       style={{ position:'absolute', inset:0, width:'100%', height:'100%' }} />
     <div style={{ position:'absolute', left:0, right:0, top:0, padding:'54px 0', display:'flex', justifyContent:'center', background:'linear-gradient(rgba(8,40,44,.5),transparent)' }}><Logo light /></div>
     <div style={{ position:'absolute', left:0, right:0, top:170, display:'flex', justifyContent:'center' }}>
