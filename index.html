@@ -76,14 +76,6 @@ font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,
 .stage .st-spk{display:none}
 .stage:has(.av.talk) .st-spk{display:inline}
 .stage:has(.av.talk) .st-ctx{display:none}
-.ibars span{width:3px;border-radius:2px;background:rgba(255,255,255,.9);transform-origin:bottom;animation:bcWave .8s ease-in-out infinite}
-.ibars span:nth-child(1){height:8px;animation-duration:.5s}
-.ibars span:nth-child(2){height:13px;animation-duration:.63s;animation-delay:.07s}
-.ibars span:nth-child(3){height:18px;animation-duration:.76s;animation-delay:.14s}
-.ibars span:nth-child(4){height:8px;animation-duration:.89s;animation-delay:.21s}
-.ibars span:nth-child(5){height:13px;animation-duration:.5s;animation-delay:.28s}
-.ibars span:nth-child(6){height:18px;animation-duration:.63s;animation-delay:.35s}
-.ibars span:nth-child(7){height:8px;animation-duration:.76s;animation-delay:.42s}
 
 /* ---------- FILTER SUMMARY ---------- */
 .fsum{align-self:center;display:none;align-items:center;gap:8px;margin:0 16px 4px;padding:7px 14px;border-radius:999px;
@@ -239,6 +231,37 @@ color:#fff;font-size:16px;cursor:pointer;backdrop-filter:blur(8px);z-index:2}
 .lb .btn2{width:100%;margin-top:16px;height:54px;border-radius:16px;border:none;cursor:pointer;font-size:16px;font-weight:700;
 font-family:inherit;color:#fff;background:var(--acc);box-shadow:0 12px 26px var(--accSh)}
 
+/* ===== porte d'entrée : le toucher qui débloque le son sur téléphone,
+   habillé en écran de marque — un tap n'importe où et elle pop en parlant ===== */
+.gate{position:fixed;inset:0;z-index:120;display:flex;flex-direction:column;align-items:center;
+padding:calc(env(safe-area-inset-top) + 34px) 26px calc(44px + env(safe-area-inset-bottom));
+cursor:pointer;opacity:1;transition:opacity .55s ease}
+.gate:before{content:'';position:absolute;inset:0;z-index:-1;
+background:linear-gradient(180deg,#0a3d40 0%,#14676a 28%,#3f9c93 52%,#e9b678 82%,#f4d3a4 100%)}
+.gate:after{content:'';position:absolute;left:50%;bottom:-160px;width:620px;height:420px;transform:translateX(-50%);z-index:-1;
+pointer-events:none;background:radial-gradient(closest-side,rgba(255,240,214,.85),rgba(255,240,214,0))}
+.gate.gone{opacity:0;pointer-events:none}
+.gbrand{color:rgba(255,255,255,.92);text-align:center;line-height:1}
+.gbrand b{font-size:14px;letter-spacing:.3em;font-weight:600}
+.gbrand b em{font-style:normal;color:#f4d3a4}
+.gbrand span{display:block;margin-top:5px;font-size:8.5px;letter-spacing:.42em;color:rgba(255,255,255,.55)}
+.gmid{margin:auto 0;display:flex;flex-direction:column;align-items:center}
+.gava{position:relative;width:104px;height:104px;border-radius:50%;overflow:hidden;
+box-shadow:0 20px 50px rgba(6,40,44,.5),0 0 0 2px rgba(255,255,255,.55);animation:ipop .8s cubic-bezier(.2,1.3,.4,1) both}
+.gava img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.gava:before{content:'';position:absolute;inset:-14px;border-radius:50%;z-index:-1;
+background:radial-gradient(circle,rgba(255,255,255,.5),transparent 65%)}
+.gname{margin-top:18px;font-family:Georgia,'Times New Roman',serif;font-size:34px;color:#fff;
+text-shadow:0 2px 18px rgba(6,40,44,.35);animation:iup .7s .2s both}
+.glive{margin-top:9px;display:flex;align-items:center;gap:6px;font-size:10px;letter-spacing:.28em;
+text-transform:uppercase;color:rgba(255,255,255,.78);animation:iup .7s .28s both}
+.glive i{width:6px;height:6px;border-radius:999px;background:#ff5f56;animation:bcDot 1.4s infinite}
+.gcta{display:flex;align-items:center;gap:9px;padding:14px 26px;border-radius:999px;
+border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.9);color:#12262b;
+font-size:13px;font-weight:700;letter-spacing:.18em;box-shadow:0 8px 22px rgba(20,60,60,.18);
+animation:iup .7s .38s both,gpulse 2.2s 1.2s ease-in-out infinite}
+@keyframes gpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+
 /* ===== scan intro ===== */
 .intro{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;align-items:center;
 padding:calc(env(safe-area-inset-top) + 34px) 26px calc(30px + env(safe-area-inset-bottom));opacity:1;
@@ -281,8 +304,6 @@ background:linear-gradient(180deg,rgba(8,38,42,0),rgba(8,38,42,.72));transition:
 background:rgba(10,40,44,.55);backdrop-filter:blur(8px);color:#fff;font-size:9px;font-weight:600;
 letter-spacing:.2em;padding:5px 10px 5px 8px;border-radius:999px;transition:opacity .3s}
 .ilive i{width:6px;height:6px;border-radius:999px;background:#ff5f56;animation:bcDot 1.4s infinite}
-.ibars{position:absolute;left:0;right:0;bottom:14px;z-index:4;display:flex;justify-content:center;align-items:flex-end;gap:3px;height:20px;opacity:0;transition:opacity .3s}
-.ivid.spk .ibars{opacity:1}
 .iname{margin-top:22px;font-family:Georgia,'Times New Roman',serif;font-size:38px;line-height:1;color:#fff;
 text-shadow:0 2px 18px rgba(6,40,44,.35);animation:iup .7s .22s both}
 .irole{margin-top:8px;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.78);animation:iup .7s .3s both}
@@ -338,6 +359,16 @@ box-shadow:0 8px 22px rgba(20,60,60,.18);-webkit-tap-highlight-color:transparent
   </div>
 </div>
 
+<div class="gate" id="gate" onclick="gateGo()">
+  <div class="gbrand"><b>THE BE<em>&#916;</em>CH CLUB</b><span>KRABI &middot; THAILAND</span></div>
+  <div class="gmid">
+    <div class="gava"><img id="gimg" alt=""></div>
+    <div class="gname" id="gname">Alina</div>
+    <div class="glive"><i></i>LIVE</div>
+  </div>
+  <div class="gcta" id="gcta">MEET ALINA</div>
+</div>
+
 <div class="intro" id="intro">
   <div class="ibrand"><b>THE BE<em>&#916;</em>CH CLUB</b><span>KRABI &middot; THAILAND</span></div>
   <div class="ivid" onclick="if($('intro').classList.contains('talking'))introTalkEnd();else introGo(L)">
@@ -345,7 +376,6 @@ box-shadow:0 8px 22px rgba(20,60,60,.18);-webkit-tap-highlight-color:transparent
     <video id="ivid" playsinline muted loop preload="auto" disablepictureinpicture></video>
     <video id="italk" playsinline preload="none" disablepictureinpicture></video>
     <div class="ilive"><i></i>LIVE</div>
-    <div class="ibars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
   </div>
   <div class="iname" id="iname">Alina</div>
   <div class="irole" id="irole"></div>
@@ -1410,10 +1440,25 @@ function introInit(){
   /* on précharge les clips parlés pendant qu'il choisit sa langue : au tap, ça part tout de suite.
      fetch explicite (pas un simple prefetch) : les navigateurs ignorent souvent rel=prefetch en 4G */
   try{var sp=SPK[ROLE]||{};for(var k in sp){fetch(sp[k]).catch(function(){})}}catch(e){}
-  /* elle parle dès l'apparition quand le navigateur l'autorise ;
-     sinon le tout premier toucher, où qu'il soit, déclenche le son */
-  introSpeakNow();
+  /* le son part au tap sur la porte d'entrée (gateGo) ; ce filet couvre tout autre premier toucher */
   document.addEventListener('pointerdown',function(){introSpeakNow()},{once:true,capture:true});
+}
+/* tap sur la porte d'entrée : LE geste qui autorise le son — elle pop en parlant */
+function gateGo(){
+  var g=$('gate');
+  if(!g||g.classList.contains('gone'))return;
+  g.classList.add('gone');
+  setTimeout(function(){if(g.parentNode)g.parentNode.removeChild(g)},700);
+  if(INTRO_ON){introSpeakNow()}
+  else{
+    /* pas de clip vidéo (ex. concierge) : le greeting parlé démarre maintenant, geste en poche */
+    var t=T[L];
+    setTimeout(function(){
+      say((ROLE==='concierge'?t.cgreet:t.greet).replace('{T}',TABLE).replace('{R}',ROOM).replace('{N}',NAME),function(){
+        if(ROLE==='concierge')showCards(S.slice(0,3).map(svcHTML).join(''));
+      });
+    },400);
+  }
 }
 /* clip parlé à l'apparition — ASPK : 0 pas lancé, 1 en cours, 2 entendu en entier */
 var ASPK=0,ASRC='';
@@ -1424,11 +1469,11 @@ function introSpeakNow(){
   ASRC=src;
   tv.loop=false; tv.muted=false; tv.volume=1;
   if(tv.getAttribute('src')!==src)tv.src=src;
-  tv.onplaying=function(){ ASPK=1; TALKED=true; tv.classList.add('rdy'); tv.parentNode.classList.add('spk'); try{v.pause()}catch(e){} };
+  tv.onplaying=function(){ ASPK=1; TALKED=true; tv.classList.add('rdy'); try{v.pause()}catch(e){} };
   tv.onended=tv.onerror=function(){
     if(ASPK!==1)return;
     /* fin du clip : retour à la boucle muette, il choisit sa langue tranquillement */
-    ASPK=2; tv.classList.remove('rdy'); tv.parentNode.classList.remove('spk');
+    ASPK=2; tv.classList.remove('rdy');
     var p=v.play(); if(p&&p.catch)p.catch(function(){});
   };
   var p=tv.play();
@@ -1474,7 +1519,7 @@ function introGo(c){
   if(tv.getAttribute('src')!==src)tv.src=src;
   tv.onended=introTalkEnd; tv.onerror=introTalkEnd;
   tv.onplaying=function(){
-    tv.classList.add('rdy'); TALKED=true; tv.parentNode.classList.add('spk');
+    tv.classList.add('rdy'); TALKED=true;
     try{v.pause()}catch(e){} /* la boucle muette reste visible dessous jusque-là : pas de trou noir */
     setTimeout(introChatOnce,650);
   };
@@ -1500,7 +1545,6 @@ function introTalkEnd(){
   if(TWATCH){clearTimeout(TWATCH);TWATCH=null}
   var el=$('intro'),v=$('ivid');
   if(!el||!el.parentNode)return;
-  try{v.parentNode.classList.remove('spk')}catch(e){}
   try{v.pause()}catch(e){}
   try{$('italk').pause()}catch(e){}
   document.body.classList.remove('vtalk');
@@ -1561,14 +1605,11 @@ var TWATCH=null;
       }).catch(function(){});
     });
   }
-  if(!INTRO_ON){
-    var t=T[L];
-    setTimeout(function(){
-      say((ROLE==='concierge'?t.cgreet:t.greet).replace('{T}',TABLE).replace('{R}',ROOM).replace('{N}',NAME),function(){
-        if(ROLE==='concierge')showCards(S.slice(0,3).map(svcHTML).join(''));
-      });
-    },500);
-  }
+  /* la porte d'entrée porte le visage et le nom de l'hôtesse ;
+     le greeting sans clip attend le tap (avant, le son serait bloqué de toute façon) */
+  $('gimg').src=PH[ROLE]||'';
+  $('gname').textContent=NAME;
+  $('gcta').textContent='MEET '+NAME.toUpperCase();
   document.addEventListener('touchstart',function unlock(){
     if(window.speechSynthesis){var u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}
     document.removeEventListener('touchstart',unlock);
