@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cieva — Promo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@400..800&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#101416}#root{width:100vw;height:100vh}</style>
+<script>window.OM_SCENES = '[{"name":"Scan","dur":3},{"name":"Hook","dur":10,"sub":"« Sawasdee ka. Welcome to The Beach Club. »"},{"name":"Chat","dur":6},{"name":"Languages","dur":5},{"name":"Menu","dur":5},{"name":"ClipB","dur":8,"label":"CLIP HIGGSFIELD B","slot":"higgsfield-b","quote":"I speak six languages. I know all 121 dishes. And I never forget an allergy.","sub":"« I never forget an allergy. »"},{"name":"Allergens","dur":6},{"name":"Voice","dur":5},{"name":"TwoRoles","dur":4},{"name":"ClipC","dur":6,"label":"CLIP HIGGSFIELD C","slot":"higgsfield-c","quote":"No app to download. No waiting. Just scan — and let\'s begin.","sub":"« Just scan — and let\'s begin. »"},{"name":"Outro","dur":2}]';</script>
+<script>window.OM_PLAYBACK = '{"mode":"loop"}';</script>
+<script>window.TWEAK_DEFAULTS = {"motionEditor": false, "showSubtitles": true};</script>
+<link rel="preload" href="../media/spk-en.mp4" as="video">
+<link rel="preload" href="chat-real.mp4" as="video">
+<link rel="preload" href="narration.mp3" as="audio">
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react" src="animations-v2.jsx"></script>
+<script type="text/babel" data-presets="react" src="tweaks-panel.jsx"></script>
+<script type="text/babel" data-presets="react" src="promo-scenes.jsx"></script>
+<script type="text/babel" data-presets="react">
+ReactDOM.createRoot(document.getElementById('root')).render(<window.PromoVideo />);
+</script>
+</body>
+</html>
