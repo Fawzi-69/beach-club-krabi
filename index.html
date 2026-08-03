@@ -906,6 +906,13 @@ var PREGT={
  de:'Herzlichen Glückwunsch! In der Schwangerschaft würde ich Rohes meiden — Austern, Tartar, Carpaccio — und alles nicht Durchgegarte. Diese Gerichte sind köstlich und völlig unbedenklich:',
  ru:'Поздравляю! Во время беременности я бы избегала сырого — устриц, тартара, карпаччо — и всего недожаренного. Вот блюда вкусные и полностью безопасные:',
  zh:'恭喜您！孕期建议避开生食——生蚝、鞑靼、生牛肉片——以及未全熟的菜品。这些菜美味又完全安全：'};
+var NOPB={
+ en:'No problem — I am right here if you change your mind.',
+ fr:'Pas de souci — je suis là si vous changez d’avis.',
+ th:'ไม่เป็นไรค่ะ ถ้าเปลี่ยนใจบอกได้เลยนะคะ',
+ de:'Kein Problem — sagen Sie einfach Bescheid, falls Sie es sich anders überlegen.',
+ ru:'Ничего страшного — если передумаете, я рядом.',
+ zh:'没问题——改变主意随时告诉我。'};
 var MOCKT={
  en:'Our mocktails — all the flavour, none of the alcohol:',
  fr:'Nos mocktails — tout le goût, zéro alcool :',
@@ -987,6 +994,18 @@ var K={
 };
 /* les clients tapent sans accents : « reserver », « ou etes vous » doivent matcher quand même */
 function nrm(s){try{return s.normalize('NFD').replace(/[̀-ͯ]/g,'')}catch(e){return s}}
+/* « yes » / « non merci » en réponse à SA question — match EXACT après nettoyage,
+   pour que « no alcohol please » reste une demande de mocktail, pas un refus */
+function ynAnswer(raw){
+  var c=nrm(raw.toLowerCase()).replace(/[.,!?;:…'’"“”]/g,' ').replace(/\s+/g,' ').trim();
+  c=c.replace(/\b(please|thanks|thank you|svp|s il vous plait|merci|bitte|danke|пожалуйста|спасибо|请|谢谢)\b/g,'')
+     .replace(/(ค่ะ|ครับ|นะคะ|นะครับ)/g,'').replace(/\s+/g,' ').trim();
+  var N=['no','nope','not now','non','pas maintenant','nein','нет','не надо','ไม่','ไม่เอา','ไม่เป็นไร','不','不用','不要','没有'];
+  var Y=['yes','yeah','yep','yup','sure','ok','okay','of course','why not','oui','volontiers','avec plaisir','d accord','ja','gerne','gern','да','давай','конечно','ага','ใช่','เอา','ดี','好','要','是的','好的','嗯'];
+  if(N.indexOf(c)>-1)return 'n';
+  if(Y.indexOf(c)>-1)return 'y';
+  return null;
+}
 function hit(s,list){var ns=nrm(s);for(var i=0;i<list.length;i++){if(s.indexOf(list[i])>-1||ns.indexOf(nrm(list[i]))>-1)return true}return false}
 
 function pick(f,n){var r=D.filter(f);return n?r.slice(0,n):r}
@@ -1002,6 +1021,19 @@ function safe(list){ // remove dishes matching active allergen filters
 function respond(raw){
   var s=' '+raw.toLowerCase().replace(/[’']/g,'\'')+' ';
   var t=T[L], C=ROLE==='concierge';
+
+  /* réponse oui/non à sa dernière question (verre ? dessert ? autre chose ?) */
+  var yn=ynAnswer(raw);
+  if(!yn)LASTQ=null; /* le client a changé de sujet : la question expire */
+  else{
+    var q=LASTQ;LASTQ=null;
+    if(yn==='n')return {t:q==='more'?t.thanks:NOPB[L]};
+    if(q==='drink')return cat(t.drink,function(d){return d.c==='drink'&&(!PREGF||d.g==='mocktail'||d.g==='smoothie'||d.g==='juice')});
+    if(q==='dess')return cat(t.dess,function(d){return d.c==='dess'});
+    if(C)return {t:t.serv,svc:S.map(function(x){return x.id})};
+    /* « oui » sans question en attente : elle enchaîne sur ses recommandations */
+    return {t:t.rec,items:safe(D.filter(function(d){return ['oriental','seabass','padthai','margherita','mango'].indexOf(d.id)>-1}))};
+  }
 
   if(C){
     if(hit(s,K.spa))     return {t:svcTxt('spa'),svc:['spa']};
@@ -1295,6 +1327,7 @@ function addCart(id,btn){
   syncCart();logE('dish',d.n);
   /* relance de vente fondue dans la confirmation : UNE bulle, deux mini-pastilles, pas de vague de cartes */
   var up=upsellPick(d);
+  LASTQ=up?up.k:null; /* elle vient de poser une question → un « yes » y répondra */
   if(up){say(T[L].add.replace('{X}',nm(d))+' '+up.txt,function(){
     var c=$('chat'),w=document.createElement('div');
     w.className='ups';
@@ -1306,7 +1339,7 @@ function addCart(id,btn){
   else say(T[L].add.replace('{X}',nm(d)));
 }
 /* un verre avec le plat, puis un dessert — une seule fois chacun, jamais harcelant */
-var UP={d:false,s:false},PREGF=false;
+var UP={d:false,s:false},PREGF=false,LASTQ=null;
 function upsellPick(d){
   if(d.c==='drink'||d.c==='dess')return null;
   var t=T[L];
@@ -1314,12 +1347,13 @@ function upsellPick(d){
   var hasDess=CART.filter(function(x){return x.c==='dess'}).length;
   var ids=null,txt='';
   /* jamais d'alcool proposé à une cliente enceinte */
-  if(!UP.d&&!hasDrink){UP.d=true;ids=PREGF?['mangocolada','tropicalsmoothie']:['mojito','mangocolada'];txt=t.upd}
-  else if(!UP.s&&!hasDess){UP.s=true;ids=['mango','tiramisu'];txt=t.upds}
+  var kind=null;
+  if(!UP.d&&!hasDrink){UP.d=true;ids=PREGF?['mangocolada','tropicalsmoothie']:['mojito','mangocolada'];txt=t.upd;kind='drink'}
+  else if(!UP.s&&!hasDess){UP.s=true;ids=['mango','tiramisu'];txt=t.upds;kind='dess'}
   if(!ids)return null;
   var its=safe(D.filter(function(x){return ids.indexOf(x.id)>-1}));
   if(!its.length)return null;
-  return {txt:txt,its:its};
+  return {txt:txt,its:its,k:kind};
 }
 function addSvc(id,btn){
   var x=S.filter(function(y){return y.id===id})[0];
@@ -1374,6 +1408,7 @@ function confirmOrder(){
    +(ROLE==='concierge'?t.okc.replace('{R}',ROOM):t.okd.replace('{T}',TABLE))+'</p></div>';
   speak(ROLE==='concierge'?t.okc.replace('{R}',ROOM):t.okd.replace('{T}',TABLE));
   CART=[];syncCart();
+  LASTQ='more'; /* « autre chose ? » : un « non » recevra un merci, pas un « je n'ai pas compris » */
   setTimeout(closeSheet,2600);
 }
 
