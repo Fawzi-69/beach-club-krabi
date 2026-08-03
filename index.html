@@ -106,6 +106,17 @@ font-size:19px;font-weight:700;line-height:1;cursor:pointer;box-shadow:0 3px 9px
 .add:active{transform:scale(.88)}
 .add.done{background:var(--gold)}
 
+/* ---------- UPSELL : mini-pastilles dans le chat, une ligne, zéro encombrement ---------- */
+.ups{flex:none;align-self:flex-start;display:flex;gap:7px;max-width:92%;overflow-x:auto;scrollbar-width:none;animation:pop .3s cubic-bezier(.2,1.3,.5,1)}
+.ups::-webkit-scrollbar{display:none}
+.upc{flex:none;display:flex;align-items:center;gap:6px;background:var(--card);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+border:1px solid var(--line);border-radius:999px;padding:7px 8px 7px 12px;font-size:12.5px;font-weight:700;color:var(--ink);
+cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.09);white-space:nowrap}
+.upc span{font-size:15px;line-height:1}
+.upc b{width:20px;height:20px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin-left:2px}
+.upc:active{transform:scale(.95)}
+.upc.done{opacity:.7;padding:7px 12px}
+
 /* ---------- CHIPS + INPUT ---------- */
 .chips{flex:none;display:flex;gap:7px;overflow-x:auto;padding:7px 12px 3px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
@@ -668,8 +679,8 @@ en:{
  park:'Free parking right at the entrance, and scooters fit under the trees next to it.',
  loc:'We are on Klong Muang beach, about 25 minutes from Ao Nang. Search “The Beach Club Krabi” on Google Maps — it brings you straight to us.',
  fb2:'I want you to get a real answer, not a guess — I have called a member of staff to your table. Meanwhile, the menu and I are all yours.',
- upd:'May I suggest something to drink alongside? These pair beautifully:',
- upds:'And save a little room — our guests rarely say no to this:'},
+ upd:'A drink to go with it?',
+ upds:'A sweet note to finish?'},
 fr:{
  rain:'Aucun souci — une bonne partie des tables est couverte, et franchement la mer est encore plus belle sous la pluie. Votre table reste au sec.',
  reserve:'J’ai prévenu l’équipe — quelqu’un vient prendre votre réservation dans un instant. Pour une table au coucher du soleil, 17h30 est le créneau en or.',
@@ -683,8 +694,8 @@ fr:{
  park:'Parking gratuit juste à l’entrée, et les scooters se garent sous les arbres à côté.',
  loc:'Nous sommes sur la plage de Klong Muang, à 25 minutes d’Ao Nang. Cherchez « The Beach Club Krabi » sur Google Maps — il vous amène directement.',
  fb2:'Je veux que vous ayez une vraie réponse, pas une supposition — j’ai appelé un membre de l’équipe à votre table. En attendant, la carte et moi sommes à vous.',
- upd:'Je vous propose quelque chose à boire avec ? Ceux-ci s’accordent à merveille :',
- upds:'Et gardez une petite place — nos clients disent rarement non à ceci :'},
+ upd:'Un verre pour accompagner ?',
+ upds:'Une touche sucrée pour finir ?'},
 th:{
  rain:'ไม่ต้องกังวลค่ะ ที่นั่งส่วนใหญ่มีหลังคาคลุม และทะเลตอนฝนตกก็สวยไปอีกแบบ โต๊ะของคุณไม่เปียกแน่นอนค่ะ',
  reserve:'แจ้งทีมงานให้แล้วค่ะ สักครู่จะมารับจองที่โต๊ะ ถ้าอยากได้โต๊ะชมพระอาทิตย์ตก แนะนำเวลา 17:30 ค่ะ',
@@ -698,8 +709,8 @@ th:{
  park:'มีที่จอดรถฟรีหน้าทางเข้า และมอเตอร์ไซค์จอดใต้ต้นไม้ข้าง ๆ ได้ค่ะ',
  loc:'เราอยู่หาดคลองม่วง ห่างอ่าวนางประมาณ 25 นาทีค่ะ ค้นหา “The Beach Club Krabi” ใน Google Maps มาถึงเลยค่ะ',
  fb2:'อยากให้คุณได้คำตอบที่ถูกต้องจริง ๆ ค่ะ เรียกพนักงานมาที่โต๊ะให้แล้วนะคะ ระหว่างนี้ถามเรื่องเมนูได้เลยค่ะ',
- upd:'รับเครื่องดื่มคู่กันไหมคะ? สามแก้วนี้เข้ากันมากค่ะ:',
- upds:'เผื่อท้องไว้นิดนะคะ ลูกค้าของเราแทบไม่มีใครปฏิเสธจานนี้ค่ะ:'},
+ upd:'รับเครื่องดื่มคู่กันไหมคะ?',
+ upds:'รับของหวานปิดท้ายไหมคะ?'},
 de:{
  rain:'Keine Sorge — ein großer Teil der Plätze ist überdacht, und ehrlich gesagt ist das Meer im Regen am eindrucksvollsten. Ihr Tisch bleibt trocken.',
  reserve:'Ich habe das Team informiert — gleich kommt jemand für Ihre Reservierung. Für einen Sonnenuntergangs-Tisch ist 17:30 Uhr die goldene Zeit.',
@@ -713,8 +724,8 @@ de:{
  park:'Kostenlose Parkplätze direkt am Eingang, Roller passen unter die Bäume daneben.',
  loc:'Wir liegen am Klong-Muang-Strand, etwa 25 Minuten von Ao Nang. Suchen Sie „The Beach Club Krabi“ auf Google Maps — es führt Sie direkt zu uns.',
  fb2:'Sie sollen eine echte Antwort bekommen, keine Vermutung — ich habe jemanden vom Team an Ihren Tisch gerufen. Bis dahin bin ich für die Karte da.',
- upd:'Darf ich etwas dazu zu trinken vorschlagen? Diese passen wunderbar:',
- upds:'Und heben Sie sich ein Eckchen auf — dazu sagen unsere Gäste selten Nein:'},
+ upd:'Ein Getränk dazu?',
+ upds:'Noch etwas Süßes zum Schluss?'},
 ru:{
  rain:'Не волнуйтесь — большая часть столиков под крышей, а море в дождь по-своему прекрасно. Ваш столик останется сухим.',
  reserve:'Я предупредила команду — через минуту к вам подойдут оформить бронь. Для столика на закате лучшее время — 17:30.',
@@ -728,8 +739,8 @@ ru:{
  park:'Бесплатная парковка прямо у входа, скутеры помещаются под деревьями рядом.',
  loc:'Мы на пляже Клонг-Муанг, примерно в 25 минутах от Ао-Нанга. Наберите «The Beach Club Krabi» в Google Maps — он приведёт прямо к нам.',
  fb2:'Хочу, чтобы вы получили точный ответ, а не догадку — я позвала к вашему столику сотрудника. А пока меню и я в вашем распоряжении.',
- upd:'Предложить что-нибудь из напитков к этому? Вот что сочетается лучше всего:',
- upds:'И оставьте немного места — от этого наши гости редко отказываются:'},
+ upd:'Что-нибудь из напитков к этому?',
+ upds:'И сладкое напоследок?'},
 zh:{
  rain:'别担心——我们大部分座位都有遮蔽，而且说真的，雨中的大海别有一番景致。您的桌子不会淋湿。',
  reserve:'我已通知团队——稍后会有人来为您办理预订。想要日落位，17:30 是黄金时段。',
@@ -743,8 +754,8 @@ zh:{
  park:'入口处有免费停车场，旁边树下可以停摩托车。',
  loc:'我们位于 Klong Muang 海滩，距奥南约 25 分钟。在 Google Maps 搜索 “The Beach Club Krabi” 即可直达。',
  fb2:'我希望您得到准确的答案，而不是猜测——我已请工作人员到您桌边。在此期间，菜单方面尽管问我。',
- upd:'配点喝的怎么样？这几款非常搭：',
- upds:'留点肚子——我们的客人很少拒绝这一道：'}
+ upd:'配点喝的吗？',
+ upds:'来点甜品收尾？'}
 };
 (function(){for(var lg in TX){if(T[lg])for(var k in TX[lg])T[lg][k]=TX[lg][k]}})();
 
@@ -1091,22 +1102,32 @@ function addCart(id,btn){
   var d=D.filter(function(x){return x.id===id})[0];
   CART.push({id:d.id,c:d.c,n:nm(d),p:d.p});btn.classList.add('done');btn.innerHTML='✓';
   syncCart();logE('dish',d.n);
-  say(T[L].add.replace('{X}',nm(d)),function(){upsell(d)});
+  /* relance de vente fondue dans la confirmation : UNE bulle, deux mini-pastilles, pas de vague de cartes */
+  var up=upsellPick(d);
+  if(up){say(T[L].add.replace('{X}',nm(d))+' '+up.txt,function(){
+    var c=$('chat'),w=document.createElement('div');
+    w.className='ups';
+    w.innerHTML=up.its.map(function(x){
+      return '<div class="upc" onclick="addCart(\''+x.id+'\',this)"><span>'+x.e+'</span>'+nm(x)+' · ฿'+x.p+'<b>+</b></div>';
+    }).join('');
+    c.appendChild(w);scroll();
+  });}
+  else say(T[L].add.replace('{X}',nm(d)));
 }
-/* relance de vente : un verre avec le plat, puis un dessert — une seule fois chacun, jamais harcelant */
+/* un verre avec le plat, puis un dessert — une seule fois chacun, jamais harcelant */
 var UP={d:false,s:false};
-function upsell(d){
-  if(d.c==='drink'||d.c==='dess')return;
+function upsellPick(d){
+  if(d.c==='drink'||d.c==='dess')return null;
   var t=T[L];
   var hasDrink=CART.filter(function(x){return x.c==='drink'}).length;
   var hasDess=CART.filter(function(x){return x.c==='dess'}).length;
   var ids=null,txt='';
-  if(!UP.d&&!hasDrink){UP.d=true;ids=['passionlove','mojito','mangocolada'];txt=t.upd}
+  if(!UP.d&&!hasDrink){UP.d=true;ids=['mojito','mangocolada'];txt=t.upd}
   else if(!UP.s&&!hasDess){UP.s=true;ids=['mango','tiramisu'];txt=t.upds}
-  if(!ids)return;
+  if(!ids)return null;
   var its=safe(D.filter(function(x){return ids.indexOf(x.id)>-1}));
-  if(!its.length)return;
-  setTimeout(function(){say(txt,function(){showCards(its.map(dishHTML).join(''))})},600);
+  if(!its.length)return null;
+  return {txt:txt,its:its};
 }
 function addSvc(id,btn){
   var x=S.filter(function(y){return y.id===id})[0];
