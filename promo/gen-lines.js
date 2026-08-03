@@ -12,6 +12,8 @@ const LINES = [
   ['06', 'You can even just talk to me. I understand.'],
   ['07', 'Beach club or hotel — one link, two jobs.'],
   ['08', 'This is Cieva — and this is only a demo. The real thing is still to come.'],
+  ['09', "Every order lands straight in your kitchen — and you watch it all, live."],
+  ['10', 'Bigger checks. Faster tables. Zero lost orders.'],
 ];
 const VOICE = 'cgSgspJ2msm6clMCkdW9'; /* Jessica — chaleureuse, proche du personnage */
 const KEY = process.env.ELEVENLABS_API_KEY;

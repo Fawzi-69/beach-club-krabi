@@ -73,25 +73,43 @@ function QrBlock({ size }) {
   return <img src="../media/qr-table12.png" style={{ width:size, height:size, display:'block', background:'#fff' }} />;
 }
 
-/* ── 1 · Scan ── */
+/* ── 1 · Scan (viseur caméra : zoom, rayon, verrouillage vert, notification) ── */
 function Scan() {
   const { localTime: lt } = useScene();
-  const fr = 1 - .18 * eo(S(lt, .3, 1.1));
-  const corners = [[0,0,0],[1,0,90],[1,1,180],[0,1,270]];
-  const dots = [1.6, 2.0, 2.4];
-  return <div style={{ position:'absolute', inset:0, background:'repeating-linear-gradient(90deg,#6b4a30 0 130px,#7a5638 130px 133px,#5f4229 133px 260px)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-    <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 50% 30%,rgba(255,225,180,.28),rgba(30,15,5,.5))' }} />
-    <div style={{ ...MOTION.enter(lt, 0, .01), position:'relative', width:640, padding:'56px 0 44px', background:'#fdfaf4', borderRadius:28, boxShadow:'0 60px 120px rgba(0,0,0,.5)', display:'flex', flexDirection:'column', alignItems:'center', gap:34 }}>
-      <Logo />
-      <QrBlock size={430} />
-      <div style={{ fontFamily:IN, fontSize:26, letterSpacing:'.24em', color:'rgba(22,48,47,.55)' }}>SCAN ME · TABLE 12</div>
-      <div style={{ position:'absolute', inset:-34, transform:`scale(${fr})` }}>
-        {corners.map(([x,y,rot],i) => <div key={i} style={{ position:'absolute', left:x?'auto':0, right:x?0:'auto', top:y?'auto':0, bottom:y?0:'auto', width:110, height:110, transform:`rotate(${rot}deg)`, borderLeft:`14px solid ${TEAL}`, borderTop:`14px solid ${TEAL}`, borderRadius:'10px 0 0 0' }} />)}
-      </div>
-      <div style={{ position:'absolute', bottom:-90, display:'flex', gap:22 }}>
-        {dots.map((t,i) => <div key={i} style={{ width:26, height:26, borderRadius:99, background:lt>t?TEAL:'rgba(255,255,255,.35)', boxShadow:lt>t?`0 0 30px ${TEAL}`:'none' }} />)}
+  const zoom = 1.14 - .14 * eo(S(lt, 0, 1.2));
+  const beam = S(lt, .5, 1.2);
+  const lock = S(lt, 1.75, .35);
+  const pill = S(lt, 2.05, .4);
+  return <div style={{ position:'absolute', inset:0, background:'#0b1213', overflow:'hidden' }}>
+    <div style={{ position:'absolute', inset:0, transform:`scale(${zoom})`, background:'linear-gradient(200deg,#1d3a3c 0%,#0f2a2c 45%,#2c2016 78%,#3a2a1a 100%)' }}>
+      <div style={{ position:'absolute', left:'-10%', right:'-10%', top:'8%', height:'34%', background:'radial-gradient(ellipse at 50% 100%,rgba(120,200,200,.22),transparent 70%)', filter:'blur(30px)' }} />
+      <div style={{ position:'absolute', left:'-5%', right:'-5%', bottom:'-4%', height:'46%', background:'radial-gradient(ellipse at 50% 0%,rgba(255,190,120,.16),transparent 70%)', filter:'blur(24px)' }} />
+      <div style={{ position:'absolute', left:'50%', top:'50%', transform:'translate(-50%,-46%)', width:560, padding:'44px 0 36px', background:'linear-gradient(180deg,#fdfaf4,#f3ecdf)', borderRadius:22, boxShadow:'0 50px 110px rgba(0,0,0,.6), 0 2px 0 rgba(255,255,255,.5) inset', display:'flex', flexDirection:'column', alignItems:'center', gap:28 }}>
+        <Logo size={24} />
+        <QrBlock size={360} />
+        <div style={{ fontFamily:IN, fontSize:22, letterSpacing:'.26em', color:'rgba(22,48,47,.5)' }}>TABLE 12</div>
       </div>
     </div>
+    <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 50% 47%, transparent 30%, rgba(5,10,11,.55) 72%, rgba(5,10,11,.8) 100%)' }} />
+    <div style={{ position:'absolute', left:110, right:110, top:400, bottom:640 }}>
+      {[[0,0,0],[1,0,90],[1,1,180],[0,1,270]].map(([x,y,rot],i) => <div key={i} style={{ position:'absolute', left:x?'auto':0, right:x?0:'auto', top:y?'auto':0, bottom:y?0:'auto', width:80, height:80, transform:`rotate(${rot}deg)`, borderLeft:`6px solid ${lock>0?'#4ade80':'rgba(255,255,255,.85)'}`, borderTop:`6px solid ${lock>0?'#4ade80':'rgba(255,255,255,.85)'}`, borderRadius:'18px 0 0 0', transition:'border-color .2s' }} />)}
+      {beam > 0 && lock === 0 && <div style={{ position:'absolute', left:24, right:24, top:`${8 + 84*Math.abs(((beam*2)%2)-1)}%`, height:4, borderRadius:4, background:`linear-gradient(90deg,transparent,${TEAL},transparent)`, boxShadow:`0 0 34px ${TEAL}` }} />}
+      {lock > 0 && <div style={{ position:'absolute', left:'50%', top:'50%', transform:`translate(-50%,-50%) scale(${.5+.5*eo(lock)})`, opacity:eo(lock), width:120, height:120, borderRadius:99, background:'rgba(74,222,128,.92)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 70px rgba(74,222,128,.5)' }}>
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none"><path d="M5 12.5 10 17.5 19 7" stroke="#0b1213" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      </div>}
+    </div>
+    <div style={{ position:'absolute', left:0, right:0, top:250, display:'flex', justifyContent:'center' }}>
+      <div style={{ padding:'12px 30px', borderRadius:99, background:'rgba(255,255,255,.12)', backdropFilter:'blur(10px)', border:'1px solid rgba(255,255,255,.2)', fontFamily:IN, fontWeight:600, fontSize:26, color:'rgba(255,255,255,.85)', letterSpacing:'.08em' }}>{lock>0 ? 'QR code found' : 'Point camera at the code'}</div>
+    </div>
+    {pill > 0 && <div style={{ position:'absolute', left:0, right:0, bottom:560, display:'flex', justifyContent:'center', ...MOTION.pop(lt, 2.05, .4) }}>
+      <div style={{ display:'flex', alignItems:'center', gap:16, padding:'20px 36px', borderRadius:24, background:'#fff', boxShadow:'0 24px 60px rgba(0,0,0,.5)' }}>
+        <div style={{ width:52, height:52, borderRadius:14, background:`linear-gradient(150deg,${TEAL},#3f9c93)`, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontFamily:PF, fontSize:26 }}>B</div>
+        <div>
+          <div style={{ fontFamily:IN, fontWeight:700, fontSize:28, color:INK }}>The Beach Club · Table 12</div>
+          <div style={{ fontFamily:IN, fontSize:22, color:TEAL }}>Open →</div>
+        </div>
+      </div>
+    </div>}
     <Caption dark text="Scan the code on your table." />
     <Narr offset={0} />
     <Flash />
@@ -186,6 +204,75 @@ function Chat() {
   </div>;
 }
 
+/* ── 4 · Kitchen : le ticket tombe en cuisine, le patron voit tout en direct ── */
+function Kitchen() {
+  const { localTime: lt } = useScene();
+  const fly = eo(S(lt, .2, .8));
+  const orders = 39 + Math.round(eo(S(lt, 1.2, 2.6)) * 8);
+  const ROWS = [
+    ['Table 12', 'Phad Kra Pao · mild · nut-free', 'Preparing', TEAL, 1.6],
+    ['Table 5',  'Seafood Platter + 2 Mojitos',    'Preparing', TEAL, 2.1],
+    ['Table 9',  '2× Mango Sticky Rice',           'Served',    '#166534', 2.6],
+    ['Villa 07', 'Thai Massage · 17:00',           'Confirmed', '#166534', 3.1],
+  ];
+  return <div style={{ position:'absolute', inset:0, background:SAND }}>
+    <div style={{ position:'absolute', left:0, right:0, top:130, display:'flex', flexDirection:'column', alignItems:'center', gap:16 }}>
+      <Logo />
+      <div style={{ fontFamily:PF, fontSize:66, color:INK, ...MOTION.enter(lt,.1,.5) }}>Nothing gets lost.</div>
+    </div>
+    <div style={{ position:'absolute', left:'50%', top:400, transform:`translateX(-50%) translateY(${(1-fly)*-180}px) rotate(${(1-fly)*-4}deg)`, opacity:.25+.75*fly, width:640, borderRadius:6, background:'#fff', boxShadow:'0 30px 70px rgba(22,48,47,.28)', padding:'30px 36px', fontFamily:'ui-monospace,monospace' }}>
+      <div style={{ borderBottom:'2px dashed rgba(22,48,47,.25)', paddingBottom:14, marginBottom:14, display:'flex', justifyContent:'space-between', fontSize:26, color:INK }}><span>KITCHEN · TICKET #214</span><span>19:42</span></div>
+      <div style={{ display:'flex', justifyContent:'space-between', fontSize:30, color:INK, fontWeight:700 }}><span>1× Phad Kra Pao — mild</span><span>280 ฿</span></div>
+      <div style={{ display:'flex', justifyContent:'space-between', fontSize:30, color:INK, fontWeight:700, marginTop:6 }}><span>1× Mango Colada</span><span>200 ฿</span></div>
+      <div style={{ fontSize:24, color:'#9a3412', marginTop:10, fontWeight:700 }}>⚠ NUT ALLERGY AT THIS TABLE</div>
+      <div style={{ display:'flex', justifyContent:'space-between', fontSize:24, color:'rgba(22,48,47,.55)', marginTop:12, borderTop:'2px dashed rgba(22,48,47,.25)', paddingTop:12 }}><span>Table 12 · sent by Alina</span><span style={{ color:INK, fontWeight:700 }}>480 ฿</span></div>
+    </div>
+    <div style={{ position:'absolute', left:80, right:80, top:860, ...MOTION.enter(lt, 1.1, .6) }}>
+      <div style={{ borderRadius:28, background:'#fff', boxShadow:'0 30px 80px rgba(22,48,47,.18)', overflow:'hidden' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:14, padding:'24px 32px', background:INK }}>
+          <div style={{ width:14, height:14, borderRadius:99, background:'#4ade80' }} />
+          <div style={{ fontFamily:IN, fontWeight:700, fontSize:26, color:'#fff', letterSpacing:'.06em' }}>OWNER DASHBOARD · LIVE</div>
+          <div style={{ marginLeft:'auto', fontFamily:IN, fontSize:24, color:'rgba(255,255,255,.7)' }}>tonight: <b style={{ color:'#fff' }}>{orders} orders</b></div>
+        </div>
+        <div style={{ display:'flex', flexDirection:'column' }}>
+          {ROWS.map(([t, item, st, c, t0], i) => lt > t0 && <div key={i} style={{ display:'flex', alignItems:'center', gap:20, padding:'22px 32px', borderTop: i? '1px solid rgba(22,48,47,.07)':'none', ...MOTION.enter(lt, t0, .4) }}>
+            <div style={{ fontFamily:IN, fontWeight:800, fontSize:26, color:INK, width:160 }}>{t}</div>
+            <div style={{ flex:1, fontFamily:IN, fontSize:25, color:'rgba(22,48,47,.75)' }}>{item}</div>
+            <div style={{ padding:'8px 20px', borderRadius:99, background:`${c}18`, border:`2px solid ${c}`, fontFamily:IN, fontWeight:700, fontSize:21, color:c }}>{st}</div>
+          </div>)}
+        </div>
+      </div>
+    </div>
+    <Caption text="Straight to the kitchen. You see everything." />
+    <Narr offset={19} />
+    <Flash />
+  </div>;
+}
+
+/* ── 11 · Stats : les chiffres qui vendent ── */
+function Stats() {
+  const { localTime: lt } = useScene();
+  const STATS = [
+    ['+32%', 'bigger average check',    CORAL,    .5],
+    ['45 s', 'from QR scan to kitchen', TEAL,     .95],
+    ['0',    'missed orders — ever',    '#166534', 1.4],
+    ['24/7', 'she never goes home',     INK,      1.85],
+  ];
+  return <div style={{ position:'absolute', inset:0, background:'linear-gradient(180deg,#0a3d40,#14676a 55%,#3f9c93)', display:'flex', flexDirection:'column', alignItems:'center', paddingTop:210 }}>
+    <Logo light />
+    <div style={{ fontFamily:PF, fontSize:84, color:'#fff', marginTop:54, textAlign:'center', lineHeight:1.15, ...MOTION.enter(lt,.05,.5) }}>Sell more.<br/>Run smoother.</div>
+    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:30, marginTop:80, width:880 }}>
+      {STATS.map(([n, l, c, t0], i) => lt > t0 && <div key={i} style={{ ...MOTION.pop(lt, t0, .5), borderRadius:30, background:'rgba(255,255,255,.96)', padding:'50px 28px 42px', display:'flex', flexDirection:'column', alignItems:'center', gap:14, boxShadow:'0 24px 60px rgba(4,26,29,.35)' }}>
+        <div style={{ fontFamily:PF, fontSize:110, lineHeight:1, color:c, letterSpacing:'-.02em' }}>{n}</div>
+        <div style={{ fontFamily:IN, fontWeight:700, fontSize:29, color:INK, textAlign:'center', lineHeight:1.25 }}>{l}</div>
+      </div>)}
+    </div>
+    <Caption dark text="One QR code. More revenue, every night." />
+    <Narr offset={59} />
+    <Flash />
+  </div>;
+}
+
 /* ── 4 · Languages ── */
 const FLAGS = [['EN','#012169'],['ไทย','#A51931'],['FR','#0055A4'],['DE','#3d3d3d'],['RU','#0039A6'],['中文','#DE2910']];
 const WELCOMES = ['Welcome','ยินดีต้อนรับ','Bienvenue','欢迎'];
@@ -205,7 +292,7 @@ function Languages() {
       {lt > 3.1 && <div style={{ fontFamily:PF, fontSize:128, color:TEAL, borderRight:`6px solid ${CORAL}`, paddingRight:18, lineHeight:1.2 }}>{word.slice(0, chars)}</div>}
     </div>
     <Caption text="She speaks every guest’s language." />
-    <Narr offset={19} />
+    <Narr offset={24} />
     <Flash />
   </div>;
 }
@@ -256,7 +343,7 @@ function Menu() {
       <div style={{ fontFamily:IN, fontWeight:700, letterSpacing:'.3em', fontSize:28, color:CORAL, marginTop:8 }}>DISHES · PHOTOS · PRICES</div>
     </div>
     <Caption text="The whole menu, always up to date." />
-    <Narr offset={24} />
+    <Narr offset={29} />
     <Flash />
   </div>;
 }
@@ -295,7 +382,7 @@ function Allergens() {
       <div style={{ padding:'24px 52px', borderRadius:99, background:'#166534', color:'#fff', fontFamily:IN, fontWeight:700, fontSize:42, boxShadow:'0 20px 50px rgba(22,101,52,.35)' }}>14 dishes safe for you ✓</div>
     </div>}
     <Caption text="An allergy? She never forgets." />
-    <Narr offset={39} />
+    <Narr offset={44} />
     <Flash />
   </div>;
 }
@@ -333,7 +420,7 @@ function Voice() {
       </div>
     </div>}
     <Caption dark text="Just talk. She understands." />
-    <Narr offset={45} />
+    <Narr offset={50} />
     <Flash />
   </div>;
 }
@@ -370,7 +457,7 @@ function TwoRoles() {
       <div style={{ fontFamily:PF, fontSize:74, color:INK }}>One link. Two jobs.</div>
     </div>
     <Caption text="Restaurant and concierge — one app." />
-    <Narr offset={50} />
+    <Narr offset={55} />
     <Flash />
   </div>;
 }
@@ -385,7 +472,7 @@ function Outro() {
     <div style={{ ...MOTION.enter(lt,1.4,.6), fontFamily:IN, fontWeight:600, fontSize:26, color:'rgba(22,48,47,.55)', letterSpacing:'.08em', textAlign:'center', padding:'0 90px', lineHeight:1.5 }}>
       DEMO PREVIEW — THIS DOES NOT REFLECT THE FINAL PRODUCT
     </div>
-    <Narr offset={54} />
+    <Narr offset={64} />
     <Flash noExit />
   </div>;
 }
@@ -395,7 +482,7 @@ window.PromoVideo = function PromoVideo() {
   TW = t;
   return <div style={{ width:'100%', height:'100%' }}>
     <SceneStage width={1080} height={1920} bg={SAND} scenes={window.OM_SCENES} playback={window.OM_PLAYBACK}>
-      {{ Scan, Hook, Chat, Languages, Menu, Malee, Allergens, Voice, TwoRoles, Outro }}
+      {{ Scan, Hook, Chat, Kitchen, Languages, Menu, Malee, Allergens, Voice, TwoRoles, Stats, Outro }}
     </SceneStage>
     <TweaksPanel>
       <TweakSection label="Video" />
