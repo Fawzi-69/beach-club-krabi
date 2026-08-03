@@ -899,6 +899,27 @@ var TAXL={en:'Government tax 7%',fr:'Taxe gouvernementale 7 %',th:'ภาษี 
 var AVOID={en:'Avoiding {A} · {N} dishes hidden',fr:'Sans {A} · {N} plats masqués',th:'เลี่ยง {A} · ซ่อน {N} จาน',
            de:'Ohne {A} · {N} Gerichte ausgeblendet',ru:'Без {A} · скрыто блюд: {N}',zh:'避开{A} · 已隐藏 {N} 道菜'};
 var LBADD={en:'Add to order',fr:'Ajouter à la commande',th:'เพิ่มในออเดอร์',de:'Zur Bestellung hinzufügen',ru:'Добавить в заказ',zh:'加入订单'};
+var PREGT={
+ en:'Congratulations! While you are expecting, I would skip the raw dishes — oysters, tartare, carpaccio — and anything undercooked. These are delicious and perfectly safe:',
+ fr:'Félicitations ! Pendant la grossesse, j’éviterais le cru — huîtres, tartare, carpaccio — et tout ce qui n’est pas bien cuit. Voici des plats délicieux et sans risque :',
+ th:'ยินดีด้วยนะคะ! ช่วงตั้งครรภ์แนะนำให้เลี่ยงของดิบ เช่น หอยนางรม ทาร์ทาร์ คาร์ปาชโช และอาหารกึ่งสุกดิบค่ะ จานเหล่านี้อร่อยและปลอดภัยค่ะ:',
+ de:'Herzlichen Glückwunsch! In der Schwangerschaft würde ich Rohes meiden — Austern, Tartar, Carpaccio — und alles nicht Durchgegarte. Diese Gerichte sind köstlich und völlig unbedenklich:',
+ ru:'Поздравляю! Во время беременности я бы избегала сырого — устриц, тартара, карпаччо — и всего недожаренного. Вот блюда вкусные и полностью безопасные:',
+ zh:'恭喜您！孕期建议避开生食——生蚝、鞑靼、生牛肉片——以及未全熟的菜品。这些菜美味又完全安全：'};
+var MOCKT={
+ en:'Our mocktails — all the flavour, none of the alcohol:',
+ fr:'Nos mocktails — tout le goût, zéro alcool :',
+ th:'ม็อกเทลของเรา รสชาติเต็มที่ ไม่มีแอลกอฮอล์ค่ะ:',
+ de:'Unsere Mocktails — voller Geschmack, ganz ohne Alkohol:',
+ ru:'Наши моктейли — весь вкус, ни капли алкоголя:',
+ zh:'我们的无酒精鸡尾酒——风味十足，滴酒不含：'};
+var SWSALT={
+ en:'Sweet and savoury — that is the Thai kitchen at its best. These balance it beautifully:',
+ fr:'Le sucré-salé, c’est le meilleur de la cuisine thaïe. Ceux-ci l’équilibrent à merveille :',
+ th:'หวาน-เค็มกลมกล่อมคือเสน่ห์ของอาหารไทยเลยค่ะ จานเหล่านี้ลงตัวที่สุดค่ะ:',
+ de:'Süß und herzhaft — das kann die Thai-Küche am besten. Diese treffen es perfekt:',
+ ru:'Сладко-солёное — это лучшее в тайской кухне. Вот блюда с идеальным балансом:',
+ zh:'甜咸交织正是泰国菜的精髓。这几道的平衡恰到好处：'};
 var $=function(i){return document.getElementById(i)};
 
 /* ============ INTENT ENGINE ============ */
@@ -919,6 +940,7 @@ var K={
  pizza:['pizza','pasta','italian','italien','pâtes','pate','พิซซ่า','พาสต้า','nudeln','italien','пицц','паст','披萨','意面'],
  dess:['dessert','sweet','cake','sucré','sucre','gâteau','ของหวาน','nachtisch','süß','десерт','сладк','甜点','甜品'],
  drink:['drink','wine','beverage','boisson','vin','เครื่องดื่ม','getränk','wein','напит','饮','酒'],
+ mock:['mocktail','virgin ','no alcohol','non-alcoholic','non alcoholic','without alcohol','sans alcool','ม็อกเทล','ไม่มีแอลกอฮอล','alkoholfrei','ohne alkohol','безалкогол','моктейл','无酒精','不含酒精'],
  cocktail:['cocktail','mocktail','spritz','martini','ค็อกเทล','ม็อกเทล','коктейл','鸡尾酒'],
  beer:['beer','beers','bière','biere','เบียร์','bier','пив','啤酒','ipa','draft'],
  smoothie:['smoothie','juice','jus de','fruit juice','สมูทตี้','น้ำผลไม้','น้ำปั่น','saft','смузи','сок','果汁','奶昔'],
@@ -934,6 +956,12 @@ var K={
  waiter:['waiter','staff','someone','call','serveur','appel','quelqu','พนักงาน','เรียก','kellner','rufen','официант','позов','服务员','叫人'],
  kids:['kid','child','baby','enfant','bébé','bebe','เด็ก','kind','baby','ребен','дет','儿童','孩子'],
  thanks:['thank','merci','ขอบคุณ','danke','спасиб','谢谢','感谢'],
+ /* femme enceinte : conseil sécurité alimentaire, pas un « je n'ai pas compris » */
+ preg:['pregnant','pregnan','expecting','enceinte','grossesse','ตั้งครรภ์','กำลังท้อง','schwanger','беремен','怀孕','孕妇'],
+ /* sucré-salé = envie de PLATS, pas de desserts */
+ swsal:['sweet and salty','sweet & salty','sweet salty','sweet and sour','sweet-and-sour','sweet and savo',
+  'sucré salé','sucré-salé','sucre sale','aigre-doux','aigre doux','เปรี้ยวหวาน','หวานเค็ม',
+  'süß-salzig','süss-salzig','süßsauer','suss-salzig','кисло-сладк','сладко-солён','сладко-солен','酸甜','甜咸'],
  /* concierge */
  spa:['massage','spa','นวด','สปา','масс','спа','按摩','水疗'],
  tour:['tour','island','excursion','boat','snorkel','île','ile','bateau','ทัวร์','เกาะ','เรือ','insel','ausflug','boot','тур','остров','лодк','海岛','出海','浮潜'],
@@ -987,6 +1015,11 @@ function respond(raw){
     if(hit(s,K.services))return {t:t.serv,svc:S.map(function(x){return x.id})};
   }
 
+  /* enceinte : priorité absolue — conseil sécurité + plats bien cuits, et plus d'alcool en relance */
+  if(!C&&hit(s,K.preg)){
+    PREGF=true;
+    return {t:PREGT[L],items:safe(D.filter(function(d){return ['seabass','margherita','khaophad'].indexOf(d.id)>-1}))};
+  }
   var al=[];
   if(hit(s,K.alg_gluten))al.push('gluten');
   if(hit(s,K.alg_nut))al.push('nut');
@@ -1010,11 +1043,16 @@ function respond(raw){
   if(hit(s,K.burger))  return cat(t.burger,function(d){return d.c==='burger'});
   if(hit(s,K.salad))   return cat(t.salad,function(d){return d.c==='salad'});
   if(hit(s,K.thai))    return cat(t.thai,function(d){return d.c==='thai'});
-  if(hit(s,K.dess))    return cat(t.dess,function(d){return d.c==='dess'});
-  if(hit(s,K.cocktail))return cat(t.cocktail||t.drink,function(d){return d.g==='cocktail'||d.g==='mocktail'});
+  /* sucré-salé = des PLATS ; et les boissons passent AVANT le dessert :
+     « a very sweet mocktail » doit donner des mocktails, pas la carte des desserts */
+  if(hit(s,K.swsal))   return {t:SWSALT[L],items:safe(D.filter(function(d){return ['sweetsour','padthai','satay'].indexOf(d.id)>-1}))};
+  /* « mocktail » / « sans alcool » explicite (ou cliente enceinte) : jamais d'alcool dans la liste */
+  if(hit(s,K.mock))    return cat(MOCKT[L],function(d){return d.g==='mocktail'||d.g==='smoothie'});
+  if(hit(s,K.cocktail))return cat(t.cocktail||t.drink,function(d){return PREGF?(d.g==='mocktail'||d.g==='smoothie'):(d.g==='cocktail'||d.g==='mocktail')});
   if(hit(s,K.beer))    return cat(t.beer||t.drink,function(d){return d.g==='beer'});
   if(hit(s,K.smoothie))return cat(t.smoothie||t.drink,function(d){return d.g==='smoothie'||d.g==='juice'});
   if(hit(s,K.drink))   return cat(t.drink,function(d){return d.c==='drink'});
+  if(hit(s,K.dess))    return cat(t.dess,function(d){return d.c==='dess'});
   if(hit(s,K.meat))    return cat(t.meat,function(d){return d.c==='meat'});
   if(hit(s,K.sea))     return cat(t.sea,function(d){return d.a.indexOf('fish')>-1||d.a.indexOf('shellfish')>-1});
   if(hit(s,K.start))   return cat(t.start,function(d){return d.c==='start'});
@@ -1268,14 +1306,15 @@ function addCart(id,btn){
   else say(T[L].add.replace('{X}',nm(d)));
 }
 /* un verre avec le plat, puis un dessert — une seule fois chacun, jamais harcelant */
-var UP={d:false,s:false};
+var UP={d:false,s:false},PREGF=false;
 function upsellPick(d){
   if(d.c==='drink'||d.c==='dess')return null;
   var t=T[L];
   var hasDrink=CART.filter(function(x){return x.c==='drink'}).length;
   var hasDess=CART.filter(function(x){return x.c==='dess'}).length;
   var ids=null,txt='';
-  if(!UP.d&&!hasDrink){UP.d=true;ids=['mojito','mangocolada'];txt=t.upd}
+  /* jamais d'alcool proposé à une cliente enceinte */
+  if(!UP.d&&!hasDrink){UP.d=true;ids=PREGF?['mangocolada','tropicalsmoothie']:['mojito','mangocolada'];txt=t.upd}
   else if(!UP.s&&!hasDess){UP.s=true;ids=['mango','tiramisu'];txt=t.upds}
   if(!ids)return null;
   var its=safe(D.filter(function(x){return ids.indexOf(x.id)>-1}));
