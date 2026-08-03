@@ -73,35 +73,26 @@ function QrBlock({ size }) {
   return <img src="../media/qr-table12.png" style={{ width:size, height:size, display:'block', background:'#fff' }} />;
 }
 
-/* ── 1 · Scan (viseur caméra : zoom, rayon, verrouillage vert, notification) ── */
+/* ── 1 · Scan : vraie séquence filmée (elle scanne le QR au bord de la piscine),
+   habillage optionnel façon viseur (tweak showScanFrame, off par défaut comme la maquette) ── */
 function Scan() {
-  const { localTime: lt } = useScene();
-  const zoom = 1.14 - .14 * eo(S(lt, 0, 1.2));
-  const beam = S(lt, .5, 1.2);
-  const lock = S(lt, 1.75, .35);
-  const pill = S(lt, 2.05, .4);
+  const { localTime: lt, dur } = useScene();
+  const lock = S(lt, dur - 1.3, .35);
+  const pill = S(lt, dur - 1.0, .4);
   return <div style={{ position:'absolute', inset:0, background:'#0b1213', overflow:'hidden' }}>
-    <div style={{ position:'absolute', inset:0, transform:`scale(${zoom})`, background:'linear-gradient(200deg,#1d3a3c 0%,#0f2a2c 45%,#2c2016 78%,#3a2a1a 100%)' }}>
-      <div style={{ position:'absolute', left:'-10%', right:'-10%', top:'8%', height:'34%', background:'radial-gradient(ellipse at 50% 100%,rgba(120,200,200,.22),transparent 70%)', filter:'blur(30px)' }} />
-      <div style={{ position:'absolute', left:'-5%', right:'-5%', bottom:'-4%', height:'46%', background:'radial-gradient(ellipse at 50% 0%,rgba(255,190,120,.16),transparent 70%)', filter:'blur(24px)' }} />
-      <div style={{ position:'absolute', left:'50%', top:'50%', transform:'translate(-50%,-46%)', width:560, padding:'44px 0 36px', background:'linear-gradient(180deg,#fdfaf4,#f3ecdf)', borderRadius:22, boxShadow:'0 50px 110px rgba(0,0,0,.6), 0 2px 0 rgba(255,255,255,.5) inset', display:'flex', flexDirection:'column', alignItems:'center', gap:28 }}>
-        <Logo size={24} />
-        <QrBlock size={360} />
-        <div style={{ fontFamily:IN, fontSize:22, letterSpacing:'.26em', color:'rgba(22,48,47,.5)' }}>TABLE 12</div>
-      </div>
-    </div>
-    <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 50% 47%, transparent 30%, rgba(5,10,11,.55) 72%, rgba(5,10,11,.8) 100%)' }} />
-    <div style={{ position:'absolute', left:110, right:110, top:400, bottom:640 }}>
-      {[[0,0,0],[1,0,90],[1,1,180],[0,1,270]].map(([x,y,rot],i) => <div key={i} style={{ position:'absolute', left:x?'auto':0, right:x?0:'auto', top:y?'auto':0, bottom:y?0:'auto', width:80, height:80, transform:`rotate(${rot}deg)`, borderLeft:`6px solid ${lock>0?'#4ade80':'rgba(255,255,255,.85)'}`, borderTop:`6px solid ${lock>0?'#4ade80':'rgba(255,255,255,.85)'}`, borderRadius:'18px 0 0 0', transition:'border-color .2s' }} />)}
-      {beam > 0 && lock === 0 && <div style={{ position:'absolute', left:24, right:24, top:`${8 + 84*Math.abs(((beam*2)%2)-1)}%`, height:4, borderRadius:4, background:`linear-gradient(90deg,transparent,${TEAL},transparent)`, boxShadow:`0 0 34px ${TEAL}` }} />}
-      {lock > 0 && <div style={{ position:'absolute', left:'50%', top:'50%', transform:`translate(-50%,-50%) scale(${.5+.5*eo(lock)})`, opacity:eo(lock), width:120, height:120, borderRadius:99, background:'rgba(74,222,128,.92)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 70px rgba(74,222,128,.5)' }}>
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none"><path d="M5 12.5 10 17.5 19 7" stroke="#0b1213" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+    <SceneVideo src="../media/scan-clip.mp4" muted style={{ position:'absolute', inset:0, width:'100%', height:'100%' }} />
+    <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 50% 47%, transparent 34%, rgba(5,10,11,.4) 78%, rgba(5,10,11,.65) 100%)' }} />
+    {TW.showScanFrame !== false && <div style={{ position:'absolute', left:150, right:150, top:520, bottom:760 }}>
+      {[[0,0,0],[1,0,90],[1,1,180],[0,1,270]].map(([x,y,rot],i) => <div key={i} style={{ position:'absolute', left:x?'auto':0, right:x?0:'auto', top:y?'auto':0, bottom:y?0:'auto', width:70, height:70, transform:`rotate(${rot}deg)`, borderLeft:`6px solid ${lock>0?'#4ade80':'rgba(255,255,255,.85)'}`, borderTop:`6px solid ${lock>0?'#4ade80':'rgba(255,255,255,.85)'}`, borderRadius:'18px 0 0 0', transition:'border-color .2s' }} />)}
+      {lock === 0 && lt > .4 && <div style={{ position:'absolute', left:20, right:20, top:`${8 + 84*Math.abs(((S(lt,.4,dur-1.8)*3)%2)-1)}%`, height:4, borderRadius:4, background:`linear-gradient(90deg,transparent,${TEAL},transparent)`, boxShadow:`0 0 34px ${TEAL}` }} />}
+      {lock > 0 && <div style={{ position:'absolute', left:'50%', top:'50%', transform:`translate(-50%,-50%) scale(${.5+.5*eo(lock)})`, opacity:eo(lock), width:110, height:110, borderRadius:99, background:'rgba(74,222,128,.92)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 70px rgba(74,222,128,.5)' }}>
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none"><path d="M5 12.5 10 17.5 19 7" stroke="#0b1213" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
       </div>}
+    </div>}
+    <div style={{ position:'absolute', left:0, right:0, top:300, display:'flex', justifyContent:'center' }}>
+      <div style={{ padding:'12px 30px', borderRadius:99, background:'rgba(255,255,255,.14)', backdropFilter:'blur(10px)', border:'1px solid rgba(255,255,255,.22)', fontFamily:IN, fontWeight:600, fontSize:26, color:'rgba(255,255,255,.9)', letterSpacing:'.08em' }}>{lock>0 ? 'QR code found' : 'Point camera at the code'}</div>
     </div>
-    <div style={{ position:'absolute', left:0, right:0, top:250, display:'flex', justifyContent:'center' }}>
-      <div style={{ padding:'12px 30px', borderRadius:99, background:'rgba(255,255,255,.12)', backdropFilter:'blur(10px)', border:'1px solid rgba(255,255,255,.2)', fontFamily:IN, fontWeight:600, fontSize:26, color:'rgba(255,255,255,.85)', letterSpacing:'.08em' }}>{lock>0 ? 'QR code found' : 'Point camera at the code'}</div>
-    </div>
-    {pill > 0 && <div style={{ position:'absolute', left:0, right:0, bottom:560, display:'flex', justifyContent:'center', ...MOTION.pop(lt, 2.05, .4) }}>
+    {pill > 0 && <div style={{ position:'absolute', left:0, right:0, bottom:620, display:'flex', justifyContent:'center', ...MOTION.pop(lt, dur - 1.0, .4) }}>
       <div style={{ display:'flex', alignItems:'center', gap:16, padding:'20px 36px', borderRadius:24, background:'#fff', boxShadow:'0 24px 60px rgba(0,0,0,.5)' }}>
         <div style={{ width:52, height:52, borderRadius:14, background:`linear-gradient(150deg,${TEAL},#3f9c93)`, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontFamily:PF, fontSize:26 }}>B</div>
         <div>
@@ -163,7 +154,7 @@ function Hook({ scene }) {
       style={{ position:'absolute', inset:0, width:'100%', height:'100%' }} />
     <div style={{ position:'absolute', left:0, right:0, top:0, padding:'54px 0', display:'flex', justifyContent:'center', background:'linear-gradient(rgba(8,40,44,.5),transparent)' }}><Logo light /></div>
     <Caption dark text={scene.sub} />
-    <Narr offset={3} />
+    <Narr offset={5} />
     <Flash />
   </div>;
 }
@@ -199,7 +190,7 @@ function Chat() {
       <SceneVideo src="chat-real.mp4" style={{ width:'100%', height:'100%' }} />
     </div>
     <Caption dark text="Order in the chat — straight to the kitchen." />
-    <Narr offset={13} />
+    <Narr offset={15} />
     <Flash />
   </div>;
 }
@@ -244,7 +235,7 @@ function Kitchen() {
       </div>
     </div>
     <Caption text="Straight to the kitchen. You see everything." />
-    <Narr offset={19} />
+    <Narr offset={21} />
     <Flash />
   </div>;
 }
@@ -268,7 +259,7 @@ function Stats() {
       </div>)}
     </div>
     <Caption dark text="One QR code. More revenue, every night." />
-    <Narr offset={59} />
+    <Narr offset={61} />
     <Flash />
   </div>;
 }
@@ -292,7 +283,7 @@ function Languages() {
       {lt > 3.1 && <div style={{ fontFamily:PF, fontSize:128, color:TEAL, borderRight:`6px solid ${CORAL}`, paddingRight:18, lineHeight:1.2 }}>{word.slice(0, chars)}</div>}
     </div>
     <Caption text="She speaks every guest’s language." />
-    <Narr offset={24} />
+    <Narr offset={26} />
     <Flash />
   </div>;
 }
@@ -343,7 +334,7 @@ function Menu() {
       <div style={{ fontFamily:IN, fontWeight:700, letterSpacing:'.3em', fontSize:28, color:CORAL, marginTop:8 }}>DISHES · PHOTOS · PRICES</div>
     </div>
     <Caption text="The whole menu, always up to date." />
-    <Narr offset={29} />
+    <Narr offset={31} />
     <Flash />
   </div>;
 }
@@ -382,7 +373,7 @@ function Allergens() {
       <div style={{ padding:'24px 52px', borderRadius:99, background:'#166534', color:'#fff', fontFamily:IN, fontWeight:700, fontSize:42, boxShadow:'0 20px 50px rgba(22,101,52,.35)' }}>14 dishes safe for you ✓</div>
     </div>}
     <Caption text="An allergy? She never forgets." />
-    <Narr offset={44} />
+    <Narr offset={46} />
     <Flash />
   </div>;
 }
@@ -420,7 +411,7 @@ function Voice() {
       </div>
     </div>}
     <Caption dark text="Just talk. She understands." />
-    <Narr offset={50} />
+    <Narr offset={52} />
     <Flash />
   </div>;
 }
@@ -457,7 +448,7 @@ function TwoRoles() {
       <div style={{ fontFamily:PF, fontSize:74, color:INK }}>One link. Two jobs.</div>
     </div>
     <Caption text="Restaurant and concierge — one app." />
-    <Narr offset={55} />
+    <Narr offset={57} />
     <Flash />
   </div>;
 }
@@ -472,7 +463,7 @@ function Outro() {
     <div style={{ ...MOTION.enter(lt,1.4,.6), fontFamily:IN, fontWeight:600, fontSize:26, color:'rgba(22,48,47,.55)', letterSpacing:'.08em', textAlign:'center', padding:'0 90px', lineHeight:1.5 }}>
       DEMO PREVIEW — THIS DOES NOT REFLECT THE FINAL PRODUCT
     </div>
-    <Narr offset={64} />
+    <Narr offset={66} />
     <Flash noExit />
   </div>;
 }
