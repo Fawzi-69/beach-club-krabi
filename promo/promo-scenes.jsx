@@ -140,22 +140,24 @@ function Hook({ scene }) {
   </div>;
 }
 
-/* ── slots Higgsfield : la vidéo si elle existe (clips/higgsfield-b.mp4), sinon la maquette ── */
-function ClipSlot({ scene }) {
-  const { localTime: lt, dur } = useScene();
-  const [failed, setFailed] = React.useState(false);
-  const off = scene.slot === 'higgsfield-b' ? 29 : 52;
-  return <div style={{ position:'absolute', inset:0, overflow:'hidden', background:'linear-gradient(165deg,#0a3d40,#0E7C86 55%,#c98d5a)' }}>
-    <div style={{ position:'absolute', inset:0, ...MOTION.drift(lt, dur, .07), background:'radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.14),transparent 60%)' }} />
-    {!failed && <SceneVideo src={`clips/${scene.slot}.mp4`} onFail={() => setFailed(true)}
-      style={{ position:'absolute', inset:0, width:'100%', height:'100%' }} />}
-    {failed && <div data-video-slot={scene.slot} style={{ position:'absolute', inset:120, border:'3px dashed rgba(255,255,255,.45)', borderRadius:40, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:36, padding:60 }}>
-      <div style={{ fontFamily:IN, fontWeight:700, letterSpacing:'.3em', fontSize:30, color:'rgba(255,255,255,.75)' }}>{scene.label}</div>
-      <div style={{ ...MOTION.enter(lt,.5,.7), fontFamily:PF, fontStyle:'italic', fontSize:64, lineHeight:1.35, color:'#fff', textAlign:'center', maxWidth:760 }}>“{scene.quote}”</div>
-      <div style={{ fontFamily:IN, fontSize:24, color:'rgba(255,255,255,.6)' }}>Replace with the Higgsfield clip ({Math.round(dur)} s)</div>
-    </div>}
-    <Caption dark text={scene.sub} />
-    <Narr offset={off} />
+/* ── 6 · Malee : le vrai clip du rôle concierge, avec SA voix et ses sous-titres ── */
+const MALEE_SUBS = [
+  [0.0, 2.2, 'Hello, I am Malee, your virtual receptionist.'],
+  [2.2, 4.2, 'I can answer all of your questions.'],
+  [4.2, 7.1, 'Feel free to order our services directly from your room.'],
+  [7.1, 10.0, 'Just scan the QR code to order in any language.'],
+];
+function Malee() {
+  const { localTime: lt } = useScene();
+  const line = MALEE_SUBS.find(([a, b]) => lt >= a && lt < b);
+  return <div style={{ position:'absolute', inset:0, background:'#1a2420' }}>
+    <SceneVideo src="../media/malee-clip.mp4"
+      style={{ position:'absolute', inset:0, width:'100%', height:'100%' }} />
+    <div style={{ position:'absolute', left:0, right:0, top:0, padding:'54px 0', display:'flex', justifyContent:'center', background:'linear-gradient(rgba(8,40,44,.5),transparent)' }}><Logo light /></div>
+    <div style={{ position:'absolute', left:0, right:0, top:170, display:'flex', justifyContent:'center' }}>
+      <div style={{ padding:'12px 30px', borderRadius:99, background:CORAL, color:'#fff', fontFamily:IN, fontWeight:800, letterSpacing:'.22em', fontSize:26, ...MOTION.enter(lt,.4,.5) }}>MALEE · HOTEL CONCIERGE</div>
+    </div>
+    {line && <Caption dark text={line[2]} />}
     <Flash />
   </div>;
 }
@@ -283,7 +285,7 @@ function Allergens() {
       <div style={{ padding:'24px 52px', borderRadius:99, background:'#166534', color:'#fff', fontFamily:IN, fontWeight:700, fontSize:42, boxShadow:'0 20px 50px rgba(22,101,52,.35)' }}>14 dishes safe for you ✓</div>
     </div>}
     <Caption text="An allergy? She never forgets." />
-    <Narr offset={37} />
+    <Narr offset={39} />
     <Flash />
   </div>;
 }
@@ -321,7 +323,7 @@ function Voice() {
       </div>
     </div>}
     <Caption dark text="Just talk. She understands." />
-    <Narr offset={43} />
+    <Narr offset={45} />
     <Flash />
   </div>;
 }
@@ -358,19 +360,22 @@ function TwoRoles() {
       <div style={{ fontFamily:PF, fontSize:74, color:INK }}>One link. Two jobs.</div>
     </div>
     <Caption text="Restaurant and concierge — one app." />
-    <Narr offset={48} />
+    <Narr offset={50} />
     <Flash />
   </div>;
 }
 
-/* ── 11 · Outro ── */
+/* ── 10 · Outro ── */
 function Outro() {
   const { localTime: lt } = useScene();
-  return <div style={{ position:'absolute', inset:0, background:SAND, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:60 }}>
+  return <div style={{ position:'absolute', inset:0, background:SAND, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:56 }}>
     <div style={{ ...MOTION.enter(lt,.15,.6), fontFamily:PF, fontSize:190, color:INK, letterSpacing:'-.02em' }}>cieva</div>
     <div style={{ ...MOTION.enter(lt,.5,.6), padding:26, background:'#fff', borderRadius:24, boxShadow:'0 24px 60px rgba(22,48,47,.16)' }}><QrBlock size={300} /></div>
     <div style={{ ...MOTION.enter(lt,.8,.6), fontFamily:IN, fontWeight:700, fontSize:48, color:TEAL, letterSpacing:'.06em' }}>cieva.ai</div>
-    <Narr offset={58} />
+    <div style={{ ...MOTION.enter(lt,1.4,.6), fontFamily:IN, fontWeight:600, fontSize:26, color:'rgba(22,48,47,.55)', letterSpacing:'.08em', textAlign:'center', padding:'0 90px', lineHeight:1.5 }}>
+      DEMO PREVIEW — THIS DOES NOT REFLECT THE FINAL PRODUCT
+    </div>
+    <Narr offset={54} />
     <Flash noExit />
   </div>;
 }
@@ -380,7 +385,7 @@ window.PromoVideo = function PromoVideo() {
   TW = t;
   return <div style={{ width:'100%', height:'100%' }}>
     <SceneStage width={1080} height={1920} bg={SAND} scenes={window.OM_SCENES} playback={window.OM_PLAYBACK}>
-      {{ Scan, Hook, Chat, Languages, Menu, ClipB: ClipSlot, Allergens, Voice, TwoRoles, ClipC: ClipSlot, Outro }}
+      {{ Scan, Hook, Chat, Languages, Menu, Malee, Allergens, Voice, TwoRoles, Outro }}
     </SceneStage>
     <TweaksPanel>
       <TweakSection label="Video" />
