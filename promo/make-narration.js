@@ -23,6 +23,6 @@ if (!present.length) { console.error('Aucune ligne dans lines/ — génère d’
 const inputs = present.map(([n]) => `-i lines/${n}.mp3`).join(' ');
 const delays = present.map(([, off], i) => `[${i}:a]adelay=${Math.round(off*1000)}|${Math.round(off*1000)}[a${i}]`).join(';');
 const mix = present.map((_, i) => `[a${i}]`).join('');
-const cmd = `ffmpeg -y -v error ${inputs} -filter_complex "${delays};${mix}amix=inputs=${present.length}:normalize=0,apad=whole_dur=58[out]" -map "[out]" -t 58 narration.mp3`;
+const cmd = `ffmpeg -y -v error ${inputs} -filter_complex "${delays};${mix}amix=inputs=${present.length}:normalize=0,apad=whole_dur=60[out]" -map "[out]" -t 60 narration.mp3`;
 execSync(cmd, { stdio: 'inherit' });
 console.log('narration.mp3 OK (' + present.length + '/8 lignes)');
