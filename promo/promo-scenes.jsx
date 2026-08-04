@@ -1,9 +1,12 @@
-/* promo-scenes.jsx — Cieva promo 9:16, scenes for SceneStage (animations-v2.jsx)
-   Version repo : vrais assets (../media), vrai écran de chat capturé, QR réel,
-   narration audio synchronisée, slots clips Higgsfield avec repli maquette.
-   IIFE : les scripts Babel partagent la portée globale, on isole nos noms. */
+/* Version standalone dérivée de Claude Design (design-promo-scenes.jsx = source).
+   IIFE : les scripts Babel partagent la portée globale. */
 (() => {
-const { SceneStage, VideoSprite, useScene, useTweaks, TweaksPanel, TweakSection, TweakToggle } = window;
+/* promo-scenes.jsx — Cieva promo 9:16, scenes for SceneStage (animations-v2.jsx)
+   Version intégrée : vrais assets (uploads/), vrai écran de chat capturé, QR réel,
+   narration ElevenLabs synchronisée, sous-titres Malee. */
+const { SceneStage, VideoSprite, useScene: _useScene, useTweaks, TweaksPanel, TweakSection, TweakToggle, TweakRadio } = window;
+const PinCtx = React.createContext(null);
+const useScene = () => { const pin = React.useContext(PinCtx); const s = _useScene(); return pin || s; };
 
 const SAND = '#F5EDE1', TEAL = '#0E7C86', CORAL = '#E8734A', INK = '#16302f';
 const PF = "'Playfair Display',Georgia,serif", IN = "'Inter',system-ui,sans-serif";
@@ -20,10 +23,7 @@ const MOTION = {
 };
 let TW = { showSubtitles: true };
 
-/* ── narration : un seul mp3 pour tout le film, piloté par l'horloge de scène.
-   Chaque scène monte <Narr offset={début de la scène}> ; l'élément audio est un
-   singleton qui survit aux coupes de scène. Silences dans le mp3 pendant que
-   ELLE parle (Hook, clips). ── */
+/* ── narration : un seul mp3 pour tout le film, piloté par l'horloge de scène. ── */
 const NARR = (() => {
   const a = document.createElement('audio');
   a.src = 'narration.mp3'; a.preload = 'auto';
@@ -49,12 +49,7 @@ function Narr({ offset }) {
   return null;
 }
 
-function Flash({ noExit }) {
-  const { localTime, dur } = useScene();
-  const op = Math.max(1 - S(localTime, 0, .4), noExit ? 0 : S(localTime, dur - .28, .28));
-  if (op <= 0) return null;
-  return <div style={{ position:'absolute', inset:0, background:'#fff', opacity:op, zIndex:60 }} />;
-}
+function Flash() { return null; }
 function Caption({ text, dark }) {
   const { localTime } = useScene();
   if (!TW.showSubtitles || !text) return null;
@@ -73,11 +68,9 @@ function QrBlock({ size }) {
   return <img src="../media/qr-table12.png" style={{ width:size, height:size, display:'block', background:'#fff' }} />;
 }
 
-/* ── 1 · Scan : vraie séquence filmée (elle scanne le QR au bord de la piscine),
-   habillage optionnel façon viseur (tweak showScanFrame, off par défaut comme la maquette) ── */
+/* ── 1 · Scan : vraie séquence filmée, habillage viseur optionnel ── */
 function Scan() {
   const { localTime: lt, dur } = useScene();
-  /* le ✓ tombe sur le moment où le téléphone verrouille le QR dans la séquence filmée (~2,6 s) */
   const lock = S(lt, dur - 2.4, .35);
   const pill = S(lt, dur - 1.0, .4);
   return <div style={{ position:'absolute', inset:0, background:'#0b1213', overflow:'hidden' }}>
@@ -108,14 +101,17 @@ function Scan() {
   </div>;
 }
 
-/* ── vidéo pilotée par l'horloge de scène.
-   `through` : lecture naturelle du début à la fin — la vidéo part de 0 dès qu'elle est
-   prête et n'est JAMAIS avancée de force ; le temps de chargement ne coupe plus les
-   premiers mots (le welcome d'Alina). Elle revient à 0 quand la boucle recommence. ── */
+/* ── vidéo pilotée par l'horloge de scène (through = lecture naturelle) ── */
 function SceneVideo({ src, style, muted, onFail, through = false }) {
   const { localTime, dur } = useScene();
   const ref = React.useRef(null);
   const st = React.useRef({ lastT: -1 });
+  // fade audio sur les 0,35 dernières secondes de la scène (dip de sortie)
+  const fadeOut = Math.max(0, Math.min(1, (dur - localTime) / .35));
+  React.useEffect(() => {
+    const v = ref.current; if (!v) return;
+    if (!v.muted) v.volume = fadeOut;
+  });
   React.useEffect(() => {
     const v = ref.current; if (!v) return;
     const advancing = localTime > st.current.lastT && localTime - st.current.lastT < 0.3;
@@ -124,7 +120,12 @@ function SceneVideo({ src, style, muted, onFail, through = false }) {
     if (through) {
       if (rewound && v.currentTime > 0.5) { try { v.currentTime = 0 } catch(e){} }
       if (advancing) { if (v.paused) { v.muted = !!muted; v.play().catch(() => { v.muted = true; v.play().catch(()=>{}); }); } }
-      else if (!v.paused) v.pause();
+      else {
+        // seek figé (scrub ou export frame-par-frame) : caler la vidéo sur l'horloge de scène
+        if (!v.paused) v.pause();
+        const tgt = Math.min(localTime, (v.duration || dur) - .05);
+        if (v.readyState >= 1 && Math.abs(v.currentTime - tgt) > 0.06) { try { v.currentTime = tgt } catch(e){} }
+      }
       return;
     }
     const target = Math.min(localTime, (v.duration || dur) - .05);
@@ -148,7 +149,7 @@ function SceneVideo({ src, style, muted, onFail, through = false }) {
     style={{ display:'block', objectFit:'cover', ...style }} />;
 }
 
-/* ── 2 · Hook : le vrai clip parlé de l'app, plein cadre, avec SA voix ── */
+/* ── 2 · Hook ── */
 function Hook({ scene }) {
   return <div style={{ position:'absolute', inset:0, background:'#08282c' }}>
     <SceneVideo src="../media/spk-en.mp4" through
@@ -160,8 +161,7 @@ function Hook({ scene }) {
   </div>;
 }
 
-/* ── 6 · Malee : le vrai clip du rôle concierge, avec SA voix et ses sous-titres ── */
-/* clip ralenti de 4,8 % pour remplir la scène de 10 s pile — fenêtres recalées */
+/* ── 6 · Malee ── */
 const MALEE_SUBS = [
   [0.0, 2.4, 'Hello, I am Malee, your virtual receptionist.'],
   [2.4, 4.5, 'I can answer all of your questions.'],
@@ -183,7 +183,7 @@ function Malee() {
   </div>;
 }
 
-/* ── 3 · Chat : LE VRAI ÉCRAN, capturé dans l'app en production ── */
+/* ── 3 · Chat ── */
 function Chat() {
   const { localTime: lt, dur } = useScene();
   const w = 660, h = Math.round(w * 844 / 390);
@@ -197,7 +197,7 @@ function Chat() {
   </div>;
 }
 
-/* ── 4 · Kitchen : le ticket tombe en cuisine, le patron voit tout en direct ── */
+/* ── 4 · Kitchen ── */
 function Kitchen() {
   const { localTime: lt } = useScene();
   const fly = eo(S(lt, .2, .8));
@@ -242,7 +242,7 @@ function Kitchen() {
   </div>;
 }
 
-/* ── 11 · Stats : les chiffres qui vendent ── */
+/* ── 11 · Stats ── */
 function Stats() {
   const { localTime: lt } = useScene();
   const STATS = [
@@ -470,12 +470,61 @@ function Outro() {
   </div>;
 }
 
+/* pool de préchargement : les clips sont téléchargés + décodés dès le chargement de la page,
+   le remontage en début de scène peint alors la frame 0 instantanément (cache navigateur) */
+const PRELOAD_SRCS = ['../media/scan-clip.mp4','../media/spk-en.mp4','chat-real.mp4','../media/malee-clip.mp4'];
+function VideoWarmPool() {
+  const done = React.useRef(false);
+  if (done.current) return null;
+  return <div style={{ position:'fixed', width:1, height:1, opacity:0, pointerEvents:'none', overflow:'hidden' }} aria-hidden="true">
+    {PRELOAD_SRCS.map(s => <video key={s} src={s} preload="auto" muted playsInline
+      onLoadedData={e => { try { e.target.currentTime = 0.01 } catch(_){} }} />)}
+  </div>;
+}
+
+const SCENE_LIST = JSON.parse(window.OM_SCENES);
+const COMPS = { Scan, Hook, Chat, Kitchen, Languages, Menu, Malee, Allergens, Voice, TwoRoles, Stats, Outro };
+const FADE = .4;
+const VIDEO_SCENES = ['Scan','Hook','Chat','Malee'];
+function withTransition(name, Comp) {
+  return function T(props) {
+    const { localTime, dur } = _useScene();
+    const mode = TW.transition || 'crossfade';
+    const idx = SCENE_LIST.findIndex(x => x.name === name);
+    let overlay = null;
+    if (mode === 'crossfade' && idx > 0 && localTime < FADE) {
+      const prev = SCENE_LIST[idx - 1], PrevComp = COMPS[prev.name];
+      if (PrevComp && !VIDEO_SCENES.includes(prev.name)) {
+        overlay = <div style={{ position:'absolute', inset:0, opacity: 1 - localTime/FADE, pointerEvents:'none', zIndex:80 }}>
+          <PinCtx.Provider value={{ localTime: prev.dur - .01, dur: prev.dur, progress: 1 }}><PrevComp scene={prev} /></PinCtx.Provider>
+        </div>;
+      } else if (PrevComp) {
+        // sortie de scène vidéo : émerger du teal
+        const op = 1 - localTime/.3;
+        if (op > 0) overlay = <div style={{ position:'absolute', inset:0, background:'#0a3d40', opacity:op, pointerEvents:'none', zIndex:80 }} />;
+      }
+    }
+    // dip symétrique : une scène vidéo fond elle-même vers le teal sur ses 0,3 dernières secondes
+    if (mode === 'crossfade' && VIDEO_SCENES.includes(name) && localTime > dur - .3) {
+      const op = Math.min(1, (localTime - (dur - .3)) / .3);
+      overlay = <React.Fragment>{overlay}<div style={{ position:'absolute', inset:0, background:'#0a3d40', opacity:op, pointerEvents:'none', zIndex:81 }} /></React.Fragment>;
+    }
+    if (mode === 'teal') {
+      const op = Math.min(1, Math.max(idx > 0 ? 1 - localTime/.3 : 0, (localTime - (dur - .3))/.3));
+      if (op > 0) overlay = <div style={{ position:'absolute', inset:0, background:'#0a3d40', opacity:op, pointerEvents:'none', zIndex:80 }} />;
+    }
+    return <div style={{ position:'absolute', inset:0 }}><Comp {...props} />{overlay}</div>;
+  };
+}
+const WRAPPED = Object.fromEntries(Object.keys(COMPS).map(k => [k, withTransition(k, COMPS[k])]));
+
 window.PromoVideo = function PromoVideo() {
   const [t, setTweak] = useTweaks(window.TWEAK_DEFAULTS);
   TW = t;
   return <div style={{ width:'100%', height:'100%' }}>
+    <VideoWarmPool />
     <SceneStage width={1080} height={1920} bg={SAND} scenes={window.OM_SCENES} playback={window.OM_PLAYBACK}>
-      {{ Scan, Hook, Chat, Kitchen, Languages, Menu, Malee, Allergens, Voice, TwoRoles, Stats, Outro }}
+      {WRAPPED}
     </SceneStage>
     <TweaksPanel>
       <TweakSection label="Video" />
