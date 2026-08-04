@@ -77,7 +77,8 @@ function QrBlock({ size }) {
    habillage optionnel façon viseur (tweak showScanFrame, off par défaut comme la maquette) ── */
 function Scan() {
   const { localTime: lt, dur } = useScene();
-  const lock = S(lt, dur - 1.3, .35);
+  /* le ✓ tombe sur le moment où le téléphone verrouille le QR dans la séquence filmée (~2,6 s) */
+  const lock = S(lt, dur - 2.4, .35);
   const pill = S(lt, dur - 1.0, .4);
   return <div style={{ position:'absolute', inset:0, background:'#0b1213', overflow:'hidden' }}>
     <SceneVideo src="../media/scan-clip.mp4" muted style={{ position:'absolute', inset:0, width:'100%', height:'100%' }} />
@@ -160,11 +161,12 @@ function Hook({ scene }) {
 }
 
 /* ── 6 · Malee : le vrai clip du rôle concierge, avec SA voix et ses sous-titres ── */
+/* clip ralenti de 4,8 % pour remplir la scène de 10 s pile — fenêtres recalées */
 const MALEE_SUBS = [
-  [0.0, 2.3, 'Hello, I am Malee, your virtual receptionist.'],
-  [2.3, 4.3, 'I can answer all of your questions.'],
-  [4.3, 7.2, 'Feel free to order our services directly from your room.'],
-  [7.2, 10.0, 'Just scan the QR code to order in any language.'],
+  [0.0, 2.4, 'Hello, I am Malee, your virtual receptionist.'],
+  [2.4, 4.5, 'I can answer all of your questions.'],
+  [4.5, 7.5, 'Feel free to order our services directly from your room.'],
+  [7.5, 10.0, 'Just scan the QR code to order in any language.'],
 ];
 function Malee() {
   const { localTime: lt } = useScene();
