@@ -328,6 +328,9 @@ background:rgba(255,255,255,.9);backdrop-filter:blur(10px);cursor:pointer;font-s
 box-shadow:0 8px 22px rgba(20,60,60,.18);-webkit-tap-highlight-color:transparent;transition:transform .12s,background .2s}
 .iflag span{font-size:16px;line-height:1}
 .iflag:active{transform:scale(.93);background:#fff}
+/* l'accès direct au menu vit dans la même rangée que les langues, en teal foncé : une action, pas une langue */
+.iflag.imenu{background:var(--tealdk);border-color:var(--tealdk);color:#fff;box-shadow:0 8px 22px rgba(10,61,64,.4)}
+.iflag.imenu:active{background:#0d5254}
 </style>
 </head>
 <body>
@@ -1504,6 +1507,7 @@ var VIDS={waitress:['media/spk-en.mp4',
 var VN=Math.max(1,parseInt(Q.get('v')||'1',10)||1);
 var VID={}; for(var _r in VIDS){VID[_r]=VIDS[_r][Math.min(VN,VIDS[_r].length)-1]}
 var PICK={en:'Select your language',fr:'Choisissez votre langue',th:'\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E20\u0E32\u0E29\u0E32',de:'Sprache w\u00e4hlen',ru:'\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u044f\u0437\u044b\u043a',zh:'\u9009\u62e9\u8bed\u8a00'};
+var MENUL={en:'See the menu',fr:'Voir la carte',th:'\u0e14\u0e39\u0E40\u0e21\u0e19\u0e39',de:'Zur Karte',ru:'\u041c\u0435\u043d\u044e',zh:'\u770b\u83dc\u5355'};
 var INTRO_ON=true;
 function introInit(){
   var el=$('intro');
@@ -1518,7 +1522,8 @@ function introInit(){
   var p=v.play(); if(p&&p.catch)p.catch(function(){});
   $('iflags').innerHTML=LANGS.map(function(x){
     return '<div class="iflag" onclick="introGo(\''+x.c+'\')"><span>'+x.f+'</span>'+x.n+'</div>';
-  }).join('');
+  }).join('')
+   +'<div class="iflag imenu" onclick="introMenu()"><span>\u{1F37D}\u{FE0F}</span>'+(MENUL[L]||MENUL.en)+'</div>';
   /* on précharge les clips parlés pendant qu'il choisit sa langue : au tap, ça part tout de suite.
      fetch explicite (pas un simple prefetch) : les navigateurs ignorent souvent rel=prefetch en 4G */
   try{var sp=SPK[ROLE]||{};for(var k in sp){fetch(sp[k]).catch(function(){})}}catch(e){}
@@ -1634,8 +1639,18 @@ function introTalkEnd(){
   setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el)},700);
   introChatOnce();
 }
+/* accès direct au menu depuis l'accueil : même entrée que le choix de langue,
+   mais elle présente ses recommandations au lieu du greeting */
+var MENUFIRST=false;
+function introMenu(){ MENUFIRST=true; introGo(L); }
 function introChat(){
   var t=T[L];
+  if(MENUFIRST){
+    say(t.rec,function(){
+      showCards(D.filter(function(d){return ['oriental','seabass','padthai'].indexOf(d.id)>-1}).map(dishHTML).join(''));
+    },TALKED);
+    return;
+  }
   /* elle vient de le dire à voix haute : on n'oblige pas la synthèse à le répéter */
   say((ROLE==='concierge'?t.cgreet:t.greet).replace('{T}',TABLE).replace('{R}',ROOM).replace('{N}',NAME),function(){
     if(ROLE==='concierge')showCards(S.slice(0,3).map(svcHTML).join(''));
